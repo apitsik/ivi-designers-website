@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Команда дизайна иви</title>
+    <link rel="preload" href="/fonts/IVI_Sans_Base_Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/IVI_Sans_Base_Medium.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__background" aria-hidden="true"></div>
+
+        <div class="hero__content">
+          <video
+            class="hero__video"
+            src="/video/hero-ivi.mp4"
+            muted
+            playsinline
+            preload="auto"
+            disablepictureinpicture
+            disableremoteplayback
+            aria-hidden="true"
+            tabindex="-1"
+          ></video>
+
+          <p class="hero__hint">[ тапай, чтобы добавить вайб ]</p>
+
+          <div class="hero__text">
+            <h1 id="hero-title" class="hero__title">Команда дизайна</h1>
+            <p class="hero__subtitle">
+              Дизайн в Иви всегда про людей. И создаётся<br />
+              такими же людьми
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
