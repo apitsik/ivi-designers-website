@@ -1,6 +1,6 @@
 // Логотип в шапке: в покое — первый кадр, при наведении — быстрая
 // циклическая смена всех кадров из assets/logos/ (как покадровая анимация).
-// При уходе курсора возвращаемся к первому кадру.
+// При уходе курсора возвращаемся к первому кадру. Клик — плавно наверх страницы.
 
 // Vite собирает все файлы из папки в сборку и отдаёт их URL.
 const frameModules = import.meta.glob('../assets/logos/*.{svg,png,webp}', {
@@ -9,7 +9,7 @@ const frameModules = import.meta.glob('../assets/logos/*.{svg,png,webp}', {
   import: 'default',
 });
 
-const FRAME_MS = 70; // ~14 кадров/с — быстро, но каждый кадр ещё различим
+const FRAME_MS = 350; // ~3 кадра/с — спокойная смена, каждый кадр читается
 
 export function initNavLogo(link) {
   if (!link) return;
@@ -33,8 +33,14 @@ export function initNavLogo(link) {
 
   if (frames.length < 2) return;
 
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   let timer = 0;
   let index = 0;
+
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' });
+  });
 
   const start = () => {
     if (timer) return;
@@ -57,7 +63,6 @@ export function initNavLogo(link) {
   link.addEventListener('blur', stop);
 
   // Если пользователь просил меньше движения — кадры не крутим.
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (reduce.matches) {
     link.removeEventListener('pointerenter', start);
     link.removeEventListener('focus', start);
