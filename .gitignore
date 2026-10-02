@@ -21,3 +21,9 @@ npm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Лицензионные шрифты IVI Sans не публикуем (репозиторий публичный)
+public/fonts/
+
+# Исходники видео, сайт берёт сжатую копию из public/video
+assets/
