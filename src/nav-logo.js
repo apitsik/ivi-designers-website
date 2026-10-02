@@ -9,7 +9,7 @@ const frameModules = import.meta.glob('../assets/logos/*.{svg,png,webp}', {
   import: 'default',
 });
 
-const FRAME_MS = 350; // ~3 кадра/с — спокойная смена, каждый кадр читается
+const FRAME_MS = 250; // 4 кадра/с
 
 export function initNavLogo(link) {
   if (!link) return;
