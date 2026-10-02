@@ -56,6 +56,10 @@ h1 {
 
 /* ---------- Навигация ---------- */
 
+/* Вся шапка рисуется в режиме difference: белые элементы инвертируют
+   то, что под ними (на тёмном — белые, на светлом — тёмные).
+   Внутри шапки цвета задаём чистым белым и прозрачностью белого,
+   полупрозрачность при difference даёт ту же степень контраста. */
 .nav {
   position: fixed;
   top: 0;
@@ -67,6 +71,13 @@ h1 {
   justify-content: space-between;
   height: 96px;
   padding: 16px 48px;
+  color: var(--color-white);
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+.nav a {
+  pointer-events: auto;
 }
 
 .nav__group {
@@ -85,35 +96,45 @@ h1 {
   gap: 16px;
 }
 
+/* Пункт — маска высотой в одну строку. Внутри столбиком две копии текста:
+   верхняя 72%, нижняя белая. По ховеру столбик уезжает вверх на строку —
+   верхняя уходит под маску, нижняя занимает её место (как state=v в Figma). */
 .nav__item {
+  --row: 19px;
   display: block;
-  height: 19px;
+  height: var(--row);
   overflow: hidden;
   color: var(--color-white-72);
   text-decoration: none;
   white-space: nowrap;
 }
 
-/* Две копии подписи в столбик: при ховере верхняя уезжает вверх,
-   снизу выезжает белая (state=v); при нажатии — на 32% (state=press). */
 .nav__label {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+  transition: transform 0.45s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .nav__label::after {
   content: attr(data-text);
   color: var(--color-white);
-  transition: color 0.15s;
+  transition: color 0.12s ease-out;
 }
 
 .nav__item:hover .nav__label,
 .nav__item:focus-visible .nav__label {
-  transform: translateY(calc(-19px - 1px));
+  transform: translateY(calc(-1 * var(--row) - 1px));
 }
 
+/* Уход курсора — чуть быстрее и спокойнее, чем приход */
+.nav__item:not(:hover):not(:focus-visible) .nav__label {
+  transition-duration: 0.35s;
+  transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* Нажатие — нижняя копия приглушается до 32% (state=press) */
 .nav__item:active .nav__label::after {
   color: var(--color-white-32);
 }
@@ -130,10 +151,11 @@ h1 {
   height: 64px;
 }
 
-.nav__logo img {
+.nav__logo-img {
   display: block;
   width: 64px;
   height: 64px;
+  object-fit: contain;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -153,12 +175,12 @@ h1 {
     font-size: 14px;
   }
 
-  .nav__group--right {
-    gap: 12px;
+  .nav__item {
+    --row: 17px;
   }
 
   .nav__logo,
-  .nav__logo img {
+  .nav__logo-img {
     width: 48px;
     height: 48px;
   }
