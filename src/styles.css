@@ -17,10 +17,14 @@
 :root {
   --color-white: #ffffff;
   --color-white-72: rgba(255, 255, 255, 0.72);
+  --color-white-32: rgba(255, 255, 255, 0.32);
   --color-bg: #050005;
 
   --font-base: 'IVI Sans Base', system-ui, sans-serif;
 
+  /* p3: 16 / 1.2 */
+  --p3-size: 16px;
+  --p3-line: 1.2;
   /* p2: 18 / 1.2 */
   --p2-size: 18px;
   --p2-line: 1.2;
@@ -49,6 +53,118 @@ p,
 h1 {
   margin: 0;
 }
+
+/* ---------- Навигация ---------- */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 96px;
+  padding: 16px 48px;
+}
+
+.nav__group {
+  display: flex;
+  flex: 1 0 0;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+  font-size: var(--p3-size);
+  line-height: var(--p3-line);
+  font-weight: 400;
+}
+
+.nav__group--right {
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.nav__item {
+  display: block;
+  height: 19px;
+  overflow: hidden;
+  color: var(--color-white-72);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Две копии подписи в столбик: при ховере верхняя уезжает вверх,
+   снизу выезжает белая (state=v); при нажатии — на 32% (state=press). */
+.nav__label {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav__label::after {
+  content: attr(data-text);
+  color: var(--color-white);
+  transition: color 0.15s;
+}
+
+.nav__item:hover .nav__label,
+.nav__item:focus-visible .nav__label {
+  transform: translateY(calc(-19px - 1px));
+}
+
+.nav__item:active .nav__label::after {
+  color: var(--color-white-32);
+}
+
+.nav__item:focus-visible {
+  outline: 1px solid var(--color-white-72);
+  outline-offset: 4px;
+}
+
+.nav__logo {
+  flex: 0 0 auto;
+  display: block;
+  width: 64px;
+  height: 64px;
+}
+
+.nav__logo img {
+  display: block;
+  width: 64px;
+  height: 64px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav__label {
+    transition: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .nav {
+    height: 72px;
+    padding: 12px 16px;
+  }
+
+  .nav__group {
+    gap: 12px;
+    font-size: 14px;
+  }
+
+  .nav__group--right {
+    gap: 12px;
+  }
+
+  .nav__logo,
+  .nav__logo img {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* ---------- Hero ---------- */
 
 .hero {
   position: relative;
