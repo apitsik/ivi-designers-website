@@ -34,10 +34,11 @@ export function initCursorScrub(video) {
   if (video.readyState >= 1) onReady();
   else video.addEventListener('loadedmetadata', onReady, { once: true });
 
+  // 100% пути — полная ширина окна: X = 0 — первый кадр, X = innerWidth — последний.
   const setTargetFromX = (clientX) => {
-    if (!duration) return;
-    const progress = Math.min(Math.max(clientX / window.innerWidth, 0), 1);
-    targetTime = progress * duration;
+    if (!video.duration) return;
+    const progress = Math.max(0, Math.min(1, clientX / window.innerWidth));
+    targetTime = progress * video.duration;
   };
 
   // pointermove покрывает и мышь, и палец на тач-экранах.
