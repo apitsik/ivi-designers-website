@@ -63,7 +63,69 @@
           </div>
         </div>
       </section>
+
+      <!-- Шоурилы: белая плашка наезжает на хиро при скролле.
+           Заголовок закреплён на фоне, карточки едут поверх с параллаксом.
+           Клик по карточке открывает попап с плеером Vimeo (src/video-modal.js).
+           Позиции карточек — в src/showreels.css (сетка 1440 × 3460 из Figma). -->
+      <section class="showreels" id="showreels" aria-labelledby="showreels-title">
+        <div class="showreels__panel">
+          <div class="showreels__head">
+            <h2 id="showreels-title" class="showreels__title">
+              Смотреть наши шоурилы намного приятнее, чем читать этот текст
+            </h2>
+          </div>
+
+          <div class="showreels__grid">
+            <button class="showreel showreel--1" type="button" data-vimeo="1095898156" data-title="Showreel 1" data-speed="0.12">
+              <img class="showreel__img" src="/images/showreels/showreel-1.jpg" alt="Шоурил 1" loading="lazy" />
+            </button>
+            <button class="showreel showreel--2" type="button" data-vimeo="1001573388" data-title="Showreel 2024" data-speed="-0.06">
+              <img class="showreel__img" src="/images/showreels/showreel-2.jpg" alt="Шоурил 2" loading="lazy" />
+            </button>
+            <button class="showreel showreel--3" type="button" data-vimeo="1198451429" data-title="Showreel 3" data-speed="0.18">
+              <img class="showreel__img" src="/images/showreels/showreel-3.jpg" alt="Шоурил 3" loading="lazy" />
+            </button>
+
+            <div class="showreel-promo" data-speed="0.04" aria-hidden="true">
+              <p class="showreel-promo__text">Нравится скроллить?<br />Тогда и шоуриллы<br />понравятся</p>
+              <img class="showreel-promo__sticker" src="/images/showreels/promo-sticker.png" alt="" />
+              <p class="showreel-promo__text showreel-promo__text--muted">Не стесняйся, жмякай</p>
+            </div>
+
+            <button class="showreel showreel--4" type="button" data-vimeo="904434513" data-title="Showreel 4" data-speed="-0.1">
+              <img class="showreel__img" src="/images/showreels/showreel-4.jpg" alt="Шоурил 4" loading="lazy" />
+            </button>
+            <button class="showreel showreel--5" type="button" data-vimeo="1019772937" data-title="Showreel 5" data-speed="0.14">
+              <img class="showreel__img" src="/images/showreels/showreel-5.jpg" alt="Шоурил 5" loading="lazy" />
+            </button>
+            <button class="showreel showreel--6" type="button" data-vimeo="1208035628" data-title="Showreel 6" data-speed="-0.08">
+              <img class="showreel__img" src="/images/showreels/showreel-6.jpg" alt="Шоурил 6" loading="lazy" />
+            </button>
+            <button class="showreel showreel--7" type="button" data-vimeo="1213912921" data-title="Showreel 7" data-speed="0.1">
+              <img class="showreel__img" src="/images/showreels/showreel-7.jpg" alt="Шоурил 7" loading="lazy" />
+            </button>
+          </div>
+        </div>
+      </section>
     </main>
+
+    <!-- Попап с плеером Vimeo. Пустой, пока не кликнули по карточке. -->
+    <div class="video-modal" hidden aria-hidden="true">
+      <div class="video-modal__overlay" data-close></div>
+      <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="video-modal-title">
+        <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+        <div class="video-modal__stage">
+          <div class="video-modal__glow" aria-hidden="true"></div>
+          <div class="video-modal__frame"></div>
+        </div>
+        <p id="video-modal-title" class="video-modal__title"></p>
+      </div>
+    </div>
 
     <script type="module" src="/src/main.js"></script>
   </body>

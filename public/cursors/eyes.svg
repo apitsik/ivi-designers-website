@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="56" height="44" viewBox="0 0 56 44">
+  <!-- Курсор «глазки» для карточек шоурилов: два белых овала с чёрными зрачками -->
+  <ellipse cx="18" cy="22" rx="15" ry="19" fill="#fff" stroke="#111" stroke-width="2.5"/>
+  <ellipse cx="38" cy="22" rx="15" ry="19" fill="#fff" stroke="#111" stroke-width="2.5"/>
+  <ellipse cx="23" cy="23" rx="6.5" ry="10.5" fill="#111"/>
+  <ellipse cx="43" cy="23" rx="6.5" ry="10.5" fill="#111"/>
+</svg>

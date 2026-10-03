@@ -1,0 +1,342 @@
+/* ---------- Шоурилы ---------- */
+
+/* Макет: белая плашка 1440 × 3965 (Figma «Showreels»). Заголовок на top 134,
+   сетка карточек начинается на 505 и занимает 3460 по высоте. Карточки
+   позиционируются в процентах от этой сетки, высота — через aspect-ratio,
+   так что раскладка масштабируется вместе с экраном. */
+
+:root {
+  --color-black: #000000;
+  --color-black-60: rgba(0, 0, 0, 0.6);
+  /* subtitle: 44 / 1.1, letter-spacing -3% */
+  --subtitle-size: clamp(28px, 3.06vw, 44px);
+  --subtitle-line: 1.1;
+  --subtitle-tracking: -0.03em;
+  --card-radius: clamp(40px, 8.33vw, 120px);
+}
+
+/* Хиро прилипает к верху: плашка шоурилов едет по нему сверху,
+   а сам хиро гаснет через --hero-fade (ставит showreels.js). */
+.hero {
+  opacity: calc(1 - var(--hero-fade, 0));
+  will-change: opacity;
+}
+
+.showreels {
+  position: relative;
+  z-index: 1;
+  /* 0 — плашка ещё под хиро, 1 — закрыла его целиком */
+  --enter: 0;
+}
+
+.showreels__panel {
+  position: relative;
+  background: var(--color-white);
+  color: var(--color-black);
+  /* Скругление 280 px, пока плашка наезжает; у самого верха — прямой край */
+  border-radius: calc(280px * (1 - var(--enter))) calc(280px * (1 - var(--enter))) 0 0;
+  padding: 134px 0 0;
+  isolation: isolate;
+}
+
+/* Заголовок закреплён на фоне плашки: липнет к верху, карточки проезжают поверх.
+   Появляется через блюр и прозрачность по мере того, как плашка закрывает хиро. */
+.showreels__head {
+  position: sticky;
+  top: 134px;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 24px;
+  pointer-events: none;
+}
+
+.showreels__title {
+  --appear: clamp(0, calc((var(--enter) - 0.35) / 0.55), 1);
+  max-width: 930px;
+  margin: 0;
+  font-size: var(--h1-size);
+  font-weight: 500;
+  line-height: var(--h1-line);
+  letter-spacing: var(--h1-tracking);
+  text-align: center;
+  color: var(--color-black);
+  opacity: var(--appear);
+  filter: blur(calc(12px * (1 - var(--appear))));
+  will-change: opacity, filter;
+}
+
+.showreels__grid {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin-top: 149px;
+  aspect-ratio: 1440 / 3460;
+}
+
+/* ----- карточка ----- */
+
+.showreel {
+  position: absolute;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: var(--color-black);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  cursor: url('/cursors/eyes.svg') 28 22, pointer;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.showreel:focus-visible {
+  outline: 2px solid var(--color-black);
+  outline-offset: 6px;
+}
+
+.showreel__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1);
+  transition: transform 0.9s cubic-bezier(0.19, 1, 0.22, 1);
+  will-change: transform;
+}
+
+/* Ховер: картинка внутри карточки увеличивается до 1.2 (как state=hover в Figma),
+   сама карточка остаётся на месте и обрезает её по скруглению. */
+.showreel:hover .showreel__img,
+.showreel:focus-visible .showreel__img {
+  transform: scale(1.2);
+}
+
+/* Позиции из Figma: left/width — доля от 1440, top — доля от 3460 */
+.showreel--1 { left: 17.64%; top: 0;      width: 64.72%; aspect-ratio: 932 / 540; }
+.showreel--2 { left: 1.67%;  top: 17.63%; width: 62.92%; aspect-ratio: 906 / 510; }
+.showreel--3 { left: 55.14%; top: 29.16%; width: 35.28%; aspect-ratio: 508 / 398; }
+.showreel--4 { left: 58.68%; top: 46.13%; width: 39.65%; aspect-ratio: 571 / 549; }
+.showreel--5 { left: 1.67%;  top: 54.25%; width: 41.6%;  aspect-ratio: 599 / 706; border-radius: 600px; }
+.showreel--6 { left: 35.9%;  top: 65.12%; width: 43.61%; aspect-ratio: 628 / 490; }
+.showreel--7 { left: 15.63%; top: 81.21%; width: 69.79%; aspect-ratio: 1005 / 482; }
+
+/* ----- промо-карточка «нравится скроллить?» ----- */
+
+.showreel-promo {
+  position: absolute;
+  left: 26.18%;
+  top: 35.81%;
+  width: 35.69%;
+  aspect-ratio: 514 / 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8% 13%;
+  border-radius: var(--card-radius);
+  background: var(--color-black);
+  box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.68);
+  color: var(--color-white);
+  text-align: center;
+  will-change: transform;
+}
+
+.showreel-promo__text {
+  font-size: var(--subtitle-size);
+  line-height: var(--subtitle-line);
+  letter-spacing: var(--subtitle-tracking);
+}
+
+.showreel-promo__text--muted {
+  color: var(--color-white-32);
+}
+
+.showreel-promo__sticker {
+  display: block;
+  width: 33%;
+  height: auto;
+}
+
+/* ----- попап с плеером ----- */
+
+.video-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 48px 80px;
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
+}
+
+.video-modal[hidden] {
+  display: none;
+}
+
+.video-modal--open {
+  opacity: 1;
+}
+
+.video-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(40px);
+}
+
+.video-modal__dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 932px;
+  transform: translateY(24px) scale(0.98);
+  transition: transform 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.video-modal--open .video-modal__dialog {
+  transform: none;
+}
+
+.video-modal__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+/* Свечение-глоу: размытая копия превью позади плеера (blur 60, 60%) */
+.video-modal__glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 48px;
+  background: #2a0a18 center / cover no-repeat;
+  filter: blur(60px);
+  opacity: 0.6;
+  transform: scale(1.06);
+  pointer-events: none;
+}
+
+.video-modal__frame {
+  position: absolute;
+  inset: 0;
+  border-radius: 48px;
+  overflow: hidden;
+  background: var(--color-black);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.video-modal__frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.video-modal__title {
+  font-size: var(--subtitle-size);
+  line-height: var(--subtitle-line);
+  letter-spacing: var(--subtitle-tracking);
+  text-align: center;
+  color: var(--color-white);
+}
+
+.video-modal__close {
+  position: fixed;
+  top: 32px;
+  right: 48px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-white);
+  cursor: pointer;
+  transition: background 0.2s ease-out, transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.video-modal__close:hover,
+.video-modal__close:focus-visible {
+  background: rgba(255, 255, 255, 0.22);
+  transform: rotate(90deg);
+}
+
+body.video-modal-open {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showreel__img,
+  .video-modal,
+  .video-modal__dialog,
+  .video-modal__close {
+    transition: none;
+  }
+
+  .showreels__title {
+    filter: none;
+  }
+}
+
+/* На узких экранах карточки идут столбиком, заголовок не липнет */
+@media (max-width: 720px) {
+  .showreels__panel {
+    padding-top: 96px;
+  }
+
+  .showreels__head {
+    position: relative;
+    top: auto;
+    padding: 0 16px;
+  }
+
+  .showreels__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 48px;
+    padding: 0 16px 64px;
+    aspect-ratio: auto;
+  }
+
+  .showreel,
+  .showreel-promo {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    transform: none !important;
+  }
+
+  .showreel--5 {
+    border-radius: var(--card-radius);
+  }
+
+  .showreel-promo {
+    padding: 40px 24px;
+  }
+
+  .video-modal {
+    padding: 88px 16px 40px;
+  }
+
+  .video-modal__stage .video-modal__glow,
+  .video-modal__frame {
+    border-radius: 24px;
+  }
+
+  .video-modal__close {
+    top: 16px;
+    right: 16px;
+  }
+}
