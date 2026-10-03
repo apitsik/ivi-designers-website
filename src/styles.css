@@ -228,12 +228,9 @@ h1 {
   height: auto;
   transform: translate(-50%, -50%);
   object-fit: cover;
-  /* Чёрный фон ролика растворяется в градиенте, остаётся только свечение */
-  mix-blend-mode: screen;
   pointer-events: none;
 }
 
-.hero__hint,
 .hero__subtitle {
   position: relative;
   font-size: var(--p2-size);
