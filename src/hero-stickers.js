@@ -212,7 +212,7 @@ export function initHeroStickers(hero) {
 // Наклон стикера — от его положения относительно центра хиро (якорная точка):
 // слева от центра наклон влево, справа — вправо, пропорционально удалению,
 // до ±TILT. Плюс небольшой случайный разброс, чтобы не было строгой закономерности.
-const TILT = 80;
+const TILT = 55;
 const TILT_JITTER = 20;
 function tiltAt(hero, x, y, jitter) {
   const cx = hero.clientWidth / 2;
