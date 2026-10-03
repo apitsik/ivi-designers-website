@@ -48,23 +48,25 @@ export function initHeroStickers(hero) {
 
   const scale = () => Math.min(1, Math.max(0.55, window.innerWidth / 1440));
   const current = () => SET[next % SET.length];
-  // Поворот следующего стикера фиксируем заранее — его видно в курсоре.
-  let nextRot = jitter();
+  // Случайная добавка к наклону следующего стикера фиксируется заранее,
+  // сам наклон зависит от позиции курсора — его видно в курсоре.
+  let nextJitter = (Math.random() * 2 - 1) * TILT_JITTER;
+  const rotAt = (x, y) => tiltAt(hero, x, y, nextJitter);
 
-  const cursor = initCursor(hero, images);
+  const cursor = initCursor(hero, images, (x, y) => rotAt(x, y));
 
   const setState = (hasStickers) => {
     hero.classList.toggle('hero--has-stickers', hasStickers);
     hint?.setAttribute('aria-pressed', String(hasStickers));
-    cursor.setPreview(hasStickers ? { ...current(), rot: nextRot, k: scale() } : null);
+    cursor.setPreview(hasStickers ? { ...current(), k: scale() } : null);
   };
 
   const addSticker = (x, y) => {
     const s = current();
-    const rot = nextRot;
+    const rot = rotAt(x, y);
     const k = scale();
     next += 1;
-    nextRot = jitter();
+    nextJitter = (Math.random() * 2 - 1) * TILT_JITTER;
 
     const el = document.createElement('div');
     el.className = 'hero__sticker';
@@ -150,7 +152,7 @@ export function initHeroStickers(hero) {
     if (!items.length || peeling) return;
     peeling = true;
     next = 0;
-    nextRot = jitter();
+    nextJitter = (Math.random() * 2 - 1) * TILT_JITTER;
     setState(false);
 
     if (reduce.matches) {
@@ -207,16 +209,21 @@ export function initHeroStickers(hero) {
   });
 }
 
-// Случайный лёгкий наклон нового стикера: от -12° до +12°.
-const TILT = 12;
-function jitter() {
-  return (Math.random() * 2 - 1) * TILT;
+// Наклон стикера — от его положения относительно центра хиро (якорная точка):
+// слева от центра наклон влево, справа — вправо, пропорционально удалению,
+// до ±TILT. Плюс небольшой случайный разброс, чтобы не было строгой закономерности.
+const TILT = 32;
+const TILT_JITTER = 6;
+function tiltAt(hero, x, y, jitter) {
+  const cx = hero.clientWidth / 2;
+  const base = ((x - cx) / cx) * TILT;
+  return Math.max(-TILT, Math.min(TILT, base + jitter));
 }
 
 // Свой курсор: элемент едет за указателем с небольшой инерцией.
 // Пока стикеров нет — цветок с плюсом; потом — пунктирный силуэт следующего стикера.
 // На тач-устройствах (нет hover) не показываем.
-function initCursor(hero, images) {
+function initCursor(hero, images, rotAt) {
   const api = { setPreview() {} };
   if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return api;
 
@@ -251,6 +258,8 @@ function initCursor(hero, images) {
     // Над подсказкой и ссылками — обычный курсор.
     const overControl = !!e.target.closest('.hero__hint, a, button');
     cur.classList.toggle('hero__cursor--hidden', overControl);
+    // Силуэт поворачивается так же, как повернётся стикер в этой точке.
+    preview.style.setProperty('--rot', `${rotAt(tx, ty)}deg`);
     if (!raf) raf = requestAnimationFrame(tick);
   });
 
@@ -272,7 +281,7 @@ function initCursor(hero, images) {
     const draw = () => drawSilhouette(preview, img, s.w * s.k, s.h * s.k);
     if (img.complete && img.naturalWidth) draw();
     else img.addEventListener('load', draw, { once: true });
-    preview.style.setProperty('--rot', `${s.rot}deg`);
+    preview.style.setProperty('--rot', `${rotAt(tx, ty)}deg`);
     cur.classList.add('hero__cursor--preview');
   };
 
