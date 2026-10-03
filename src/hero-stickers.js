@@ -212,8 +212,8 @@ export function initHeroStickers(hero) {
 // Наклон стикера — от его положения относительно центра хиро (якорная точка):
 // слева от центра наклон влево, справа — вправо, пропорционально удалению,
 // до ±TILT. Плюс небольшой случайный разброс, чтобы не было строгой закономерности.
-const TILT = 32;
-const TILT_JITTER = 6;
+const TILT = 80;
+const TILT_JITTER = 20;
 function tiltAt(hero, x, y, jitter) {
   const cx = hero.clientWidth / 2;
   const base = ((x - cx) / cx) * TILT;
@@ -258,8 +258,8 @@ function initCursor(hero, images, rotAt) {
     // Над подсказкой и ссылками — обычный курсор.
     const overControl = !!e.target.closest('.hero__hint, a, button');
     cur.classList.toggle('hero__cursor--hidden', overControl);
-    // Силуэт поворачивается так же, как повернётся стикер в этой точке.
-    preview.style.setProperty('--rot', `${rotAt(tx, ty)}deg`);
+    // Курсор (и цветок, и силуэт) поворачивается так же, как повернётся стикер в этой точке.
+    cur.style.setProperty('--rot', `${rotAt(tx, ty)}deg`);
     if (!raf) raf = requestAnimationFrame(tick);
   });
 
@@ -281,7 +281,7 @@ function initCursor(hero, images, rotAt) {
     const draw = () => drawSilhouette(preview, img, s.w * s.k, s.h * s.k);
     if (img.complete && img.naturalWidth) draw();
     else img.addEventListener('load', draw, { once: true });
-    preview.style.setProperty('--rot', `${rotAt(tx, ty)}deg`);
+    cur.style.setProperty('--rot', `${rotAt(tx, ty)}deg`);
     cur.classList.add('hero__cursor--preview');
   };
 
