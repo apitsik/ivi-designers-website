@@ -15,7 +15,10 @@
   --steps: 3;
   height: calc(100vh * (1 + var(--steps)));
   height: calc(100svh * (1 + var(--steps)));
+  /* Тот же цвет и тот же плавный переход, что у плашки extra-text:
+     при быстром скролле обе секции темнеют синхронно, без стыка */
   background: var(--page-bg);
+  transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
   color: var(--color-white);
 }
 
@@ -106,6 +109,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .team {
+    transition: none;
+  }
+
   .team__title .word {
     animation: none;
     opacity: 1;
