@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="56" height="44" viewBox="0 0 56 44">
-  <!-- Курсор «глазки» для карточек шоурилов: два белых овала с чёрными зрачками -->
-  <ellipse cx="18" cy="22" rx="15" ry="19" fill="#fff" stroke="#111" stroke-width="2.5"/>
-  <ellipse cx="38" cy="22" rx="15" ry="19" fill="#fff" stroke="#111" stroke-width="2.5"/>
-  <ellipse cx="23" cy="23" rx="6.5" ry="10.5" fill="#111"/>
-  <ellipse cx="43" cy="23" rx="6.5" ry="10.5" fill="#111"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Курсор «глазки» по макету Figma (node 26:2016): два белых овала с чёрной обводкой и зрачками -->
+  <ellipse cx="20.57" cy="32.22" rx="15.9" ry="24.18" fill="#fff" stroke="#000" stroke-width="2"/>
+  <ellipse cx="43.41" cy="32.22" rx="15.9" ry="24.18" fill="#fff" stroke="#000" stroke-width="2"/>
+  <ellipse cx="29.5" cy="32.22" rx="7.98" ry="13.03" fill="#000"/>
+  <ellipse cx="52.33" cy="32.22" rx="7.98" ry="13.03" fill="#000"/>
 </svg>
