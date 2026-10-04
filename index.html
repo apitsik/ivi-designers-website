@@ -133,6 +133,40 @@
           <p class="extra-text__subtitle">Почти как магия, только лучше</p>
         </div>
       </section>
+
+      <!-- Team: сцена залипает на экране, пока секция прокручивается на 3 шага.
+           Заголовок проявляется из блюра, как остальные H2. Каждый шаг скролла
+           поднимает снизу один крупный постер команды, а следом каскадом —
+           три мелких стикера вокруг него (step 4 – step 14 в Figma).
+           Позиции и повороты — из макета 1440 × 832, стикеры в data-* атрибутах
+           читает src/team.js. -->
+      <section class="team" id="teams" aria-labelledby="team-title">
+        <div class="team__stage">
+          <h2 id="team-title" class="team__title" data-words>
+            Каждая команда делает свою работу<br />с любовью
+          </h2>
+
+          <div class="team__stickers" aria-hidden="true">
+            <!-- Шаг 1: Бренд-команда -->
+            <img class="team__sticker team__sticker--poster" src="/images/team/team-sticker-1.png" alt="" data-step="0" data-order="0" data-x="485" data-y="128" data-w="470" data-h="554" />
+            <img class="team__sticker" src="/images/team/team-sticker-2.png" alt="" data-step="0" data-order="1" data-x="868" data-y="178" data-w="243" data-h="221" />
+            <img class="team__sticker" src="/images/team/team-sticker-3.png" alt="" data-step="0" data-order="2" data-x="111" data-y="178" data-w="288" data-h="222" data-rot="-9.54" />
+            <img class="team__sticker" src="/images/team/team-sticker-4.png" alt="" data-step="0" data-order="3" data-x="317" data-y="501" data-w="336" data-h="144" />
+
+            <!-- Шаг 2: вторая команда -->
+            <img class="team__sticker team__sticker--poster" src="/images/team/team-sticker-5.png" alt="" data-step="1" data-order="0" data-x="524" data-y="153" data-w="470" data-h="554" data-rot="-2.95" />
+            <img class="team__sticker" src="/images/team/team-sticker-6.png" alt="" data-step="1" data-order="1" data-x="810" data-y="92" data-w="300.5" data-h="419" />
+            <img class="team__sticker" src="/images/team/team-sticker-7.png" alt="" data-step="1" data-order="2" data-x="1035" data-y="434" data-w="262" data-h="221" data-rot="14.23" />
+            <img class="team__sticker" src="/images/team/team-sticker-8.png" alt="" data-step="1" data-order="3" data-x="184.5" data-y="577" data-w="212" data-h="128" data-rot="14.26" />
+
+            <!-- Шаг 3: третья команда -->
+            <img class="team__sticker team__sticker--poster" src="/images/team/team-sticker-9.png" alt="" data-step="2" data-order="0" data-x="441" data-y="189" data-w="470" data-h="554" />
+            <img class="team__sticker" src="/images/team/team-sticker-10.png" alt="" data-step="2" data-order="1" data-x="264" data-y="372" data-w="220" data-h="139" />
+            <img class="team__sticker" src="/images/team/team-sticker-11.png" alt="" data-step="2" data-order="2" data-x="759" data-y="298" data-w="408" data-h="264" />
+            <img class="team__sticker" src="/images/team/team-sticker-12.png" alt="" data-step="2" data-order="3" data-x="906.7" data-y="586" data-w="280" data-h="158" />
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- Попап с плеером Vimeo. Пустой, пока не кликнули по карточке. -->

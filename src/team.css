@@ -1,0 +1,133 @@
+/* ---------- Team ---------- */
+
+/* Макет (Figma «Team», step 4 – step 14): сцена 1440 × 832 на чёрном.
+   H2 814 px по центру на top 289. Три постера 470 × 554 по центру сцены
+   и девять мелких стикеров вокруг — позиции в index.html, в процентах
+   их пересчитывает src/team.js.
+
+   Секция высокая: экран сцены + по экрану на каждый шаг скролла
+   (--steps ставит team.js). Сцена sticky, так что пока страница едет,
+   на экране остаётся она, а стикеры поднимаются снизу по --p. */
+
+.team {
+  position: relative;
+  z-index: 1;
+  --steps: 3;
+  height: calc(100vh * (1 + var(--steps)));
+  height: calc(100svh * (1 + var(--steps)));
+  background: var(--page-bg);
+  color: var(--color-white);
+}
+
+.team__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  /* Высота кадра макета 832 при ширине 1440: стикеры расставлены в долях
+     этого кадра, а сам кадр вписан по центру экрана */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ----- заголовок ----- */
+
+.team__title {
+  position: absolute;
+  top: 34.7%; /* 289 / 832 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: calc(814px + 48px);
+  margin: 0;
+  padding: 0 24px;
+  font-size: var(--h1-size);
+  font-weight: 500;
+  line-height: var(--h1-line);
+  letter-spacing: var(--h1-tracking);
+  text-align: center;
+  color: var(--color-white);
+}
+
+/* Тот же эффект, что у остальных H2 (showreels.css, extra-text.css):
+   слова ждут прозрачными в блюре и проявляются волной по .is-visible */
+.team__title .word {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(10px);
+  will-change: opacity, filter, transform;
+}
+
+.team.is-visible .team__title .word {
+  animation: word-reveal 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation-delay: calc(var(--word-index) * 0.18s);
+}
+
+/* ----- стикеры ----- */
+
+/* Кадр макета: ширина экрана, высота по пропорции 1440 / 832. На широких
+   экранах он не выше экрана; на узких и высоких — по ширине, с запасом
+   сверху и снизу. Стикеры позиционируются в процентах от кадра. */
+.team__stickers {
+  position: relative;
+  width: 100%;
+  max-width: calc(100vh * 1440 / 832);
+  max-width: calc(100svh * 1440 / 832);
+  aspect-ratio: 1440 / 832;
+  pointer-events: none;
+}
+
+/* --p — прогресс выезда (team.js): 0 — стикер ниже нижнего края экрана,
+   1 — на своём месте. Едет снизу вверх, по пути проявляется. */
+.team__sticker {
+  --p: 0;
+  --rot: 0deg;
+  position: absolute;
+  display: block;
+  height: auto;
+  aspect-ratio: var(--ratio, 1);
+  object-fit: contain;
+  transform: translateY(calc((1 - var(--p)) * 110vh)) rotate(var(--rot));
+  transform-origin: center;
+  opacity: clamp(0, calc(var(--p) * 3), 1);
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.45));
+  will-change: transform, opacity;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Постеры — главный акцент, лежат под мелкими стикерами своего шага,
+   но поверх всего предыдущего шага (порядок в DOM) */
+.team__sticker--poster {
+  filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.6));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team__title .word {
+    animation: none;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  .team__sticker {
+    --p: 1;
+  }
+}
+
+@media (max-width: 720px) {
+  .team__title {
+    top: 22%;
+    padding: 0 16px;
+  }
+
+  /* На телефоне кадр шире экрана, чтобы постеры не стали крошечными:
+     центр сцены остаётся в центре, края кадра уходят за экран */
+  .team__stickers {
+    width: 180vw;
+    max-width: none;
+  }
+}
