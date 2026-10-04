@@ -92,27 +92,16 @@ export function initAwards(section) {
   if (!preview || layers.length < 2) return;
 
   let front = 0;
-  let wanted = '';
+  // Картинки подгружены заранее, поэтому слой переключаем сразу, не дожидаясь
+  // onload: так нет гонки, когда курсор перескочил раньше, чем догрузился
+  // предыдущий кадр, и превью оставалось пустым
   const showImage = (src) => {
-    wanted = src;
+    if (layers[front].getAttribute('src') === src) return;
     const back = layers[1 - front];
-    // Нужная картинка уже впереди — только отменяем недогруженную заднюю,
-    // чтобы её поздний onload не вытолкнул переднюю
-    if (layers[front].getAttribute('src') === src) {
-      back.onload = null;
-      return;
-    }
-    const swap = () => {
-      // Пока грузилась, курсор мог уйти на другую награду
-      back.onload = null;
-      if (wanted !== src) return;
-      back.classList.add('is-front');
-      layers[front].classList.remove('is-front');
-      front = 1 - front;
-    };
-    back.onload = swap;
     if (back.getAttribute('src') !== src) back.src = src;
-    if (back.complete && back.naturalWidth) swap();
+    back.classList.add('is-front');
+    layers[front].classList.remove('is-front');
+    front = 1 - front;
   };
 
   let targetX = 0;
