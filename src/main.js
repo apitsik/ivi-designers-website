@@ -6,10 +6,12 @@ import { initShowreels } from './showreels.js';
 import { initVideoModal } from './video-modal.js';
 import { initExtraText } from './extra-text.js';
 import { initTeam } from './team.js';
+import { initAwards } from './awards.js';
 import './hero-stickers.css';
 import './showreels.css';
 import './extra-text.css';
 import './team.css';
+import './awards.css';
 
 initSmoothScroll();
 initCursorScrub(document.querySelector('.hero__video'));
@@ -18,4 +20,5 @@ initHeroStickers(document.querySelector('.hero'));
 initShowreels(document.querySelector('.showreels'));
 initExtraText(document.querySelector('.extra-text'));
 initTeam(document.querySelector('.team'));
+initAwards(document.querySelector('.awards'));
 initVideoModal(document.querySelector('.video-modal'), document.querySelectorAll('.showreel[data-vimeo]'));

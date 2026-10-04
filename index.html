@@ -167,6 +167,24 @@
           </div>
         </div>
       </section>
+
+      <!-- Awards: подпись, список наград и иконка проявляются из блюра волной,
+           как остальные H2. Список собирается из массива AWARDS в начале
+           src/awards.js — там же меняются названия, статусы и картинки.
+           При наведении на награду остальные гаснут, а за курсором плывёт
+           картинка проекта (40 %). Блок информационный, кликов нет. -->
+      <section class="awards" id="awards" aria-labelledby="awards-title">
+        <div class="awards__preview" aria-hidden="true">
+          <img alt="" />
+        </div>
+        <div class="awards__inner">
+          <h2 id="awards-title" class="awards__title">Награды</h2>
+          <div class="awards__list" ></div>
+          <div class="awards__icon" aria-hidden="true">
+            <img src="/images/awards/awards-icon.svg" alt="" width="118" height="56" />
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- Попап с плеером Vimeo. Пустой, пока не кликнули по карточке. -->

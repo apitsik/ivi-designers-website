@@ -1,0 +1,185 @@
+/* ---------- Awards ---------- */
+
+/* Макет (Figma «awards», 36:971): чёрная секция с полями 167 × 223,
+   внутри столбик с gap 56: подпись «НАГРАДЫ» 14 / 22 капслоком,
+   список наград в строку с переносами (gap 24), у каждой — название
+   H3 56 / 0.92 −3 % и статус 14 / 24 капслоком по базовой линии,
+   ниже иконка 118 × 56. Список собирает src/awards.js из массива AWARDS.
+   @gdeprostotamangelovsto */
+
+:root {
+  /* H3: 56 / 0.92 −3 % */
+  --h3-size: clamp(32px, 3.9vw, 56px);
+  --h3-line: 0.92;
+  --h3-tracking: -0.03em;
+  /* p4: 14 / 24 */
+  --p4-size: 14px;
+  --p4-line: 24px;
+}
+
+.awards {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  padding: clamp(120px, 15.5vw, 223px) clamp(24px, 11.6vw, 167px);
+  background: var(--page-bg);
+  transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+  color: var(--color-white);
+  text-align: center;
+  /* Курсор над наградами обычный: блок не кликабельный */
+  cursor: default;
+}
+
+.awards__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(32px, 3.9vw, 56px);
+  max-width: 1106px;
+  margin: 0 auto;
+}
+
+.awards__title {
+  margin: 0;
+  font-size: var(--p4-size);
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.awards__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 24px;
+  width: 100%;
+}
+
+/* ----- награда ----- */
+
+.award {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.award__name {
+  font-size: var(--h3-size);
+  font-weight: 500;
+  line-height: var(--h3-line);
+  letter-spacing: var(--h3-tracking);
+}
+
+.award__status {
+  font-size: var(--p4-size);
+  font-weight: 400;
+  line-height: var(--p4-line);
+  text-transform: uppercase;
+}
+
+.awards__icon {
+  display: block;
+  width: 118px;
+  height: 56px;
+}
+
+.awards__icon img {
+  display: block;
+  width: 118px;
+  height: 56px;
+}
+
+/* ----- превью проекта за курсором ----- */
+
+/* Лежит в углу секции, awards.js двигает его transform'ом за мышкой.
+   Полупрозрачное (40 %) и ниже текста, чтобы названия читались поверх. */
+.awards__preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: clamp(240px, 33vw, 476px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform, opacity;
+}
+
+.awards.is-hovering .awards__preview {
+  opacity: 0.4;
+}
+
+.awards__preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+}
+
+.awards__inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* ----- проявление из блюра ----- */
+
+/* Та же волна, что у остальных H2: элементы ждут прозрачными в блюре
+   и проявляются по очереди (--word-index ставит awards.js:
+   заголовок → награды → иконка) */
+.awards__title,
+.award,
+.awards__icon {
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(10px);
+  will-change: opacity, filter, transform;
+}
+
+.awards.is-visible .awards__title,
+.awards.is-visible .award,
+.awards.is-visible .awards__icon {
+  animation: word-reveal 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation-delay: calc(var(--word-index) * 0.12s);
+}
+
+/* После проявления opacity наград снова управляет hover: анимация
+   с forwards держит opacity: 1, поэтому гашение вешаем на детей */
+.awards.is-visible .award > * {
+  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.awards.is-visible.is-hovering .award:not(.is-hovered) > * {
+  opacity: 0.24;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .awards {
+    transition: none;
+  }
+
+  .awards__title,
+  .award,
+  .awards__icon {
+    animation: none;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  .awards__preview {
+    transition: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .awards__list {
+    gap: 4px 16px;
+  }
+
+  .award {
+    gap: 6px;
+  }
+}
