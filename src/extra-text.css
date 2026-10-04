@@ -1,0 +1,176 @@
+/* ---------- Extra Text ---------- */
+
+/* Макет (Figma «extraText», step 4): плашка 1392 × 700 с полями 24,
+   скругление 200, фон-картинка + внутреннее свечение #ff89c0 200 px.
+   Внутри по центру столбиком с gap 32: иконка 138 × 79, H2 80 / 0.92 −4 %,
+   подзаголовок 24 / 1.2 белый 72 %. */
+
+:root {
+  --color-pink-glow: #ff89c0;
+  /* p1: 24 / 1.2 */
+  --p1-size: clamp(18px, 1.67vw, 24px);
+  --p1-line: 1.2;
+}
+
+/* ----- смена темы страницы ----- */
+
+/* Пока плашка едет снизу, страница белая (плашка шоурилов). Когда её верх
+   проходит середину экрана, extra-text.js вешает .theme-dark на <html>,
+   и всё, что было белым, плавно уходит в чёрный. */
+.showreels__panel {
+  transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.theme-dark .showreels__panel {
+  background-color: var(--color-black);
+}
+
+/* Липкий заголовок шоурилов остаётся в плашке — на чёрном он гаснет,
+   чтобы не висеть над розовой плашкой */
+.showreels__title {
+  transition: opacity 0.5s ease-out;
+}
+
+.theme-dark .showreels__title {
+  opacity: 0;
+}
+
+/* ----- секция ----- */
+
+.extra-text {
+  position: relative;
+  z-index: 1;
+  /* 0 — верх плашки у нижнего края окна, 1 — у верхнего (extra-text.js) */
+  --enter: 0;
+  padding: 0 24px 24px;
+  background: var(--color-black);
+}
+
+/* Плашка подрастает, пока едет по нижней части экрана: step 1 в Figma —
+   1112 × 560 (0.8), step 3 — 1392 × 700 (1). Рост идёт на отрезке
+   --enter 0.2 → 0.6, дальше плашка едет в полный размер. */
+.extra-text__card {
+  --grow: clamp(0, calc((var(--enter) - 0.2) / 0.4), 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 1392px;
+  margin: 0 auto;
+  aspect-ratio: 1392 / 700;
+  padding: 48px;
+  border-radius: clamp(80px, 13.9vw, 200px);
+  overflow: hidden;
+  background: #2a0313 url('/images/extra-text/extra-text-background.jpg') center / cover no-repeat;
+  color: var(--color-white);
+  text-align: center;
+  transform: scale(calc(0.8 + 0.2 * var(--grow)));
+  will-change: transform;
+}
+
+/* Внутреннее свечение по краю (inset 0 0 200 #ff89c0 из макета) */
+.extra-text__card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 200px 0 var(--color-pink-glow);
+  pointer-events: none;
+}
+
+.extra-text__icon {
+  position: relative;
+  display: block;
+  width: 138px;
+  height: 79px;
+  object-fit: contain;
+}
+
+.extra-text__title {
+  position: relative;
+  margin: 0;
+  font-size: var(--h1-size);
+  font-weight: 500;
+  line-height: var(--h1-line);
+  letter-spacing: var(--h1-tracking);
+}
+
+.extra-text__subtitle {
+  position: relative;
+  font-size: var(--p1-size);
+  line-height: var(--p1-line);
+  color: var(--color-white-72);
+}
+
+/* ----- проявление ----- */
+
+/* Тот же эффект, что у заголовка шоурилов (showreels.css): элементы ждут
+   прозрачными и в блюре, а по .is-visible на секции (IntersectionObserver
+   в extra-text.js) проявляются волной — иконка, слова, подзаголовок —
+   с задержкой по --word-index. */
+.extra-text__icon,
+.extra-text__title .word,
+.extra-text__subtitle {
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(10px);
+  will-change: opacity, filter, transform;
+}
+
+.extra-text__title .word {
+  display: inline-block;
+}
+
+.extra-text.is-visible .extra-text__icon,
+.extra-text.is-visible .extra-text__title .word,
+.extra-text.is-visible .extra-text__subtitle {
+  animation: word-reveal 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation-delay: calc(var(--word-index) * 0.18s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showreels__panel,
+  .showreels__title {
+    transition: none;
+  }
+
+  .extra-text__card {
+    transform: none;
+  }
+
+  .extra-text__icon,
+  .extra-text__title .word,
+  .extra-text__subtitle {
+    animation: none;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .extra-text {
+    padding: 0 16px 16px;
+  }
+
+  .extra-text__card {
+    aspect-ratio: auto;
+    min-height: 70vh;
+    gap: 24px;
+    padding: 64px 24px;
+    border-radius: 48px;
+    transform: none;
+  }
+
+  .extra-text__card::after {
+    box-shadow: inset 0 0 100px 0 var(--color-pink-glow);
+  }
+
+  .extra-text__icon {
+    width: 104px;
+    height: 60px;
+  }
+}

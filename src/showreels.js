@@ -2,6 +2,8 @@
 // по словам и параллакс карточек со сглаживанием (lerp), чтобы шаги
 // колёсика мыши не давали ступенчатого движения.
 
+import { splitWords, observeReveal } from './reveal.js';
+
 const MOBILE = window.matchMedia('(max-width: 720px)');
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -24,7 +26,7 @@ export function initShowreels(section) {
   const title = section.querySelector('[data-words]');
   if (title) {
     splitWords(title);
-    observeTitle(title);
+    observeReveal(title.closest('.showreels__head') || title, title);
   }
 
   let raf = 0;
@@ -90,38 +92,6 @@ export function initShowreels(section) {
   window.addEventListener('resize', onScroll);
   MOBILE.addEventListener('change', onScroll);
   onScroll();
-}
-
-// Заголовок проявляется каждый раз, когда попадает в зону видимости, и
-// сбрасывается в исходное состояние (прозрачный, в блюре), когда уходит —
-// так анимация запускается заново и при скролле сверху, и снизу.
-// rootMargin снизу −35 %: слова стартуют, когда заголовок вошёл в верхние
-// две трети экрана, а не у самого нижнего края.
-function observeTitle(title) {
-  const head = title.closest('.showreels__head') || title;
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) title.classList.add('is-visible');
-        else title.classList.remove('is-visible');
-      });
-    },
-    { rootMargin: '0px 0px -35% 0px', threshold: 0 },
-  );
-  io.observe(head);
-}
-
-// Разбивает текст заголовка на слова-span с индексом для задержки анимации
-function splitWords(el) {
-  const words = el.textContent.trim().split(/\s+/);
-  el.textContent = '';
-  words.forEach((word, i) => {
-    const span = document.createElement('span');
-    span.className = 'word';
-    span.style.setProperty('--word-index', i);
-    span.textContent = word;
-    el.append(span, i < words.length - 1 ? ' ' : '');
-  });
 }
 
 function clamp(v, min, max) {
