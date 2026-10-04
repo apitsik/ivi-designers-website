@@ -45,7 +45,9 @@ export function initAwards(section) {
   const list = section.querySelector('.awards__list');
   const iconWrap = section.querySelector('.awards__icon');
   const preview = section.querySelector('.awards__preview');
-  const previewImg = preview?.querySelector('img');
+  // Два слоя картинки: при переходе с награды на награду новая проявляется
+  // поверх старой кроссфейдом, а не рывком
+  const layers = preview ? [...preview.querySelectorAll('img')] : [];
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ----- разметка списка из AWARDS -----
@@ -87,7 +89,21 @@ export function initAwards(section) {
   observeReveal(section);
 
   // ----- превью за курсором -----
-  if (!preview || !previewImg) return;
+  if (!preview || layers.length < 2) return;
+
+  let front = 0;
+  const showImage = (src) => {
+    const next = layers[1 - front];
+    if (layers[front].getAttribute('src') === src) return;
+    const swap = () => {
+      next.classList.add('is-front');
+      layers[front].classList.remove('is-front');
+      front = 1 - front;
+    };
+    next.src = src;
+    if (next.complete) swap();
+    else next.onload = swap;
+  };
 
   let targetX = 0;
   let targetY = 0;
@@ -95,6 +111,7 @@ export function initAwards(section) {
   let y = 0;
   let raf = 0;
   let active = false;
+  let hideTimer = 0;
 
   const tick = () => {
     x += (targetX - x) * (reduced ? 1 : FOLLOW_EASE);
@@ -116,20 +133,30 @@ export function initAwards(section) {
 
   items.forEach((item) => {
     item.addEventListener('pointerenter', (e) => {
-      previewImg.src = item.dataset.image;
+      const wasHovering = section.classList.contains('is-hovering');
+      showImage(item.dataset.image);
       section.classList.add('is-hovering');
       item.classList.add('is-hovered');
       active = true;
-      // Картинка появляется там, где курсор, без пролёта из прошлой точки
-      const r = section.getBoundingClientRect();
-      x = targetX = e.clientX - r.left;
-      y = targetY = e.clientY - r.top;
+      clearTimeout(hideTimer);
+      if (!wasHovering) {
+        // Первое появление — сразу под курсором, без пролёта из прошлой точки.
+        // При переходе с награды на награду картинка плавно доезжает.
+        const r = section.getBoundingClientRect();
+        x = targetX = e.clientX - r.left;
+        y = targetY = e.clientY - r.top;
+      }
       move(e);
     });
     item.addEventListener('pointerleave', () => {
-      section.classList.remove('is-hovering');
       item.classList.remove('is-hovered');
       active = false;
+      // Прячем превью с задержкой: если курсор перешёл на соседнюю награду,
+      // она успеет отменить и картинка просто сменится кроссфейдом
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => {
+        if (!active) section.classList.remove('is-hovering');
+      }, 80);
     });
   });
 

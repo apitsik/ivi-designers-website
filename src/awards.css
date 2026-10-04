@@ -95,13 +95,15 @@
 /* ----- превью проекта за курсором ----- */
 
 /* Лежит в углу секции, awards.js двигает его transform'ом за мышкой.
-   Полупрозрачное (40 %) и ниже текста, чтобы названия читались поверх. */
+   Полупрозрачное (40 %) и ниже текста, чтобы названия читались поверх.
+   Размер — половина от 476 (картинки ретина 952 px). */
 .awards__preview {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 0;
-  width: clamp(240px, 33vw, 476px);
+  width: clamp(120px, 16.5vw, 238px);
+  aspect-ratio: 952 / 552;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.35s cubic-bezier(0.25, 1, 0.5, 1);
@@ -113,10 +115,21 @@
 }
 
 .awards__preview img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  height: auto;
-  border-radius: 16px;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Активный слой поверх; предыдущий гаснет под ним */
+.awards__preview img.is-front {
+  opacity: 1;
 }
 
 .awards__inner {
