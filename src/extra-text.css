@@ -14,15 +14,22 @@
 
 /* ----- смена темы страницы ----- */
 
-/* Пока плашка едет снизу, страница белая (плашка шоурилов). Когда её верх
-   проходит середину экрана, extra-text.js вешает .theme-dark на <html>,
-   и всё, что было белым, плавно уходит в чёрный. */
-.showreels__panel {
-  transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+/* Фон страницы задаётся одним цветом --page-bg: пока розовая плашка едет
+   снизу, он белый — и под плашкой шоурилов, и под самой секцией extra-text.
+   Когда верх плашки проходит чуть выше середины экрана, extra-text.js
+   вешает .theme-dark на <html>, и вся видимая область разом уходит в чёрный. */
+:root {
+  --page-bg: var(--color-white);
 }
 
-.theme-dark .showreels__panel {
-  background-color: var(--color-black);
+.theme-dark {
+  --page-bg: var(--color-black);
+}
+
+.showreels__panel,
+.extra-text {
+  background-color: var(--page-bg);
+  transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 /* Липкий заголовок шоурилов остаётся в плашке — на чёрном он гаснет,
@@ -43,7 +50,6 @@
   /* 0 — верх плашки у нижнего края окна, 1 — у верхнего (extra-text.js) */
   --enter: 0;
   padding: 0 24px 24px;
-  background: var(--color-black);
 }
 
 /* Плашка подрастает, пока едет по нижней части экрана: step 1 в Figma —
@@ -133,6 +139,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .showreels__panel,
+  .extra-text,
   .showreels__title {
     transition: none;
   }

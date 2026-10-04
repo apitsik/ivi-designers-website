@@ -8,8 +8,8 @@
 import { splitWords, observeReveal } from './reveal.js';
 
 // Доля экрана, которую верх плашки должен пройти снизу вверх, чтобы
-// фон стал чёрным: 0.5 — середина, 0.33 — нижняя треть.
-const THEME_SWITCH_AT = 0.5;
+// фон стал чёрным: 0.5 — ровно середина, 0.58 — чуть выше середины.
+const THEME_SWITCH_AT = 0.58;
 
 export function initExtraText(section) {
   if (!section) return;

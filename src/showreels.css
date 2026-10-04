@@ -97,6 +97,8 @@
   z-index: 1;
   width: 100%;
   margin-top: 149px;
+  /* Отступ от последней карточки до плашки extra-text */
+  margin-bottom: 200px;
   aspect-ratio: 1440 / 3460;
 }
 
@@ -372,7 +374,8 @@ body.video-modal-open {
     flex-direction: column;
     gap: 16px;
     margin-top: 48px;
-    padding: 0 16px 64px;
+    margin-bottom: 0;
+    padding: 0 16px 96px;
     aspect-ratio: auto;
   }
 
