@@ -7,6 +7,8 @@
 // (width/height ролика). Вертикальные ролики растягиваются по высоте,
 // горизонтальные — по ширине; чёрных полей по бокам нет.
 
+import { lenis } from './smooth-scroll.js';
+
 const ratioCache = new Map();
 
 export function initVideoModal(modal, cards) {
@@ -56,6 +58,7 @@ export function initVideoModal(modal, cards) {
     modal.hidden = false;
     modal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('video-modal-open');
+    lenis?.stop();
     // Два кадра: сначала display, потом класс — чтобы сработал transition
     requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add('video-modal--open')));
     closeBtn.focus({ preventScroll: true });
@@ -75,6 +78,7 @@ export function initVideoModal(modal, cards) {
     modal.classList.remove('video-modal--open');
     modal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('video-modal-open');
+    lenis?.start();
     // Плеер выгружаем сразу, чтобы звук не продолжал играть под анимацию
     frame.replaceChildren();
     hideTimer = setTimeout(() => {

@@ -6,10 +6,9 @@ const MOBILE = window.matchMedia('(max-width: 720px)');
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 // Коэффициент сглаживания параллакса: доля пути к цели за кадр (при 60 fps).
-// Меньше — мягче и «тяжелее», больше — отзывчивее.
-const SMOOTHING = 0.12;
-// Порог заголовка: когда плашка закрыла столько экрана, слова начинают проявляться
-const TITLE_TRIGGER = 0.35;
+// Меньше — мягче и «тяжелее», больше — отзывчивее. Поверх Lenis нужен
+// лишь лёгкий досглаживающий слой, иначе карточки заметно отстают.
+const SMOOTHING = 0.3;
 
 export function initShowreels(section) {
   if (!section) return;
@@ -23,8 +22,10 @@ export function initShowreels(section) {
   }));
 
   const title = section.querySelector('[data-words]');
-  if (title) splitWords(title);
-  let titleShown = false;
+  if (title) {
+    splitWords(title);
+    observeTitle(title);
+  }
 
   let raf = 0;
   let lastTime = 0;
@@ -36,11 +37,6 @@ export function initShowreels(section) {
     const enter = clamp(1 - top / window.innerHeight, 0, 1);
     section.style.setProperty('--enter', enter.toFixed(4));
     document.documentElement.style.setProperty('--hero-fade', enter.toFixed(4));
-
-    if (title && !titleShown && enter >= TITLE_TRIGGER) {
-      titleShown = true;
-      title.classList.add('is-visible');
-    }
 
     if (MOBILE.matches || REDUCED.matches) {
       items.forEach((it) => {
@@ -94,6 +90,25 @@ export function initShowreels(section) {
   window.addEventListener('resize', onScroll);
   MOBILE.addEventListener('change', onScroll);
   onScroll();
+}
+
+// Заголовок проявляется каждый раз, когда попадает в зону видимости, и
+// сбрасывается в исходное состояние (прозрачный, в блюре), когда уходит —
+// так анимация запускается заново и при скролле сверху, и снизу.
+// rootMargin снизу −35 %: слова стартуют, когда заголовок вошёл в верхние
+// две трети экрана, а не у самого нижнего края.
+function observeTitle(title) {
+  const head = title.closest('.showreels__head') || title;
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) title.classList.add('is-visible');
+        else title.classList.remove('is-visible');
+      });
+    },
+    { rootMargin: '0px 0px -35% 0px', threshold: 0 },
+  );
+  io.observe(head);
 }
 
 // Разбивает текст заголовка на слова-span с индексом для задержки анимации
