@@ -38,7 +38,10 @@
   --straighten: clamp(0, calc((var(--enter) - 0.7) / 0.3), 1);
   --panel-radius: calc(280px * (1 - var(--straighten)));
   border-radius: var(--panel-radius) var(--panel-radius) 0 0;
-  padding: 134px 0 0;
+  /* Снизу 200 — отступ от последней карточки до плашки extra-text
+     (padding, а не margin у сетки: margin схлопывался наружу и в зазоре
+     просвечивал тёмный фон body) */
+  padding: 134px 0 200px;
   isolation: isolate;
 }
 
@@ -97,8 +100,6 @@
   z-index: 1;
   width: 100%;
   margin-top: 149px;
-  /* Отступ от последней карточки до плашки extra-text */
-  margin-bottom: 200px;
   aspect-ratio: 1440 / 3460;
 }
 
@@ -360,7 +361,7 @@ body.video-modal-open {
 /* На узких экранах карточки идут столбиком, заголовок не липнет */
 @media (max-width: 720px) {
   .showreels__panel {
-    padding-top: 96px;
+    padding: 96px 0;
   }
 
   .showreels__head {
@@ -374,8 +375,7 @@ body.video-modal-open {
     flex-direction: column;
     gap: 16px;
     margin-top: 48px;
-    margin-bottom: 0;
-    padding: 0 16px 96px;
+    padding: 0 16px;
     aspect-ratio: auto;
   }
 
