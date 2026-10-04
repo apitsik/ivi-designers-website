@@ -92,17 +92,27 @@ export function initAwards(section) {
   if (!preview || layers.length < 2) return;
 
   let front = 0;
+  let wanted = '';
   const showImage = (src) => {
-    const next = layers[1 - front];
-    if (layers[front].getAttribute('src') === src) return;
+    wanted = src;
+    const back = layers[1 - front];
+    // Нужная картинка уже впереди — только отменяем недогруженную заднюю,
+    // чтобы её поздний onload не вытолкнул переднюю
+    if (layers[front].getAttribute('src') === src) {
+      back.onload = null;
+      return;
+    }
     const swap = () => {
-      next.classList.add('is-front');
+      // Пока грузилась, курсор мог уйти на другую награду
+      back.onload = null;
+      if (wanted !== src) return;
+      back.classList.add('is-front');
       layers[front].classList.remove('is-front');
       front = 1 - front;
     };
-    next.src = src;
-    if (next.complete) swap();
-    else next.onload = swap;
+    back.onload = swap;
+    if (back.getAttribute('src') !== src) back.src = src;
+    if (back.complete && back.naturalWidth) swap();
   };
 
   let targetX = 0;
