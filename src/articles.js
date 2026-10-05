@@ -86,8 +86,8 @@ const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 // Геометрия веера (в долях размера карточки): шаг по X между соседями,
 // угол разворота боковых, уход в глубину и сжатие по расстоянию.
-const STEP_X = 0.47; // расстояние между центрами соседей (карточки внахлёст)
-const ROT_Y = 66; // градусы разворота боковой карточки
+const STEP_X = 0.52; // расстояние между центрами соседей (карточки внахлёст)
+const ROT_Y = 50; // градусы разворота соседней карточки
 const DEPTH = 0.9; // уход в глубину на первом шаге
 const SCALE_STEP = 0.025; // сжатие по расстоянию от центра
 const DRAG_PX = 140; // пикселей драга на одну карточку
@@ -140,9 +140,9 @@ export function initArticles(section, modal) {
       const d = offsetOf(i, pos);
       const ad = Math.abs(d);
       const s = Math.sign(d);
-      // Веер: соседи центра почти ребром (ROT_Y), дальние разворачиваются
-      // обратно к зрителю — по 7° на шаг
-      const rot = flat ? 0 : -s * Math.max(30, ROT_Y - Math.max(0, ad - 1) * 7) * Math.min(1, ad * 1.6);
+      // Веер: соседи центра развёрнуты на ROT_Y (хорошо видны),
+      // дальние разворачиваются к зрителю ещё сильнее — по 4° на шаг
+      const rot = flat ? 0 : -s * Math.max(30, ROT_Y - Math.max(0, ad - 1) * 4) * Math.min(1, ad * 1.6);
       const x = d * STEP_X * size;
       const z = flat ? 0 : -Math.min(ad, 1) * DEPTH * size * 0.35 - ad * size * 0.06;
       const sc = Math.max(0.8, 1 - ad * SCALE_STEP);
