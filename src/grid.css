@@ -19,7 +19,8 @@
 .grid {
   position: relative;
   z-index: 1;
-  padding: clamp(96px, 11.1vw, 160px) 18px;
+  /* Сверху на 150 больше макетных 160 — воздух после плашки статей */
+  padding: clamp(176px, 21.5vw, 310px) 18px clamp(96px, 11.1vw, 160px);
   background: var(--page-bg);
   transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
   color: var(--color-white);
@@ -123,6 +124,12 @@
   width: 69.302%; /* 973 / 1404 */
   aspect-ratio: 973 / 357;
   border-radius: 500px;
+}
+
+/* Кадр видео опущен внутри пилюли: видна верхняя треть ролика
+   (в макете окно смотрит на 35 % высоты кадра, а не на центр) */
+.grid__item--2 > video {
+  object-position: 50% 32%;
 }
 
 /* Ряд 2: слева вертикальный овал на половину ширины, справа колонка */

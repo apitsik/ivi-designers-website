@@ -92,6 +92,7 @@ const DEPTH = 0.9; // уход в глубину на первом шаге
 const SCALE_STEP = 0.025; // сжатие по расстоянию от центра
 const DRAG_PX = 140; // пикселей драга на одну карточку
 const SMOOTHING = 0.14; // доля пути к цели за кадр
+const EDGE_FADE = 1.2; // за сколько шагов до края колоды карточка растворяется
 
 export function initArticles(section, modal) {
   if (!section) return;
@@ -147,6 +148,13 @@ export function initArticles(section, modal) {
       const z = flat ? 0 : -Math.min(ad, 1) * DEPTH * size * 0.35 - ad * size * 0.06;
       const sc = Math.max(0.8, 1 - ad * SCALE_STEP);
       card.style.transform = `translate3d(${x.toFixed(1)}px, 0, ${z.toFixed(1)}px) rotateY(${rot.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+      // На краю колоды карточка перескакивает с одной стороны на другую
+      // (сдвиг d меняет знак на ±N/2). Чтобы скачок не был виден, карточка
+      // растворяется, не доезжая до края шага на EDGE_FADE, и так же
+      // проявляется с другой стороны.
+      const fade = Math.min(1, Math.max(0, (N / 2 - ad) / EDGE_FADE));
+      card.style.opacity = fade.toFixed(3);
+      card.style.visibility = fade > 0 ? '' : 'hidden';
       card.style.zIndex = String(100 - Math.round(ad * 10));
       card.style.setProperty('--dim', Math.min(0.2, Math.max(0, ad - 1) * 0.05).toFixed(3));
       card.classList.toggle('is-active', Math.round(pos) === i && ad < 0.5);
