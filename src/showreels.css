@@ -203,6 +203,10 @@
 
 /* ----- попап с плеером ----- */
 
+/* Попап не выключается через display: оверлей с backdrop-filter, вылетая
+   из display: none, рисовался сразу на полной силе и дёргался. Вместо этого
+   он всегда в раскладке, но невидим (visibility), а при открытии плавно
+   нарастают сам блюр (0 → 40) и затемнение; диалог проявляется отдельно. */
 .video-modal {
   position: fixed;
   inset: 0;
@@ -211,24 +215,43 @@
   align-items: center;
   justify-content: center;
   padding: 96px 48px 48px;
-  opacity: 0;
-  transition: opacity 0.35s ease-out;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear 0.35s;
 }
 
 .video-modal[hidden] {
-  display: none;
+  display: flex;
 }
 
 .video-modal--open {
-  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
 }
 
 .video-modal__overlay {
   position: absolute;
   inset: 0;
+  background: rgba(0, 0, 0, 0);
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+  transition: background 0.35s ease-out, -webkit-backdrop-filter 0.35s ease-out, backdrop-filter 0.35s ease-out;
+}
+
+.video-modal--open .video-modal__overlay {
   background: rgba(0, 0, 0, 0.8);
   -webkit-backdrop-filter: blur(40px);
   backdrop-filter: blur(40px);
+}
+
+.video-modal__close {
+  opacity: 0;
+  transition: opacity 0.35s ease-out, background 0.2s ease-out, transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.video-modal--open .video-modal__close {
+  opacity: 1;
 }
 
 .video-modal__dialog {
@@ -239,11 +262,13 @@
   gap: 32px;
   width: 100%;
   max-width: 932px;
+  opacity: 0;
   transform: translateY(24px) scale(0.98);
-  transition: transform 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: opacity 0.35s ease-out, transform 0.45s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .video-modal--open .video-modal__dialog {
+  opacity: 1;
   transform: none;
 }
 
@@ -329,7 +354,6 @@
   background: rgba(255, 255, 255, 0.1);
   color: var(--color-white);
   cursor: pointer;
-  transition: background 0.2s ease-out, transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .video-modal__close:hover,
@@ -345,6 +369,7 @@ body.video-modal-open {
 @media (prefers-reduced-motion: reduce) {
   .showreel__img,
   .video-modal,
+  .video-modal__overlay,
   .video-modal__dialog,
   .video-modal__close {
     transition: none;
