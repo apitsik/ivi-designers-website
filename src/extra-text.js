@@ -9,7 +9,11 @@ import { splitWords, observeReveal } from './reveal.js';
 
 // Доля экрана, которую верх плашки должен пройти снизу вверх, чтобы
 // фон стал чёрным: 0.5 — ровно середина, 0.58 — чуть выше середины.
+// Обратно в белый — только когда плашка опустится ниже THEME_SWITCH_OFF:
+// зазор (гистерезис) нужен, чтобы фон не мигал, пока скролл качается
+// у самого порога.
 const THEME_SWITCH_AT = 0.58;
+const THEME_SWITCH_OFF = 0.48;
 
 export function initExtraText(section) {
   if (!section) return;
@@ -33,13 +37,21 @@ export function initExtraText(section) {
 
   let ticking = false;
 
+  let dark = false;
+
   const measure = () => {
     ticking = false;
-    // 0 — верх плашки у нижнего края окна, 1 — у верхнего
-    const top = card.getBoundingClientRect().top;
+    // 0 — верх плашки у нижнего края окна, 1 — у верхнего.
+    // Верх считаем без учёта transform: плашка масштабируется от центра
+    // (scale зависит от --enter), и если мерить её rect, верх уезжает
+    // вслед за собственным ростом — получается петля и дрожание порога.
+    // Поэтому берём rect секции (она не трансформируется) + offsetTop плашки.
+    const top = section.getBoundingClientRect().top + card.offsetTop;
     const enter = clamp(1 - top / window.innerHeight, 0, 1);
     section.style.setProperty('--enter', enter.toFixed(4));
-    root.classList.toggle('theme-dark', enter >= THEME_SWITCH_AT);
+    if (!dark && enter >= THEME_SWITCH_AT) dark = true;
+    else if (dark && enter < THEME_SWITCH_OFF) dark = false;
+    root.classList.toggle('theme-dark', dark);
   };
 
   const onScroll = () => {
