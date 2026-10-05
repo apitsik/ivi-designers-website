@@ -211,6 +211,71 @@
           </div>
         </div>
       </section>
+
+      <!-- Grid: библиотека иллюстраций. Чёрная секция, H2 проявляется
+           из блюра, как остальные (data-words, src/grid.js). Сетка картинок
+           и видео в пропорциях макета 1404 (src/grid.css), видео играют
+           без звука и контролов, ничего не кликабельно. Внизу плашка-кнопка
+           на ivi design lab: по ховеру светлеет, по нажатию темнеет.
+           Картинки: /images/grid/, видео: /video/grid-image-N.mp4
+           (grid-image-8.mp4 ещё не выгружено — ячейка ждёт файл). -->
+      <section class="grid" id="grid" aria-labelledby="grid-title">
+        <div class="grid__inner">
+          <h2 id="grid-title" class="grid__title" data-words>
+            Библиотека иллюстраций, созданных на нашем заводе
+          </h2>
+
+          <div class="grid__images">
+            <div class="grid__row grid__row--1" aria-hidden="true">
+              <div class="grid__item grid__item--1">
+                <video src="/video/grid-image-1.mp4" autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
+              </div>
+              <div class="grid__item grid__item--2">
+                <video src="/video/grid-image-2.mp4" autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
+              </div>
+            </div>
+
+            <div class="grid__row grid__row--2" aria-hidden="true">
+              <div class="grid__item grid__item--3">
+                <img src="/images/grid/grid-image-3.png" alt="" loading="lazy" />
+              </div>
+              <div class="grid__col grid__col--2">
+                <div class="grid__item grid__item--4">
+                  <img src="/images/grid/grid-image-4.jpg" alt="" loading="lazy" />
+                </div>
+                <div class="grid__row">
+                  <div class="grid__item grid__item--5">
+                    <video src="/video/grid-image-5.mp4" autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
+                  </div>
+                  <div class="grid__item grid__item--6">
+                    <img src="/images/grid/grid-image-6.png" alt="" loading="lazy" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid__row grid__row--3" aria-hidden="true">
+              <div class="grid__col grid__col--3">
+                <div class="grid__item grid__item--7">
+                  <img src="/images/grid/grid-image-7.png" alt="" loading="lazy" />
+                </div>
+                <div class="grid__item grid__item--8">
+                  <video src="/video/grid-image-8.mp4" autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
+                </div>
+              </div>
+              <div class="grid__item grid__item--9">
+                <img src="/images/grid/grid-image-9.jpg" alt="" loading="lazy" />
+              </div>
+            </div>
+
+            <a class="grid__button" href="https://ivi-design-lab.vercel.app/" target="_blank" rel="noopener">
+              <p class="grid__button-text">Смотри все наши<br />прикольные картиночки</p>
+              <img class="grid__button-image" src="/images/grid/grid-button-image.png" alt="" width="168" height="146" />
+              <p class="grid__button-text grid__button-text--muted">Пока не поздно</p>
+            </a>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- Попап с плеером Vimeo. Пустой, пока не кликнули по карточке. -->
