@@ -91,6 +91,11 @@ export function initVideoModal(modal, cards) {
 
   cards.forEach((card) => card.addEventListener('click', () => open(card)));
   modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
+  // Диалог шире плеера: клик по его пустому месту (рядом с видео, над
+  // подписью) закрывает так же, как клик по оверлею
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) close();
+  });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') close();
   });

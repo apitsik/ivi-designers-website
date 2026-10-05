@@ -23,7 +23,9 @@
 .articles {
   position: relative;
   z-index: 1;
-  padding: 58px 24px;
+  /* Сверху 24 от хедера (96), снизу 24 — чтобы плашка во всю высоту
+     вставала ровно между ними */
+  padding: 120px 24px 24px;
   background: var(--page-bg);
   transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
 }
@@ -36,7 +38,9 @@
   justify-content: center;
   gap: 32px;
   box-sizing: border-box;
-  min-height: clamp(560px, 50vw, 721px);
+  /* Высота тянется за вьюпортом: не ниже макетных 721 (на узких — 50vw),
+     не выше экрана минус хедер (96) и по 24 сверху и снизу */
+  min-height: max(clamp(560px, 50vw, 721px), calc(100vh - 96px - 48px));
   padding: 72px 24px;
   border-radius: clamp(64px, 13.9vw, 200px);
   background: var(--color-white);
@@ -78,16 +82,11 @@
   z-index: 1;
   width: 100%;
   height: calc(var(--card) * 1.25);
-  perspective: 1400px;
+  perspective: 1200px;
   perspective-origin: 50% 50%;
-  cursor: grab;
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
-}
-
-.articles__deck.is-dragging {
-  cursor: grabbing;
 }
 
 .article-card {
@@ -107,7 +106,8 @@
   will-change: transform;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  /* Тонкая светлая кромка отделяет наложенные карточки друг от друга */
+  box-shadow: 0 0 0 2px var(--color-white), 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .article-card:focus-visible {
@@ -125,11 +125,7 @@
   transition: transform 0.9s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-/* Активная карточка — курсор «глаза», как у шоурилов, и лёгкий зум на ховер */
-.article-card.is-active {
-  cursor: url('/cursors/eyes.svg') 32 32, url('/cursors/eyes.png') 32 32, pointer;
-}
-
+/* Активная карточка — лёгкий зум на ховер */
 .article-card.is-active:hover .article-card__img {
   transform: scale(1.08);
 }
@@ -279,13 +275,18 @@
   font-weight: 500;
   letter-spacing: -0.02em;
   text-decoration: none;
-  transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1), background 0.2s ease-out;
+  transition: background 0.2s ease-out;
 }
 
+/* Ховер — темнее, нажатие — ещё темнее; без сдвигов */
 .article-modal__link:hover,
 .article-modal__link:focus-visible {
-  background: #ff2a60;
-  transform: translateY(-2px);
+  background: #c91a46;
+  outline: none;
+}
+
+.article-modal__link:active {
+  background: #a5133a;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -298,13 +299,14 @@
 
 @media (max-width: 720px) {
   .articles {
-    padding: 40px 16px;
+    padding: 104px 16px 16px;
   }
 
   .articles__block {
     gap: 24px;
     padding: 56px 16px;
     border-radius: 48px;
+    min-height: max(560px, calc(100vh - 96px - 32px));
   }
 
   .articles__block::after {

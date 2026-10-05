@@ -86,10 +86,10 @@ const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 // Геометрия веера (в долях размера карточки): шаг по X между соседями,
 // угол разворота боковых, уход в глубину и сжатие по расстоянию.
-const STEP_X = 0.62; // расстояние между центрами соседних карточек
-const ROT_Y = 58; // градусы разворота боковой карточки
-const DEPTH = 0.9; // на сколько карточек уходит в глубину каждый шаг
-const SCALE_STEP = 0.07;
+const STEP_X = 0.47; // расстояние между центрами соседей (карточки внахлёст)
+const ROT_Y = 66; // градусы разворота боковой карточки
+const DEPTH = 0.9; // уход в глубину на первом шаге
+const SCALE_STEP = 0.025; // сжатие по расстоянию от центра
 const DRAG_PX = 140; // пикселей драга на одну карточку
 const SMOOTHING = 0.14; // доля пути к цели за кадр
 
@@ -140,14 +140,15 @@ export function initArticles(section, modal) {
       const d = offsetOf(i, pos);
       const ad = Math.abs(d);
       const s = Math.sign(d);
-      // Угол нарастает быстро на первом шаге и упирается в ROT_Y
-      const rot = flat ? 0 : -s * ROT_Y * Math.min(1, ad * 1.6);
+      // Веер: соседи центра почти ребром (ROT_Y), дальние разворачиваются
+      // обратно к зрителю — по 7° на шаг
+      const rot = flat ? 0 : -s * Math.max(30, ROT_Y - Math.max(0, ad - 1) * 7) * Math.min(1, ad * 1.6);
       const x = d * STEP_X * size;
-      const z = flat ? 0 : -Math.min(ad, 1) * DEPTH * size * 0.4 - ad * size * 0.12;
-      const sc = Math.max(0.6, 1 - ad * SCALE_STEP);
+      const z = flat ? 0 : -Math.min(ad, 1) * DEPTH * size * 0.35 - ad * size * 0.06;
+      const sc = Math.max(0.8, 1 - ad * SCALE_STEP);
       card.style.transform = `translate3d(${x.toFixed(1)}px, 0, ${z.toFixed(1)}px) rotateY(${rot.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
       card.style.zIndex = String(100 - Math.round(ad * 10));
-      card.style.setProperty('--dim', Math.min(0.45, ad * 0.12).toFixed(3));
+      card.style.setProperty('--dim', Math.min(0.2, Math.max(0, ad - 1) * 0.05).toFixed(3));
       card.classList.toggle('is-active', Math.round(pos) === i && ad < 0.5);
     });
   };
@@ -314,6 +315,11 @@ export function initArticles(section, modal) {
     };
 
     modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
+    // Клик по пустому месту диалога (вне карточки) — тоже закрытие
+    const dialog = modal.querySelector('.video-modal__dialog');
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) close();
+    });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') close();
     });
