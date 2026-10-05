@@ -187,6 +187,30 @@
           </div>
         </div>
       </section>
+
+      <!-- Articles: белая плашка со скруглением и внутренним свечением,
+           внутри 3D-колода квадратных карточек веером (референс Studio Deck
+           Carousel). Карточки и попап собирает src/articles.js из массива
+           ARTICLES — там же названия, описания, кнопки и ссылки.
+           Картинки: /images/articles/article-N-cover.jpg (колода)
+           и article-N-image.jpg (попап). -->
+      <section class="articles" id="articles" aria-labelledby="articles-title" tabindex="-1">
+        <div class="articles__block">
+          <h2 id="articles-title" class="articles__title">
+            Делимся знаниями<br />и заряжаем комьюнити
+          </h2>
+
+          <div class="articles__deck" aria-label="Карусель статей"></div>
+
+          <p class="articles__name" aria-live="polite"></p>
+
+          <div class="articles__nav">
+            <button class="articles__nav-btn" type="button" data-prev>‹ туда</button>
+            <span aria-hidden="true">•</span>
+            <button class="articles__nav-btn" type="button" data-next>сюда ›</button>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- Попап с плеером Vimeo. Пустой, пока не кликнули по карточке. -->
@@ -203,6 +227,33 @@
           <div class="video-modal__frame"></div>
         </div>
         <p id="video-modal-title" class="video-modal__title"></p>
+      </div>
+    </div>
+
+    <!-- Попап статьи: те же оверлей, блюр и анимация, что у попапа шоурилов
+         (классы .video-modal), внутри карточка 496 × 526 (src/articles.css).
+         Контент подставляет src/articles.js. -->
+    <div class="video-modal article-modal" hidden aria-hidden="true">
+      <div class="video-modal__overlay" data-close></div>
+      <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="article-modal-title">
+        <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+        <div class="article-modal__stage">
+          <div class="video-modal__glow" aria-hidden="true"></div>
+          <article class="article-modal__card">
+            <img class="article-modal__img" alt="" />
+            <div class="article-modal__body">
+              <div class="article-modal__text">
+                <h3 id="article-modal-title" class="article-modal__title"></h3>
+                <p class="article-modal__desc"></p>
+              </div>
+              <a class="article-modal__link" href="#" target="_blank" rel="noopener">Смотреть</a>
+            </div>
+          </article>
+        </div>
       </div>
     </div>
 
