@@ -216,12 +216,14 @@
     <!-- Попап с плеером Vimeo. Пустой, пока не кликнули по карточке. -->
     <div class="video-modal" hidden aria-hidden="true">
       <div class="video-modal__overlay" data-close></div>
+      <!-- Крестик вне диалога: у диалога на время анимации стоит transform,
+           а под трансформированным предком fixed считается от него и прыгает -->
+      <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
       <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="video-modal-title">
-        <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
-        </button>
         <div class="video-modal__stage">
           <div class="video-modal__glow" aria-hidden="true"></div>
           <div class="video-modal__frame"></div>
@@ -235,12 +237,14 @@
          Контент подставляет src/articles.js. -->
     <div class="video-modal article-modal" hidden aria-hidden="true">
       <div class="video-modal__overlay" data-close></div>
+      <!-- Крестик вне диалога: у диалога на время анимации стоит transform,
+           а под трансформированным предком fixed считается от него и прыгает -->
+      <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
       <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="article-modal-title">
-        <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
-        </button>
         <div class="article-modal__stage">
           <div class="video-modal__glow" aria-hidden="true"></div>
           <article class="article-modal__card">
