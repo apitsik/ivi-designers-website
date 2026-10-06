@@ -15,7 +15,7 @@ const { Engine, Bodies, Body, Composite, Mouse, MouseConstraint, Query, Events, 
 const IMAGES = Array.from({ length: 11 }, (_, i) => `/images/footer/footer-image-${i + 1}.png`);
 
 const COUNT = 16; // сколько логотипов выпадает
-const DROP_EVERY = 110; // мс между выпадениями
+const DROP_EVERY = 55; // мс между выпадениями — сыплются кучно, как из коробки
 const LOGO_SIZE = 120; // размер в макете 1392
 const WALL = 400; // толщина невидимых стенок
 
@@ -37,6 +37,8 @@ export function initFooter(footer) {
   let size = LOGO_SIZE;
   let radius = 0; // скругление плашки
   let walls = [];
+  let ceiling = null; // невидимый потолок — после приземления
+  let ceilingOn = false;
   let bodies = []; // { body, img }
   let dropTimer = 0;
   let dropped = false;
@@ -73,22 +75,34 @@ export function initFooter(footer) {
       // левая и правая стенки, высокие — чтобы подброшенное не улетело вбок
       Bodies.rectangle(-WALL / 2, height / 2 - 2000, WALL, height + 6000, { isStatic: true }),
       Bodies.rectangle(width + WALL / 2, height / 2 - 2000, WALL, height + 6000, { isStatic: true }),
-      // нижние скругления плашки: логотипы ложатся по дуге, а не прячутся
-      // в срезанный угол
-      ...cornerArc(0, height, radius, 1),
-      ...cornerArc(width, height, radius, -1),
+      // скругления плашки: логотипы ложатся и отскакивают по дуге,
+      // а не прячутся в срезанный угол
+      ...cornerArc(0, height, radius, 1, 1),
+      ...cornerArc(width, height, radius, -1, 1),
+      ...cornerArc(0, 0, radius, 1, -1),
+      ...cornerArc(width, 0, radius, -1, -1),
     ];
+    // Потолок ставится, когда все логотипы уже внутри (см. frame):
+    // до этого они падают сверху сквозь верхний край
+    if (ceilingOn) walls.push(makeCeiling());
     Composite.add(engine.world, walls);
 
     // Тела, оказавшиеся за новыми стенками, возвращаем внутрь
     bodies.forEach(({ body }) => {
       const x = Math.min(Math.max(body.position.x, size / 2), width - size / 2);
-      const y = Math.min(body.position.y, height - size / 2);
+      const y = ceilingOn
+        ? Math.min(Math.max(body.position.y, size / 2), height - size / 2)
+        : Math.min(body.position.y, height - size / 2);
       if (x !== body.position.x || y !== body.position.y) {
         Body.setPosition(body, { x, y });
         Sleeping.set(body, false);
       }
     });
+  };
+
+  const makeCeiling = () => {
+    ceiling = Bodies.rectangle(width / 2, -WALL / 2, width + WALL * 2, WALL, { isStatic: true });
+    return ceiling;
   };
 
   // ----- мышь и тач -----
@@ -154,8 +168,10 @@ export function initFooter(footer) {
 
   const spawnOne = (i) => {
     const img = images[i % images.length];
-    const x = size / 2 + Math.random() * (width - size);
-    const y = -size * (1.2 + Math.random() * 1.5);
+    // Сбрасываем кучно из середины верхнего края с разбросом по ширине
+    const spread = Math.min(width - size, width * 0.7);
+    const x = width / 2 + (Math.random() * 2 - 1) * (spread / 2);
+    const y = -size * (0.8 + Math.random() * 1.2);
     const body = Bodies.rectangle(x, y, size, size, {
       chamfer: { radius: size * 0.22 },
       restitution: 0.42,
@@ -164,8 +180,9 @@ export function initFooter(footer) {
       density: 0.0022,
       angle: (Math.random() * 2 - 1) * Math.PI,
     });
-    Body.setAngularVelocity(body, (Math.random() * 2 - 1) * 0.08);
-    Body.setVelocity(body, { x: (Math.random() * 2 - 1) * 1.5, y: 2 + Math.random() * 2 });
+    Body.setAngularVelocity(body, (Math.random() * 2 - 1) * 0.18);
+    // Разлетаются от точки сброса: вбок случайно, вниз с начальной скоростью
+    Body.setVelocity(body, { x: (Math.random() * 2 - 1) * 5, y: 4 + Math.random() * 5 });
     bodies.push({ body, img });
     Composite.add(engine.world, body);
   };
@@ -193,6 +210,9 @@ export function initFooter(footer) {
     const count = logoCount();
     for (let i = 0; i < count; i++) spawnOne(order[i % order.length]);
     for (let i = 0; i < 240; i++) Engine.update(engine, 1000 / 60);
+    ceilingOn = true;
+    Composite.add(engine.world, makeCeiling());
+    walls.push(ceiling);
     draw();
   };
 
@@ -221,6 +241,21 @@ export function initFooter(footer) {
     const delta = lastTime ? Math.min(time - lastTime, 1000 / 30) : 1000 / 60;
     lastTime = time;
     Engine.update(engine, delta);
+    if (dropped && !ceilingOn && bodies.length && bodies.every(({ body }) => body.position.y > size * 0.6)) {
+      ceilingOn = true;
+      Composite.add(engine.world, makeCeiling());
+      walls.push(ceiling);
+    }
+    // Страховка: тело, продавленное сквозь стенку, возвращаем внутрь
+    for (const { body } of bodies) {
+      const { x, y } = body.position;
+      const cx = Math.min(Math.max(x, size / 2), width - size / 2);
+      const cy = ceilingOn ? Math.min(Math.max(y, size / 2), height - size / 2) : Math.min(y, height - size / 2);
+      if (cx !== x || cy !== y) {
+        Body.setPosition(body, { x: cx, y: cy });
+        Body.setVelocity(body, { x: 0, y: 0 });
+      }
+    }
     draw();
     rafId = requestAnimationFrame(frame);
   };
@@ -241,21 +276,25 @@ export function initFooter(footer) {
 
   resize();
 
+  // Сброс стартует, когда виден низ плашки — чтобы падение было на глазах,
+  // а не за кадром; симуляция крутится только пока футер на экране
   const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          if (REDUCED.matches) dropInstant();
-          else {
-            drop();
-            start();
-          }
-        } else {
+        if (!entry.isIntersecting) {
           stop();
+          return;
+        }
+        start();
+        const r = entry.boundingClientRect;
+        const vh = window.innerHeight;
+        if (r.bottom <= vh + 40 || entry.intersectionRatio >= 0.6) {
+          if (REDUCED.matches) dropInstant();
+          else drop();
         }
       });
     },
-    { threshold: 0.2 },
+    { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] },
   );
   io.observe(block);
 
@@ -273,16 +312,17 @@ export function initFooter(footer) {
 }
 
 // Дуга скругления угла из тонких статичных плашек по касательной.
-// (cx, cy) — угол плашки, dir = 1 для левого, −1 для правого.
-function cornerArc(cx, cy, r, dir) {
+// (cx, cy) — угол плашки, dirX = 1 для левого / −1 для правого,
+// dirY = 1 для нижнего / −1 для верхнего.
+function cornerArc(cx, cy, r, dirX, dirY) {
   if (r < 24) return [];
   const parts = [];
   const steps = 7;
-  const centerX = cx + dir * r;
-  const centerY = cy - r;
+  const centerX = cx + dirX * r;
+  const centerY = cy - dirY * r;
   for (let i = 0; i < steps; i++) {
-    // Четверть окружности от «низа» (90°) к «боку» (180° / 0°)
-    const a = Math.PI / 2 + (dir * (i + 0.5) * (Math.PI / 2)) / steps;
+    // Четверть окружности от горизонтального края к вертикальному
+    const a = (dirY * Math.PI) / 2 + (dirX * dirY * (i + 0.5) * (Math.PI / 2)) / steps;
     const x = centerX + Math.cos(a) * r;
     const y = centerY + Math.sin(a) * r;
     const len = (Math.PI / 2) * r / steps + 6;

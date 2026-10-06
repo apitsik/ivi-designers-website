@@ -35,12 +35,16 @@ const IMAGES = [
   'vacancies-image-20.jpg',
 ].map((name) => `/images/vacancies/${name}`);
 
-const TRAIL_STEP = 64; // px движения курсора между карточками
+// ----- параметры следа (по мотивам Smooth Image Trail) -----
+const TRAIL_SPACING = 70; // px пройденного пути между карточками
 const MAX_SHOTS = 7; // одновременно видимых карточек
-const ROTATE_MAX = 10; // ± градусов
-const SHOW_MS = 380;
-const HOLD_MS = 420;
-const HIDE_MS = 640;
+const ROTATE_MAX = 12; // ± градусов
+const SIZE_JITTER = 0.1; // ± доля от базового размера
+const DRIFT = 18; // px — карточка чуть доезжает по направлению движения
+const POP_MS = 520; // упругое появление 0.5 → 1.05 → 1
+const HOLD_MS = 700; // держится на экране
+const EXIT_MS = 760; // мягкое растворение
+const EVICT_MS = 280; // быстрый уход самой старой при переполнении
 
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -67,6 +71,14 @@ function initReveal(section) {
 
 // ----- след из картинок -----
 
+// Карточки спавнятся не по таймеру, а по пройденному пути: от точки
+// последнего спавна до текущей позиции курсора отрезок делится шагами
+// TRAIL_SPACING, и в каждой точке появляется карточка — при резком рывке
+// они равномерно ложатся вдоль траектории, а не кучкуются. Каждая
+// карточка: случайный поворот и размер, упругий поп (scale 0.5 → 1.05 → 1)
+// с небольшим доездом по направлению движения, пауза и мягкое
+// растворение с усадкой и уходом вниз. Больше MAX_SHOTS не живёт —
+// самая старая быстро гаснет.
 function initTrail(section) {
   const layer = section.querySelector('.vacancies__trail');
   if (!layer || REDUCED.matches) return;
@@ -93,15 +105,17 @@ function initTrail(section) {
   );
   preload.observe(section);
 
-  const shots = []; // видимые карточки по порядку появления
-  let lastX = null;
-  let lastY = null;
+  const shots = []; // живые карточки по порядку появления
+  let last = null; // точка последнего спавна
+  const POP_EASE = 'cubic-bezier(0.34, 1.56, 0.64, 1)'; // упругий overshoot
+  const EXIT_EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
-  const spawn = (x, y) => {
+  const spawn = (x, y, dirX, dirY) => {
     const shot = document.createElement('div');
     shot.className = 'vacancies__shot';
     const rot = (Math.random() * 2 - 1) * ROTATE_MAX;
-    shot.style.setProperty('--rot', `${rot.toFixed(2)}deg`);
+    const scale = 1 + (Math.random() * 2 - 1) * SIZE_JITTER;
+    shot.style.setProperty('--size-scale', scale.toFixed(3));
     shot.style.left = `${x}px`;
     shot.style.top = `${y}px`;
 
@@ -112,34 +126,45 @@ function initTrail(section) {
     shot.append(img);
     layer.append(shot);
 
-    const entry = { el: shot, rot, hiding: false, timer: 0 };
+    // Доезд по направлению движения курсора: карточка «догоняет» точку
+    const dx = dirX * DRIFT;
+    const dy = dirY * DRIFT;
+    const at = (tx, ty, s) => `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) rotate(${rot.toFixed(2)}deg) scale(${s})`;
+
+    const entry = { el: shot, rot, dx, dy, hiding: false, timer: 0, anim: null };
     shots.push(entry);
 
-    shot.animate(
+    entry.anim = shot.animate(
       [
-        { opacity: 0, transform: `rotate(${rot}deg) scale(0.8)` },
-        { opacity: 1, transform: `rotate(${rot}deg) scale(1)` },
+        { opacity: 0, transform: at(-dx, -dy, 0.5), offset: 0 },
+        { opacity: 1, transform: at(dx * 0.35, dy * 0.35, 1.05), offset: 0.62 },
+        { opacity: 1, transform: at(dx, dy, 1), offset: 1 },
       ],
-      { duration: SHOW_MS, easing: 'cubic-bezier(0.25, 1, 0.5, 1)', fill: 'forwards' },
+      { duration: POP_MS, easing: POP_EASE, fill: 'forwards' },
     );
 
-    entry.timer = setTimeout(() => hide(entry), SHOW_MS + HOLD_MS);
+    entry.timer = setTimeout(() => hide(entry, EXIT_MS), POP_MS + HOLD_MS);
 
-    // Лишние — самые старые — начинают растворяться сразу
-    const visible = shots.filter((s) => !s.hiding);
-    for (let i = 0; i < visible.length - MAX_SHOTS; i++) hide(visible[i]);
+    // Лишние — самые старые — быстро уходят
+    const alive = shots.filter((s) => !s.hiding);
+    for (let i = 0; i < alive.length - MAX_SHOTS; i++) hide(alive[i], EVICT_MS);
   };
 
-  const hide = (entry) => {
+  const hide = (entry, duration) => {
     if (entry.hiding) return;
     entry.hiding = true;
     clearTimeout(entry.timer);
+    // Стартуем из текущего состояния попа, чтобы не было скачка
+    const cs = getComputedStyle(entry.el);
+    const from = { opacity: cs.opacity, transform: cs.transform === 'none' ? '' : cs.transform };
+    entry.anim?.cancel();
+    const to = `translate(${entry.dx.toFixed(1)}px, ${(entry.dy + 14).toFixed(1)}px) rotate(${entry.rot.toFixed(2)}deg) scale(0.85)`;
     const anim = entry.el.animate(
       [
-        { opacity: 1, transform: `rotate(${entry.rot}deg) scale(1)` },
-        { opacity: 0, transform: `rotate(${entry.rot}deg) scale(0.9)` },
+        { opacity: from.opacity, transform: from.transform || `rotate(${entry.rot}deg)` },
+        { opacity: 0, transform: to },
       ],
-      { duration: HIDE_MS, easing: 'cubic-bezier(0.33, 1, 0.68, 1)', fill: 'forwards' },
+      { duration, easing: EXIT_EASE, fill: 'forwards' },
     );
     anim.onfinish = () => {
       entry.el.remove();
@@ -154,23 +179,31 @@ function initTrail(section) {
     const rect = section.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    if (lastX === null) {
-      lastX = x;
-      lastY = y;
+    if (!last) {
+      last = { x, y };
       return;
     }
-    const dx = x - lastX;
-    const dy = y - lastY;
-    if (dx * dx + dy * dy < TRAIL_STEP * TRAIL_STEP) return;
-    lastX = x;
-    lastY = y;
-    spawn(x, y);
+    let dx = x - last.x;
+    let dy = y - last.y;
+    let dist = Math.hypot(dx, dy);
+    if (dist < TRAIL_SPACING) return;
+    const ux = dx / dist;
+    const uy = dy / dist;
+    // Идём по отрезку шагами и спавним в каждой точке
+    let n = 0;
+    while (dist >= TRAIL_SPACING && n < 12) {
+      last = { x: last.x + ux * TRAIL_SPACING, y: last.y + uy * TRAIL_SPACING };
+      spawn(last.x, last.y, ux, uy);
+      dist -= TRAIL_SPACING;
+      n++;
+    }
+    // При очень длинном рывке хвост отрезка не копим — начинаем от курсора
+    if (n >= 12) last = { x, y };
   });
 
   // Ушли из секции — следующий заход начнёт отсчёт заново, без «прыжка»
   const reset = () => {
-    lastX = null;
-    lastY = null;
+    last = null;
   };
   section.addEventListener('pointerleave', reset);
   section.addEventListener('pointercancel', reset);

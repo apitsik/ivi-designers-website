@@ -34,23 +34,22 @@
   pointer-events: none;
 }
 
-/* Одна карточка следа: центр в точке курсора, поворот в --rot.
-   Появление/исчезание анимируются из JS (Web Animations), здесь — только
-   форма. Размер 217 в макете 1440 → ~15 vw. */
+/* Одна карточка следа: центр в точке курсора. Поворот, размер (±10 %),
+   поп и растворение задаёт JS (Web Animations) — здесь только форма.
+   Базовый размер 217 в макете 1440 → ~15 vw. Сквозная для курсора. */
 .vacancies__shot {
   --shot-size: clamp(120px, 15vw, 217px);
-  --rot: 0deg;
+  --size-scale: 1;
   position: absolute;
   top: 0;
   left: 0;
-  width: var(--shot-size);
-  height: var(--shot-size);
-  margin: calc(var(--shot-size) / -2) 0 0 calc(var(--shot-size) / -2);
+  width: calc(var(--shot-size) * var(--size-scale));
+  height: calc(var(--shot-size) * var(--size-scale));
+  margin: calc(var(--shot-size) * var(--size-scale) / -2) 0 0 calc(var(--shot-size) * var(--size-scale) / -2);
   border-radius: 29.5%; /* 64 / 217 */
   overflow: hidden;
   /* Скругление с overflow: hidden без артефактов на краю при трансформах */
   isolation: isolate;
-  transform: rotate(var(--rot)) scale(0.8);
   opacity: 0;
   will-change: transform, opacity;
   pointer-events: none;
