@@ -9,12 +9,13 @@
    gap 12, выравнивание вправо). Внизу плашки — логотипы, падающие по
    физике (src/footer.js). @gdeprostotamangelovsto */
 
+/* Без своего фона: карточки следа из блока вакансий, вылетевшие за его
+   нижний край, не обрезаются футером — видны до самой светлой плашки */
 .footer {
   position: relative;
   z-index: 1;
   padding: 0 24px 24px;
-  background: var(--page-bg);
-  transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+  background: transparent;
   color: var(--color-black);
 }
 
@@ -239,7 +240,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .footer,
   .footer__top,
   .footer__top-icon,
   .footer__link-label {
