@@ -43,9 +43,9 @@ const SIZE_JITTER = 0.1; // ± доля от базового размера
 const DRIFT = 18;
 const MIN_AGE_OPACITY = 0.22; // прозрачность самой дальней карточки // px — карточка чуть доезжает по направлению движения
 const POP_MS = 520; // упругое появление 0.5 → 1.05 → 1
-const HOLD_MS = 420; // держится на экране
-const EXIT_MS = 480; // мягкое растворение
-const EVICT_MS = 220; // быстрый уход самой старой при переполнении
+const HOLD_MS = 200; // держится на экране
+const EXIT_MS = 320; // мягкое растворение
+const EVICT_MS = 160; // быстрый уход самой старой при переполнении
 
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
