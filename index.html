@@ -276,7 +276,79 @@
           </div>
         </div>
       </section>
+
+      <!-- Vacancies: «Присоединяйся к лучшей команде». Чёрная секция, по
+           центру H2 (проявляется из блюра, как остальные — data-words),
+           подзаголовок и акцентная кнопка; волна проявления идёт сквозь
+           них подряд. Позади текста — слой .vacancies__trail: за курсором
+           спавнятся фотографии из /images/vacancies/ (src/vacancies.js),
+           они ниже текста по z-index. Кнопка открывает попап с формой
+           резюме (.resume-modal внизу страницы). -->
+      <section class="vacancies" id="vacancies" aria-labelledby="vacancies-title">
+        <div class="vacancies__trail" aria-hidden="true"></div>
+        <div class="vacancies__content">
+          <div class="vacancies__text">
+            <h2 id="vacancies-title" class="vacancies__title" data-words>
+              Присоединяйся<br />к лучшей команде
+            </h2>
+            <p class="vacancies__subtitle">Нам не хватает только тебя. Ничего не бойся, мы милашки</p>
+          </div>
+          <button class="vacancies__button" type="button" data-resume-open>Отправить резюме</button>
+        </div>
+      </section>
     </main>
+
+    <!-- Footer: чёрная секция, внутри светлая плашка (скругление 200,
+         внутреннее свечение). Текст и ссылки лежат в .footer__text поверх
+         физики (z-index выше). Снизу плашки — канвас .footer__physics:
+         при появлении футера сверху осыпаются логотипы из /images/footer/,
+         падают по Matter.js, их можно таскать и подбрасывать
+         (src/footer.js). -->
+    <footer class="footer" id="footer">
+      <div class="footer__block">
+        <canvas class="footer__physics" aria-hidden="true"></canvas>
+        <div class="footer__glow" aria-hidden="true"></div>
+
+        <div class="footer__text">
+          <div class="footer__line1">
+            <p class="footer__name">Дизайн команда Иви</p>
+            <a class="footer__top" href="#top">
+              <svg class="footer__top-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="8" fill="currentColor" />
+                <path d="M8 11.5V4.5M4.75 7.75L8 4.5l3.25 3.25" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span>Наверх</span>
+            </a>
+          </div>
+
+          <div class="footer__line2-block">
+            <hr class="footer__divider" />
+            <div class="footer__line2">
+              <p class="footer__made">Сделано с любовью в Иви</p>
+              <nav class="footer__links footer__links--1" aria-label="Разделы сайта">
+                <a class="footer__link" href="#showreels">Шоурилы</a>
+                <a class="footer__link" href="#teams">Команды</a>
+                <a class="footer__link" href="#awards">Награды</a>
+                <a class="footer__link" href="#articles">Статьи</a>
+              </nav>
+              <nav class="footer__links footer__links--2" aria-label="Вакансии">
+                <a class="footer__link" href="#vacancies">Все вакансии</a>
+                <button class="footer__link" type="button" data-resume-open>Отправить резюме</button>
+                <!-- TODO: ссылка на страницу работодателя на hh.ru -->
+                <a class="footer__link" href="https://hh.ru/" target="_blank" rel="noopener">Хэдхантер</a>
+              </nav>
+              <nav class="footer__links footer__links--3" aria-label="Внешние ссылки">
+                <a class="footer__link" href="https://ivi-design-lab.vercel.app/" target="_blank" rel="noopener">ivi design lab</a>
+                <!-- TODO: реальные адреса соцсетей -->
+                <a class="footer__link" href="#linkedin">Линкедин</a>
+                <a class="footer__link" href="#pinterest">Пинтерест</a>
+                <a class="footer__link" href="#behance">Беханс</a>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
 
     <!-- Попап с плеером Vimeo. Пустой, пока не кликнули по карточке. -->
     <div class="video-modal" hidden aria-hidden="true">
@@ -322,6 +394,68 @@
               <a class="article-modal__link" href="#" target="_blank" rel="noopener">Смотреть</a>
             </div>
           </article>
+        </div>
+      </div>
+    </div>
+
+    <!-- Попап «Отправить резюме»: те же оверлей, блюр и анимация, что у
+         попапов шоурилов и статей (классы .video-modal), внутри белая
+         карточка с формой (src/vacancies.css). Пока без бэкенда:
+         после отправки карточка показывает «спасибо» (src/vacancies.js). -->
+    <div class="video-modal resume-modal" hidden aria-hidden="true">
+      <div class="video-modal__overlay" data-close></div>
+      <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+      <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="resume-modal-title">
+        <div class="resume-modal__stage">
+          <div class="video-modal__glow" aria-hidden="true"></div>
+          <form class="resume-modal__card" novalidate>
+            <div class="resume-modal__head">
+              <h3 id="resume-modal-title" class="resume-modal__title">Отправить резюме</h3>
+              <p class="resume-modal__desc">Расскажи о себе — мы ответим в течение пары дней</p>
+            </div>
+
+            <div class="resume-modal__fields">
+              <div class="resume-modal__row">
+                <label class="resume-modal__field">
+                  <span class="resume-modal__label">Имя</span>
+                  <input class="resume-modal__input" type="text" name="firstName" autocomplete="given-name" required />
+                </label>
+                <label class="resume-modal__field">
+                  <span class="resume-modal__label">Фамилия</span>
+                  <input class="resume-modal__input" type="text" name="lastName" autocomplete="family-name" required />
+                </label>
+              </div>
+              <label class="resume-modal__field">
+                <span class="resume-modal__label">Телеграм или почта</span>
+                <input class="resume-modal__input" type="text" name="contact" placeholder="@username или mail@ivi.ru" autocomplete="email" required />
+              </label>
+              <label class="resume-modal__field">
+                <span class="resume-modal__label">Ссылка на резюме или портфолио</span>
+                <input class="resume-modal__input" type="url" name="link" placeholder="https://" />
+              </label>
+              <div class="resume-modal__field">
+                <span class="resume-modal__label">Или файл</span>
+                <label class="resume-modal__file">
+                  <input class="resume-modal__file-input" type="file" name="file" accept=".pdf,.doc,.docx,.pages,.rtf,.txt" />
+                  <span class="resume-modal__file-btn">Прикрепить</span>
+                  <span class="resume-modal__file-name">PDF, DOC — до 10 МБ</span>
+                </label>
+              </div>
+              <p class="resume-modal__error" role="alert" hidden></p>
+            </div>
+
+            <button class="resume-modal__submit" type="submit">Отправить</button>
+          </form>
+
+          <div class="resume-modal__done" hidden>
+            <p class="resume-modal__done-title">Спасибо!</p>
+            <p class="resume-modal__desc">Резюме у нас. Напишем тебе, как только посмотрим</p>
+            <button class="resume-modal__submit" type="button" data-close>Отлично</button>
+          </div>
         </div>
       </div>
     </div>

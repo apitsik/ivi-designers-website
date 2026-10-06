@@ -1,0 +1,270 @@
+/* ---------- Footer ---------- */
+
+/* Макет (Figma «footer», 79:3092): чёрная секция, внутри светлая плашка
+   1392 × 683 с полями 24, скругление 200, поля внутри 100 × 80, внутреннее
+   свечение inset 0 0 200 #b3b3b3. Текст: строка 1 — «Дизайн команда Иви»
+   44 / 1.1 −3 % чёрный 70 % и «Наверх» 16 medium чёрный 64 % с иконкой 16;
+   через 20 — разделитель и строка 2 (16 / 1.2, чёрный 70 %): подпись
+   слева и три колонки ссылок справа (180 / 180 / 140, gap 68, в колонке
+   gap 12, выравнивание вправо). Внизу плашки — логотипы, падающие по
+   физике (src/footer.js). @gdeprostotamangelovsto */
+
+.footer {
+  position: relative;
+  z-index: 1;
+  padding: 0 24px 24px;
+  background: var(--page-bg);
+  transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+  color: var(--color-black);
+}
+
+.footer__block {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 1392px;
+  min-height: clamp(560px, 47.4vw, 683px);
+  margin: 0 auto;
+  padding: clamp(56px, 6.94vw, 100px) clamp(24px, 5.56vw, 80px);
+  border-radius: clamp(80px, 13.9vw, 200px);
+  background: var(--color-white);
+  overflow: hidden;
+  /* Скругление с overflow: hidden без артефактов на краю у канваса */
+  isolation: isolate;
+  transform: translateZ(0);
+}
+
+/* Внутреннее свечение поверх всего (включая логотипы), сквозь него клики
+   проходят */
+.footer__glow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  box-shadow: inset 0 0 200px 0 #b3b3b3;
+  pointer-events: none;
+}
+
+/* ----- физика ----- */
+
+/* Канвас на всю плашку: тела падают сверху и ложатся на её дно. Колесо и
+   вертикальный свайп остаются за страницей (touch-action + footer.js). */
+.footer__physics {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+  cursor: default;
+}
+
+.footer__physics.is-hover {
+  cursor: grab;
+}
+
+.footer__physics.is-drag {
+  cursor: grabbing;
+}
+
+/* ----- текст поверх физики ----- */
+
+/* Обёртка прозрачна для курсора, чтобы логотипы под ней можно было
+   таскать; ссылки возвращают события себе */
+.footer__text {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  pointer-events: none;
+}
+
+.footer__line1 {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.footer__name {
+  margin: 0;
+  font-size: clamp(28px, 3.06vw, 44px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.footer__top {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 4px;
+  margin-bottom: 0.2em;
+  color: rgba(0, 0, 0, 0.64);
+  font-size: var(--p3-size);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+  pointer-events: auto;
+  transition: color 0.2s ease-out;
+}
+
+.footer__top-icon {
+  display: block;
+  flex: 0 0 auto;
+  transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.footer__top:hover,
+.footer__top:focus-visible {
+  color: var(--color-black);
+  outline: none;
+}
+
+.footer__top:hover .footer__top-icon {
+  transform: translateY(-2px);
+}
+
+.footer__line2-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer__divider {
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.32);
+}
+
+.footer__line2 {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(32px, 4.72vw, 68px);
+  width: 100%;
+  font-size: var(--p3-size);
+  line-height: var(--p3-line);
+}
+
+.footer__made {
+  flex: 1 0 0;
+  min-width: 0;
+  margin: 0;
+  opacity: 0.7;
+}
+
+.footer__links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex: 0 0 auto;
+  gap: 12px;
+  text-align: right;
+}
+
+.footer__links--1,
+.footer__links--2 {
+  width: 180px;
+}
+
+.footer__links--3 {
+  width: 140px;
+}
+
+/* Ссылка и кнопка-ссылка («Отправить резюме» открывает попап) выглядят
+   одинаково */
+.footer__link {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-black);
+  font: inherit;
+  text-align: right;
+  text-decoration: none;
+  opacity: 0.7;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: opacity 0.2s ease-out;
+}
+
+.footer__link:hover,
+.footer__link:focus-visible {
+  opacity: 1;
+  outline: none;
+}
+
+.footer__link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer,
+  .footer__top,
+  .footer__top-icon,
+  .footer__link {
+    transition: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .footer__line2 {
+    flex-wrap: wrap;
+  }
+
+  .footer__made {
+    flex-basis: 100%;
+  }
+
+  .footer__links {
+    flex: 1 1 0;
+    width: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .footer {
+    padding: 0 8px 8px;
+  }
+
+  /* Снизу запас под логотипы, чтобы они не лезли под ссылки */
+  .footer__block {
+    min-height: auto;
+    padding: 48px 24px 200px;
+    border-radius: 64px;
+  }
+
+  .footer__glow {
+    box-shadow: inset 0 0 96px 0 #b3b3b3;
+  }
+
+  .footer__line1 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .footer__name {
+    white-space: normal;
+  }
+
+  .footer__links {
+    flex-basis: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .footer__link {
+    text-align: left;
+  }
+}

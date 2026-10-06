@@ -1,0 +1,473 @@
+/* ---------- Vacancies ---------- */
+
+/* Макет (Figma «vacancies», 79:3080): чёрная секция 1440 × 832, по центру
+   столбик с gap 48: текст (H2 80 / 0.92 −3 % на 930, подзаголовок 18
+   белый 72 % с opacity 0.7, gap 32) и кнопка 56 × (16 / 32), скругление 24,
+   акцент #e92153. Позади — след из фотографий за курсором: карточки
+   ~217 со скруглением 64 и лёгким поворотом (src/vacancies.js).
+   @gdeprostotamangelovsto */
+
+.vacancies {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: clamp(560px, 57.8vw, 832px);
+  padding: clamp(96px, 11.1vw, 160px) 18px;
+  overflow: hidden;
+  background: var(--page-bg);
+  transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+  color: var(--color-white);
+  /* Вертикальный скролл пальцем остаётся, pointermove приходит в след */
+  touch-action: pan-y;
+  cursor: default;
+}
+
+/* ----- след из картинок (под текстом) ----- */
+
+.vacancies__trail {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Одна карточка следа: центр в точке курсора, поворот в --rot.
+   Появление/исчезание анимируются из JS (Web Animations), здесь — только
+   форма. Размер 217 в макете 1440 → ~15 vw. */
+.vacancies__shot {
+  --shot-size: clamp(120px, 15vw, 217px);
+  --rot: 0deg;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--shot-size);
+  height: var(--shot-size);
+  margin: calc(var(--shot-size) / -2) 0 0 calc(var(--shot-size) / -2);
+  border-radius: 29.5%; /* 64 / 217 */
+  overflow: hidden;
+  /* Скругление с overflow: hidden без артефактов на краю при трансформах */
+  isolation: isolate;
+  transform: rotate(var(--rot)) scale(0.8);
+  opacity: 0;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+.vacancies__shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ----- текст и кнопка (над следом) ----- */
+
+.vacancies__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+  width: 100%;
+  max-width: 930px;
+  /* Текст прозрачен для курсора — след рисуется и под ним;
+     кнопка возвращает события себе ниже */
+  pointer-events: none;
+}
+
+.vacancies__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+  text-align: center;
+}
+
+.vacancies__title {
+  margin: 0;
+  font-size: var(--h1-size);
+  font-weight: 500;
+  line-height: var(--h1-line);
+  letter-spacing: -0.03em;
+}
+
+.vacancies__subtitle {
+  margin: 0;
+  font-size: var(--p2-size);
+  line-height: normal;
+  letter-spacing: -0.03em;
+  color: var(--color-white-72);
+  opacity: 0.7;
+}
+
+/* Кнопка: по ховеру светлеет, по нажатию темнеет */
+.vacancies__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  padding: 16px 32px;
+  border: 0;
+  border-radius: 24px;
+  background: var(--color-accent);
+  color: var(--color-white);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background-color 0.25s cubic-bezier(0.25, 1, 0.5, 1), transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.vacancies__button:hover,
+.vacancies__button:focus-visible {
+  background: #ff3d6e;
+  outline: none;
+}
+
+.vacancies__button:active {
+  background: #b8143f;
+  transform: scale(0.97);
+  transition-duration: 0.08s;
+}
+
+.vacancies__button:focus-visible {
+  outline: 1px solid var(--color-white-72);
+  outline-offset: 4px;
+}
+
+/* ----- проявление из блюра: слова заголовка, затем подзаголовок и кнопка
+   той же волной (индексы продолжают нумерацию слов, см. vacancies.js) ----- */
+
+.vacancies__title .word,
+.vacancies__subtitle,
+.vacancies__button {
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(10px);
+  will-change: opacity, filter, transform;
+}
+
+.vacancies__title .word {
+  display: inline-block;
+}
+
+.vacancies.is-visible .vacancies__title .word,
+.vacancies.is-visible .vacancies__subtitle,
+.vacancies.is-visible .vacancies__button {
+  animation: word-reveal 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation-delay: calc(var(--word-index) * 0.18s);
+}
+
+/* После проявления кнопка живёт на transition (ховер/нажатие), а не на
+   keyframes — forwards-анимация иначе перебила бы transform */
+.vacancies.is-visible .vacancies__button {
+  animation-name: word-reveal-button;
+}
+
+@keyframes word-reveal-button {
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+}
+
+/* ----- попап «Отправить резюме» ----- */
+
+/* Попап выше остальных: на низких экранах прокручивается, а не режется */
+.resume-modal {
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+.resume-modal .video-modal__dialog {
+  margin: auto 0;
+}
+
+/* Белая карточка 496, скругление 64, как у попапа статьи; внутри форма */
+.resume-modal__stage {
+  position: relative;
+  width: 100%;
+  max-width: 496px;
+}
+
+.resume-modal__stage .video-modal__glow {
+  border-radius: 64px;
+  background-color: #3a0c1c;
+  background-image: radial-gradient(circle at 30% 20%, #e92153, #3a0c1c 70%);
+}
+
+.resume-modal__card,
+.resume-modal__done {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  margin: 0;
+  padding: 40px 32px 32px;
+  border-radius: 64px;
+  background: var(--color-white);
+  color: var(--color-black);
+  overflow: hidden;
+}
+
+.resume-modal__done {
+  align-items: center;
+  text-align: center;
+}
+
+/* display: flex выше перебил бы hidden */
+.resume-modal__card[hidden],
+.resume-modal__done[hidden],
+.resume-modal__error[hidden] {
+  display: none;
+}
+
+.resume-modal__head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.resume-modal__title,
+.resume-modal__done-title {
+  margin: 0;
+  font-size: var(--h4-size);
+  font-weight: 500;
+  line-height: var(--h4-line);
+  letter-spacing: var(--h4-tracking);
+}
+
+.resume-modal__done-title {
+  font-size: clamp(32px, 3.06vw, 44px);
+}
+
+.resume-modal__desc {
+  margin: 0;
+  font-size: var(--p3-size);
+  line-height: var(--p3-line);
+  color: rgba(0, 0, 0, 0.72);
+  opacity: 0.7;
+}
+
+.resume-modal__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.resume-modal__row {
+  display: flex;
+  gap: 12px;
+}
+
+.resume-modal__row > .resume-modal__field {
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.resume-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resume-modal__label {
+  font-size: 13px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: rgba(0, 0, 0, 0.56);
+}
+
+.resume-modal__input {
+  width: 100%;
+  height: 52px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  background: #f2f2f2;
+  color: var(--color-black);
+  font: inherit;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  outline: none;
+  transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
+}
+
+.resume-modal__input::placeholder {
+  color: rgba(0, 0, 0, 0.32);
+}
+
+.resume-modal__input:hover {
+  background: #ececec;
+}
+
+.resume-modal__input:focus {
+  background: var(--color-white);
+  border-color: rgba(0, 0, 0, 0.24);
+}
+
+.resume-modal__input.is-invalid {
+  border-color: var(--color-accent);
+}
+
+/* Прикрепить файл: нативный input спрятан, кнопка + имя файла рядом */
+.resume-modal__file {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 6px 6px 6px 6px;
+  border-radius: 20px;
+  background: #f2f2f2;
+  cursor: pointer;
+  transition: background-color 0.2s ease-out;
+}
+
+.resume-modal__file:hover {
+  background: #ececec;
+}
+
+.resume-modal__file:focus-within {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.24) inset;
+}
+
+.resume-modal__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.resume-modal__file-btn {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 15px;
+  background: var(--color-black);
+  color: var(--color-white);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.resume-modal__file-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: rgba(0, 0, 0, 0.48);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resume-modal__file-name.is-set {
+  color: var(--color-black);
+}
+
+.resume-modal__error {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--color-accent);
+}
+
+/* Та же кнопка, что в секции: светлеет по ховеру, темнеет по нажатию */
+.resume-modal__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 56px;
+  padding: 16px 40px;
+  border: 0;
+  border-radius: 24px;
+  background: var(--color-accent);
+  color: var(--color-white);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  transition: background-color 0.25s cubic-bezier(0.25, 1, 0.5, 1), transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.resume-modal__submit:hover,
+.resume-modal__submit:focus-visible {
+  background: #ff3d6e;
+  outline: none;
+}
+
+.resume-modal__submit:active {
+  background: #b8143f;
+  transform: scale(0.98);
+  transition-duration: 0.08s;
+}
+
+.resume-modal__submit:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vacancies {
+    transition: none;
+  }
+
+  .vacancies__title .word,
+  .vacancies__subtitle,
+  .vacancies__button {
+    animation: none;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  .vacancies__button,
+  .resume-modal__submit {
+    transition: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .vacancies {
+    padding-inline: 16px;
+  }
+
+  .vacancies__content {
+    gap: 32px;
+  }
+
+  .vacancies__text {
+    gap: 20px;
+  }
+
+  .vacancies__subtitle {
+    font-size: 16px;
+  }
+
+  .resume-modal__card,
+  .resume-modal__done {
+    padding: 32px 24px 24px;
+    border-radius: 40px;
+  }
+
+  .resume-modal__row {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
