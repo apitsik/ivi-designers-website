@@ -19,8 +19,9 @@
 .grid {
   position: relative;
   z-index: 1;
-  /* Сверху на 150 больше макетных 160 — воздух после плашки статей */
-  padding: clamp(176px, 21.5vw, 310px) 18px clamp(96px, 11.1vw, 160px);
+  /* Сверху на 150 больше макетных 160 — воздух после плашки статей;
+     снизу на 100 меньше — ближе к блоку вакансий */
+  padding: clamp(176px, 21.5vw, 310px) 18px max(0px, calc(clamp(96px, 11.1vw, 160px) - 100px));
   background: var(--page-bg);
   transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
   color: var(--color-white);

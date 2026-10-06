@@ -15,7 +15,10 @@
   justify-content: center;
   min-height: clamp(560px, 57.8vw, 832px);
   padding: clamp(96px, 11.1vw, 160px) 18px;
-  overflow: hidden;
+  /* По горизонтали режем (иначе карточки у края дают скролл страницы),
+     по вертикали — нет: карточки сверху и снизу не обрезаются */
+  overflow-x: clip;
+  overflow-y: visible;
   background: var(--page-bg);
   transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
   color: var(--color-white);
@@ -30,7 +33,6 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  overflow: hidden;
   pointer-events: none;
 }
 

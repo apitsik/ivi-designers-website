@@ -18,7 +18,7 @@ const COUNT = 16; // сколько логотипов выпадает
 const DROP_EVERY = 55; // мс между выпадениями — сыплются кучно, как из коробки
 const LOGO_SIZE = 120; // размер в макете 1392
 const WALL = 400; // толщина невидимых стенок
-const INSET = 16; // внутренний отступ границ от края плашки
+const INSET = 8; // внутренний отступ границ от края плашки
 
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
