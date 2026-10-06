@@ -40,11 +40,12 @@ const TRAIL_SPACING = 70; // px пройденного пути между ка�
 const MAX_SHOTS = 7; // одновременно видимых карточек
 const ROTATE_MAX = 12; // ± градусов
 const SIZE_JITTER = 0.1; // ± доля от базового размера
-const DRIFT = 18; // px — карточка чуть доезжает по направлению движения
+const DRIFT = 18;
+const MIN_AGE_OPACITY = 0.22; // прозрачность самой дальней карточки // px — карточка чуть доезжает по направлению движения
 const POP_MS = 520; // упругое появление 0.5 → 1.05 → 1
-const HOLD_MS = 700; // держится на экране
-const EXIT_MS = 760; // мягкое растворение
-const EVICT_MS = 280; // быстрый уход самой старой при переполнении
+const HOLD_MS = 420; // держится на экране
+const EXIT_MS = 480; // мягкое растворение
+const EVICT_MS = 220; // быстрый уход самой старой при переполнении
 
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -148,6 +149,19 @@ function initTrail(section) {
     // Лишние — самые старые — быстро уходят
     const alive = shots.filter((s) => !s.hiding);
     for (let i = 0; i < alive.length - MAX_SHOTS; i++) hide(alive[i], EVICT_MS);
+    fadeByAge();
+  };
+
+  // Чем дальше карточка от курсора (старше), тем прозрачнее: свежая — 1,
+  // самая дальняя из живых — MIN_AGE_OPACITY. Ставится на <img>, чтобы
+  // не спорить с попом/растворением, которые крутят opacity обёртки.
+  const fadeByAge = () => {
+    const alive = shots.filter((s) => !s.hiding);
+    const n = alive.length;
+    alive.forEach((s, i) => {
+      const t = n > 1 ? (n - 1 - i) / Math.max(MAX_SHOTS - 1, 1) : 0;
+      s.el.firstChild.style.opacity = (1 - Math.min(1, t) * (1 - MIN_AGE_OPACITY)).toFixed(3);
+    });
   };
 
   const hide = (entry, duration) => {

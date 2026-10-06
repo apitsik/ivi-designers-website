@@ -18,6 +18,7 @@ const COUNT = 16; // сколько логотипов выпадает
 const DROP_EVERY = 55; // мс между выпадениями — сыплются кучно, как из коробки
 const LOGO_SIZE = 120; // размер в макете 1392
 const WALL = 400; // толщина невидимых стенок
+const INSET = 16; // внутренний отступ границ от края плашки
 
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -69,18 +70,21 @@ export function initFooter(footer) {
     mouse.pixelRatio = dpr;
 
     walls.forEach((w) => Composite.remove(engine.world, w));
+    // Границы — прямоугольник со скруглениями, вписанный в плашку
+    // с отступом INSET: логотипы не касаются края и не вылетают наружу
+    const r = Math.max(0, radius - INSET);
     walls = [
       // дно
-      Bodies.rectangle(width / 2, height + WALL / 2, width + WALL * 2, WALL, { isStatic: true }),
+      Bodies.rectangle(width / 2, height - INSET + WALL / 2, width + WALL * 2, WALL, { isStatic: true }),
       // левая и правая стенки, высокие — чтобы подброшенное не улетело вбок
-      Bodies.rectangle(-WALL / 2, height / 2 - 2000, WALL, height + 6000, { isStatic: true }),
-      Bodies.rectangle(width + WALL / 2, height / 2 - 2000, WALL, height + 6000, { isStatic: true }),
-      // скругления плашки: логотипы ложатся и отскакивают по дуге,
+      Bodies.rectangle(INSET - WALL / 2, height / 2 - 2000, WALL, height + 6000, { isStatic: true }),
+      Bodies.rectangle(width - INSET + WALL / 2, height / 2 - 2000, WALL, height + 6000, { isStatic: true }),
+      // скругления: логотипы ложатся и отскакивают по дуге,
       // а не прячутся в срезанный угол
-      ...cornerArc(0, height, radius, 1, 1),
-      ...cornerArc(width, height, radius, -1, 1),
-      ...cornerArc(0, 0, radius, 1, -1),
-      ...cornerArc(width, 0, radius, -1, -1),
+      ...cornerArc(INSET, height - INSET, r, 1, 1),
+      ...cornerArc(width - INSET, height - INSET, r, -1, 1),
+      ...cornerArc(INSET, INSET, r, 1, -1),
+      ...cornerArc(width - INSET, INSET, r, -1, -1),
     ];
     // Потолок ставится, когда все логотипы уже внутри (см. frame):
     // до этого они падают сверху сквозь верхний край
@@ -89,10 +93,10 @@ export function initFooter(footer) {
 
     // Тела, оказавшиеся за новыми стенками, возвращаем внутрь
     bodies.forEach(({ body }) => {
-      const x = Math.min(Math.max(body.position.x, size / 2), width - size / 2);
+      const x = Math.min(Math.max(body.position.x, INSET + size / 2), width - INSET - size / 2);
       const y = ceilingOn
-        ? Math.min(Math.max(body.position.y, size / 2), height - size / 2)
-        : Math.min(body.position.y, height - size / 2);
+        ? Math.min(Math.max(body.position.y, INSET + size / 2), height - INSET - size / 2)
+        : Math.min(body.position.y, height - INSET - size / 2);
       if (x !== body.position.x || y !== body.position.y) {
         Body.setPosition(body, { x, y });
         Sleeping.set(body, false);
@@ -101,7 +105,7 @@ export function initFooter(footer) {
   };
 
   const makeCeiling = () => {
-    ceiling = Bodies.rectangle(width / 2, -WALL / 2, width + WALL * 2, WALL, { isStatic: true });
+    ceiling = Bodies.rectangle(width / 2, INSET - WALL / 2, width + WALL * 2, WALL, { isStatic: true });
     return ceiling;
   };
 
@@ -169,7 +173,7 @@ export function initFooter(footer) {
   const spawnOne = (i) => {
     const img = images[i % images.length];
     // Сбрасываем кучно из середины верхнего края с разбросом по ширине
-    const spread = Math.min(width - size, width * 0.7);
+    const spread = Math.min(width - size - INSET * 2, width * 0.7);
     const x = width / 2 + (Math.random() * 2 - 1) * (spread / 2);
     const y = -size * (0.8 + Math.random() * 1.2);
     const body = Bodies.rectangle(x, y, size, size, {
@@ -241,7 +245,7 @@ export function initFooter(footer) {
     const delta = lastTime ? Math.min(time - lastTime, 1000 / 30) : 1000 / 60;
     lastTime = time;
     Engine.update(engine, delta);
-    if (dropped && !ceilingOn && bodies.length && bodies.every(({ body }) => body.position.y > size * 0.6)) {
+    if (dropped && !ceilingOn && bodies.length && bodies.every(({ body }) => body.position.y > INSET + size * 0.6)) {
       ceilingOn = true;
       Composite.add(engine.world, makeCeiling());
       walls.push(ceiling);
@@ -249,8 +253,10 @@ export function initFooter(footer) {
     // Страховка: тело, продавленное сквозь стенку, возвращаем внутрь
     for (const { body } of bodies) {
       const { x, y } = body.position;
-      const cx = Math.min(Math.max(x, size / 2), width - size / 2);
-      const cy = ceilingOn ? Math.min(Math.max(y, size / 2), height - size / 2) : Math.min(y, height - size / 2);
+      const cx = Math.min(Math.max(x, INSET + size / 2), width - INSET - size / 2);
+      const cy = ceilingOn
+        ? Math.min(Math.max(y, INSET + size / 2), height - INSET - size / 2)
+        : Math.min(y, height - INSET - size / 2);
       if (cx !== x || cy !== y) {
         Body.setPosition(body, { x: cx, y: cy });
         Body.setVelocity(body, { x: 0, y: 0 });

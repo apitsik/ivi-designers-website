@@ -180,39 +180,69 @@
 }
 
 /* Ссылка и кнопка-ссылка («Отправить резюме» открывает попап) выглядят
-   одинаково */
+   одинаково. Ховер как в навигации: маска в одну строку, внутри две копии
+   текста — серая 70 % и чёрная; по ховеру столбик уезжает вверх на строку,
+   и чёрная копия встаёт на место серой. */
 .footer__link {
+  --row: 19px;
   display: block;
+  height: var(--row);
   margin: 0;
   padding: 0;
   border: 0;
   background: none;
   color: var(--color-black);
   font: inherit;
+  line-height: var(--p3-line);
   text-align: right;
   text-decoration: none;
-  opacity: 0.7;
+  overflow: hidden;
   cursor: pointer;
   pointer-events: auto;
-  transition: opacity 0.2s ease-out;
 }
 
-.footer__link:hover,
-.footer__link:focus-visible {
+.footer__link-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  opacity: 0.7;
+  will-change: transform;
+  transition: transform 0.45s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.2s ease-out;
+}
+
+.footer__link-label::after {
+  content: attr(data-text);
+  color: var(--color-black);
+  transition: color 0.12s ease-out;
+}
+
+.footer__link:hover .footer__link-label,
+.footer__link:focus-visible .footer__link-label {
   opacity: 1;
-  outline: none;
+  transform: translateY(calc(-1 * var(--row) - 1px));
+}
+
+/* Уход курсора — чуть быстрее и спокойнее, чем приход */
+.footer__link:not(:hover):not(:focus-visible) .footer__link-label {
+  transition-duration: 0.35s;
+}
+
+/* Нажатие — чёрная копия приглушается */
+.footer__link:active .footer__link-label::after {
+  color: rgba(0, 0, 0, 0.4);
 }
 
 .footer__link:focus-visible {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  outline: 1px solid rgba(0, 0, 0, 0.4);
+  outline-offset: 4px;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .footer,
   .footer__top,
   .footer__top-icon,
-  .footer__link {
+  .footer__link-label {
     transition: none;
   }
 }
@@ -266,5 +296,9 @@
 
   .footer__link {
     text-align: left;
+  }
+
+  .footer__link-label {
+    align-items: flex-start;
   }
 }
