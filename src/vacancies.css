@@ -7,9 +7,11 @@
    ~217 со скруглением 64 и лёгким поворотом (src/vacancies.js).
    @gdeprostotamangelovsto */
 
+/* z-index ниже, чем у grid: карточки следа, вылетевшие вверх,
+   уходят под блок grid и не ложатся на его кнопку */
 .vacancies {
   position: relative;
-  z-index: 1;
+  z-index: 0;
   display: flex;
   align-items: center;
   justify-content: center;

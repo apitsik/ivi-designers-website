@@ -346,8 +346,8 @@ function drawSilhouette(canvas, img, w, h) {
 
 const PEEL_MS = 900; // длительность отрыва одного стикера
 const PEEL_SPREAD = 120; // разброс старта между стикерами
-const STRIPS = 12; // полосок на стикер
-const CURL_DEG = 8; // угол между соседними полосками на пике изгиба
+const STRIPS = 8; // полосок на стикер (меньше — легче для GPU)
+const CURL_DEG = 11; // угол между соседними полосками на пике изгиба
 
 // Стикер → контейнер с полосками. Картинка режется background-position'ом,
 // каждая полоска — отдельная 3D-плоскость с опорой на левом крае.
@@ -381,9 +381,8 @@ function buildPeel(el, cx, cy, i) {
     strips.push(st);
   }
 
-  // Куда улетает: от центра хиро наружу, плюс случайный разброс
-  const ang = Math.atan2(y - cy, x - cx) + (Math.random() - 0.5) * 0.9;
-  const dist = 260 + Math.random() * 320;
+  // Куда улетает: вниз, как опавший лист — чуть в сторону, с разбросом
+  const drop = Math.max(360, window.innerHeight * 0.9) + Math.random() * 240;
   // Сторона, с которой начинается изгиб (ближний к центру край гнётся первым)
   const fromRight = x > cx ? Math.random() < 0.7 : Math.random() < 0.3;
   const curlSign = Math.random() < 0.5 ? 1 : -1;
@@ -394,11 +393,12 @@ function buildPeel(el, cx, cy, i) {
     w,
     h,
     sw,
-    dx: Math.cos(ang) * dist,
-    dy: Math.sin(ang) * dist - 60,
-    flipY: (Math.random() < 0.5 ? 1 : -1) * (150 + Math.random() * 60),
-    flipX: (Math.random() - 0.5) * 70,
-    spin: (Math.random() - 0.5) * 50,
+    dx: (Math.random() - 0.5) * 260 + (x > cx ? 60 : -60),
+    dy: drop,
+    // Переворот в полёте — в основном вокруг горизонтали (лист кувыркается)
+    flipX: (Math.random() < 0.5 ? 1 : -1) * (140 + Math.random() * 70),
+    flipY: (Math.random() - 0.5) * 60,
+    spin: (Math.random() - 0.5) * 70,
     fromRight,
     curlSign,
     delay: Math.random() * PEEL_SPREAD,
@@ -446,15 +446,16 @@ function updatePeel(p, t) {
     pz -= p.sw * Math.sin(rad);
   }
 
-  // Весь лист: приподнимается, переворачивается, летит на камеру и в сторону
+  // Весь лист: приподнимается, переворачивается и падает вниз, чуть
+  // отдаляясь (масштаб меньше 1 — без огромных слоёв, легче для GPU)
   const lift = Math.sin(Math.PI * clamp01(t / 0.6)) * 28;
-  const scale = 1 + flyS * 1.9;
+  const scale = 1 - flyS * 0.15;
   const tx = p.dx * fly;
   const ty = p.dy * fly - lift;
-  const ry = p.flipY * flyS;
   const rx = p.flipX * flyS - lift * 0.6;
+  const ry = p.flipY * flyS;
   const rz = p.rot + p.spin * flyS;
-  const opacity = 1 - easeIn(clamp01((t - 0.45) / 0.55));
+  const opacity = 1 - easeIn(clamp01((t - 0.55) / 0.45));
   p.el.style.transform = `translate(-50%, -50%) translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) rotate(${rz.toFixed(1)}deg) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
   p.el.style.opacity = opacity.toFixed(3);
 }
