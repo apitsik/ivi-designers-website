@@ -85,6 +85,34 @@
   perspective: 900px;
 }
 
+/* ----- отклеивание: стикер из полосок ----- */
+
+/* На время отрыва тень снимается: filter сплющивает 3D у детей, а полоски
+   должны жить в общем 3D-пространстве листа */
+.hero__sticker--peel {
+  filter: none;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.hero__strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-repeat: no-repeat;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  will-change: transform;
+}
+
+/* Изнанка листа: полоска повёрнута спиной — бледная, выбеленная бумага.
+   Браузер сам зеркалит картинку, фильтр делает её «просвечивающей». */
+.hero__strip.is-back {
+  filter: brightness(1.75) saturate(0.25) contrast(0.75);
+  opacity: 0.85;
+}
+
 .hero__sticker img {
   display: block;
   width: 100%;

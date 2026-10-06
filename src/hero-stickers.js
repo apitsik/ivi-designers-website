@@ -145,8 +145,13 @@ export function initHeroStickers(hero) {
     );
   };
 
-  // Отклеивание: каждый стикер по очереди приподнимается за угол
-  // (перспектива, тень растёт), отрывается и улетает от центра, крутясь.
+  // Отклеивание (по референсу Fitsole «sticker screen saver»): все стикеры
+  // разом отрываются как листы. Стикер режется на вертикальные полоски в 3D,
+  // полоски закручиваются волной от края (лист гнётся и приподнимается),
+  // затем лист переворачивается бледной изнанкой к зрителю, летит на камеру
+  // (растёт), разлетается от центра и растворяется. Считается в rAF: у каждой
+  // полоски своя позиция на кривой изгиба, изнанка — те же полоски, когда
+  // они повёрнуты спиной (высветлены фильтром).
   const peelStickers = () => {
     const items = [...layer.children];
     if (!items.length || peeling) return;
@@ -163,36 +168,20 @@ export function initHeroStickers(hero) {
 
     const cx = hero.clientWidth / 2;
     const cy = hero.clientHeight / 2;
-    const stagger = 70;
-    const order = [...items].reverse(); // последний приклеенный отрывается первым
+    const peels = items.map((el, i) => buildPeel(el, cx, cy, i));
+    const t0 = performance.now();
+    const total = PEEL_MS + PEEL_SPREAD;
 
-    order.forEach((el, i) => {
-      const rot = Number(el.dataset.rot || 0);
-      const x = parseFloat(el.style.left);
-      const y = parseFloat(el.style.top);
-      const ang = Math.atan2(y - cy, x - cx) + (Math.random() - 0.5) * 0.6;
-      const dist = Math.max(window.innerWidth, window.innerHeight) * 1.1;
-      const dx = Math.cos(ang) * dist;
-      const dy = Math.sin(ang) * dist;
-      const spin = (Math.random() > 0.5 ? 1 : -1) * (120 + Math.random() * 240);
-      const base = `translate(-50%, -50%)`;
-      el.style.zIndex = String(100 + i);
-      const a = el.animate(
-        [
-          { transform: `${base} rotate(${rot}deg) rotateX(0deg) rotateY(0deg) scale(1)`, filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.35))', opacity: 1, offset: 0 },
-          { transform: `${base} translateY(-10px) rotate(${rot}deg) rotateX(-42deg) rotateY(18deg) scale(1.06)`, filter: 'drop-shadow(0 36px 30px rgba(0,0,0,0.55))', opacity: 1, offset: 0.38, easing: EASE_IN },
-          { transform: `${base} translate(${dx * 0.12}px, ${dy * 0.12 - 40}px) rotate(${rot + spin * 0.15}deg) rotateX(-20deg) scale(1.04)`, opacity: 1, offset: 0.5, easing: 'linear' },
-          { transform: `${base} translate(${dx}px, ${dy}px) rotate(${rot + spin}deg) rotateX(0deg) scale(0.7)`, filter: 'drop-shadow(0 0 0 rgba(0,0,0,0))', opacity: 0, offset: 1 },
-        ],
-        { duration: 1400, delay: i * stagger, easing: 'ease-in', fill: 'forwards' },
-      );
-      a.onfinish = () => el.remove();
-    });
-
-    setTimeout(() => {
-      layer.replaceChildren();
-      peeling = false;
-    }, 1400 + order.length * stagger + 60);
+    const tick = (now) => {
+      const elapsed = now - t0;
+      peels.forEach((p) => updatePeel(p, (elapsed - p.delay) / PEEL_MS));
+      if (elapsed < total) requestAnimationFrame(tick);
+      else {
+        layer.replaceChildren();
+        peeling = false;
+      }
+    };
+    requestAnimationFrame(tick);
   };
 
   hero.addEventListener('pointerdown', (e) => {
@@ -351,4 +340,121 @@ function drawSilhouette(canvas, img, w, h) {
   // 4. Сборка.
   ctx.drawImage(mask, 0, 0, W / dpr, H / dpr);
   ctx.drawImage(ring, 0, 0, W / dpr, H / dpr);
+}
+
+// ----- отклеивание: сборка и кадр -----
+
+const PEEL_MS = 900; // длительность отрыва одного стикера
+const PEEL_SPREAD = 120; // разброс старта между стикерами
+const STRIPS = 12; // полосок на стикер
+const CURL_DEG = 8; // угол между соседними полосками на пике изгиба
+
+// Стикер → контейнер с полосками. Картинка режется background-position'ом,
+// каждая полоска — отдельная 3D-плоскость с опорой на левом крае.
+function buildPeel(el, cx, cy, i) {
+  const rot = Number(el.dataset.rot || 0);
+  const x = parseFloat(el.style.left);
+  const y = parseFloat(el.style.top);
+  const w = el.offsetWidth;
+  const h = el.offsetHeight;
+  const src = el.querySelector('img')?.src || '';
+
+  // Анимация наклеивания (fill: both) иначе перебила бы наш transform
+  el.getAnimations({ subtree: true }).forEach((a) => a.cancel());
+  // Пересобираем содержимое: вместо картинки — полоски
+  el.replaceChildren();
+  el.classList.add('hero__sticker--peel');
+  el.style.zIndex = String(100 + i);
+  const sw = w / STRIPS;
+  const strips = [];
+  for (let k = 0; k < STRIPS; k++) {
+    const st = document.createElement('div');
+    st.className = 'hero__strip';
+    st.style.width = `${sw + 0.6}px`; // нахлёст, чтобы не было щелей
+    st.style.height = `${h}px`;
+    st.style.backgroundImage = `url("${src}")`;
+    st.style.backgroundSize = `${w}px ${h}px`;
+    st.style.backgroundPosition = `${-k * sw}px 0`;
+    // Исходное положение — ровный лист (до своего старта стикер лежит)
+    st.style.transform = `translate3d(${(k * sw).toFixed(2)}px, 0, 0) rotateY(0deg)`;
+    el.appendChild(st);
+    strips.push(st);
+  }
+
+  // Куда улетает: от центра хиро наружу, плюс случайный разброс
+  const ang = Math.atan2(y - cy, x - cx) + (Math.random() - 0.5) * 0.9;
+  const dist = 260 + Math.random() * 320;
+  // Сторона, с которой начинается изгиб (ближний к центру край гнётся первым)
+  const fromRight = x > cx ? Math.random() < 0.7 : Math.random() < 0.3;
+  const curlSign = Math.random() < 0.5 ? 1 : -1;
+  return {
+    el,
+    strips,
+    rot,
+    w,
+    h,
+    sw,
+    dx: Math.cos(ang) * dist,
+    dy: Math.sin(ang) * dist - 60,
+    flipY: (Math.random() < 0.5 ? 1 : -1) * (150 + Math.random() * 60),
+    flipX: (Math.random() - 0.5) * 70,
+    spin: (Math.random() - 0.5) * 50,
+    fromRight,
+    curlSign,
+    delay: Math.random() * PEEL_SPREAD,
+    done: false,
+  };
+}
+
+const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const easeIn = (t) => t * t * t;
+const clamp01 = (v) => Math.max(0, Math.min(1, v));
+
+function updatePeel(p, t) {
+  if (t < 0 || p.done) return;
+  if (t >= 1) {
+    p.done = true;
+    p.el.style.opacity = '0';
+    return;
+  }
+
+  // Фазы: 0–0.45 изгиб волной; 0.3–1 переворот, полёт на камеру, разлёт
+  const curlPhase = clamp01(t / 0.4);
+  const front = curlPhase * 1.5; // фронт волны идёт по полоскам с запасом
+  const relax = clamp01((t - 0.55) / 0.4); // к концу лист распрямляется
+  const fly = easeIn(clamp01((t - 0.15) / 0.85));
+  const flyS = easeInOut(clamp01((t - 0.15) / 0.85));
+
+  // Полоски: угол каждой зависит от того, прошёл ли фронт волны через неё
+  const n = p.strips.length;
+  let px = 0;
+  let pz = 0;
+  let acc = 0;
+  for (let k = 0; k < n; k++) {
+    const idx = p.fromRight ? n - 1 - k : k;
+    const reach = clamp01((front - idx / n) * 2.2);
+    const a = p.curlSign * CURL_DEG * reach * (1 - relax) * Math.sin(Math.PI * clamp01(t / 0.9));
+    // Положение полоски: цепочка от предыдущей (опора — левый край)
+    const rad = (acc * Math.PI) / 180;
+    const st = p.strips[k];
+    st.style.transform = `translate3d(${px.toFixed(2)}px, 0, ${pz.toFixed(2)}px) rotateY(${acc.toFixed(2)}deg)`;
+    // Изнанка: полоска, повёрнутая спиной к зрителю (с учётом переворота листа)
+    const facing = Math.cos(rad + (p.flipY * fly * Math.PI) / 180) * Math.cos((p.flipX * fly * Math.PI) / 180);
+    st.classList.toggle('is-back', facing < 0);
+    acc += a;
+    px += p.sw * Math.cos(rad);
+    pz -= p.sw * Math.sin(rad);
+  }
+
+  // Весь лист: приподнимается, переворачивается, летит на камеру и в сторону
+  const lift = Math.sin(Math.PI * clamp01(t / 0.6)) * 28;
+  const scale = 1 + flyS * 1.9;
+  const tx = p.dx * fly;
+  const ty = p.dy * fly - lift;
+  const ry = p.flipY * flyS;
+  const rx = p.flipX * flyS - lift * 0.6;
+  const rz = p.rot + p.spin * flyS;
+  const opacity = 1 - easeIn(clamp01((t - 0.45) / 0.55));
+  p.el.style.transform = `translate(-50%, -50%) translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) rotate(${rz.toFixed(1)}deg) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
+  p.el.style.opacity = opacity.toFixed(3);
 }
