@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "media:compress": "node scripts/compress-media.js public && node scripts/compress-media.js assets/logos"
   },
   "devDependencies": {
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "sharp": "^0.35.5"
   },
   "dependencies": {
     "lenis": "^1.3.26",
