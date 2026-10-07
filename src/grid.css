@@ -34,7 +34,7 @@
   flex-direction: column;
   align-items: center;
   gap: clamp(72px, 11.1vw, 160px);
-  max-width: 1404px;
+  /* Без потолка по ширине: сетка и кнопка тянутся до полей секции */
   margin: 0 auto;
 }
 

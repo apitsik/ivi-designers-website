@@ -63,8 +63,9 @@
   align-items: center;
   justify-content: center;
   gap: 32px;
+  /* Без потолка по ширине: на широких ноутбуках плашка тянется до полей
+     секции, а не оставляет тёмные поля по бокам */
   width: 100%;
-  max-width: 1392px;
   margin: 0 auto;
   aspect-ratio: 1392 / 700;
   padding: 48px;

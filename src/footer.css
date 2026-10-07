@@ -23,8 +23,9 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  max-width: 1392px;
-  min-height: clamp(560px, 47.4vw, 683px);
+  /* Без потолка по ширине — плашка тянется до полей секции на любом
+     ноутбуке; высота растёт вместе с шириной */
+  min-height: clamp(560px, 47.4vw, 820px);
   margin: 0 auto;
   padding: clamp(56px, 6.94vw, 100px) clamp(24px, 5.56vw, 80px);
   border-radius: clamp(80px, 13.9vw, 200px);
