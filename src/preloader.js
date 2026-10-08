@@ -15,20 +15,20 @@ const frameModules = import.meta.glob('../assets/logos/*.{svg,png,webp}', {
   import: 'default',
 });
 
-const SLOW_MS = 280; // интервал между кадрами в покое (старт/финиш)
-const FAST_MS = 50; // интервал на пике скорости
-const RAMP_STEPS = 8; // кадров на разгон и столько же на торможение
-const MIN_SPIN_MS = 350; // минимум крутимся на полной скорости (чтобы не дёргалось)
-const MAX_WAIT_MS = 9000; // страховка: дольше этого не ждём, даже если что-то не догрузилось
-const LEAVE_MS = 900; // длительность уезда, синхронно с CSS
+const SLOW_MS = 200; // интервал между кадрами в покое (старт/финиш)
+const FAST_MS = 45; // интервал на пике скорости
+const RAMP_STEPS = 6; // кадров на разгон и столько же на торможение
+const MIN_SPIN_MS = 150; // минимум крутимся на полной скорости (чтобы не дёргалось)
+const MAX_WAIT_MS = 5000; // страховка: дольше этого не ждём, даже если что-то не догрузилось
+const LEAVE_MS = 700; // длительность уезда, синхронно с CSS
 
 const easeInOutSine = (t) => -(Math.cos(Math.PI * t) - 1) / 2;
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Ждём всё, что сайт показывает на старте и ниже: все <img> (включая
-// lazy — их тянем через new Image, чтобы они легли в кэш), hero-видео
-// до состояния «можно играть без буферизации», шрифты.
+// Ждём только то, что видно сразу после прелоадера: <img> без lazy,
+// hero-видео до состояния «можно играть без буферизации», шрифты.
+// Ленивые картинки ниже по странице греем в кэш фоном, не задерживая выход.
 function waitForAssets(root) {
   const tasks = [];
 
@@ -37,14 +37,13 @@ function waitForAssets(root) {
     const src = img.currentSrc || img.src;
     if (!src || seen.has(src)) return;
     seen.add(src);
-    tasks.push(
-      new Promise((resolve) => {
-        const pre = new Image();
-        pre.onload = pre.onerror = () => resolve();
-        pre.src = src;
-        if (pre.complete) resolve();
-      }),
-    );
+    const p = new Promise((resolve) => {
+      const pre = new Image();
+      pre.onload = pre.onerror = () => resolve();
+      pre.src = src;
+      if (pre.complete) resolve();
+    });
+    if (img.loading !== 'lazy') tasks.push(p);
   });
 
   const hero = root.querySelector('.hero__video');
@@ -146,7 +145,7 @@ export function initPreloader(el) {
     }
 
     // Пауза на основном лого — и уезжаем
-    await wait(260);
+    await wait(150);
     await leave();
   };
 
