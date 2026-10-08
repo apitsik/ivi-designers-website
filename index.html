@@ -12,8 +12,17 @@
     <link rel="preload" href="/fonts/IVI_Sans_Base_Regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/IVI_Sans_Base_Medium.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/src/styles.css" />
+    <!-- Критичный стиль прелоадера: чёрный экран с первого кадра, до загрузки CSS -->
+    <style>
+      .preloader { position: fixed; inset: 0; z-index: 100; background: #000; }
+      html.is-preloading { overflow: hidden; }
+    </style>
   </head>
   <body>
+    <!-- Прелоадер: кадры логотипа подставляются из assets/logos/ в src/preloader.js -->
+    <div class="preloader" aria-hidden="true">
+      <img class="preloader__logo" alt="" />
+    </div>
     <header class="nav">
       <nav class="nav__group nav__group--left" aria-label="Разделы">
         <a class="nav__item" href="#showreels"><span class="nav__label" data-text="Шоурилы">Шоурилы</span></a>

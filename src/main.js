@@ -1,3 +1,4 @@
+import { initPreloader } from './preloader.js';
 import { initSmoothScroll } from './smooth-scroll.js';
 import { initCursorScrub } from './cursor-scrub.js';
 import { initNavLogo } from './nav-logo.js';
@@ -21,6 +22,7 @@ import './grid.css';
 import './vacancies.css';
 import './footer.css';
 
+document.documentElement.classList.add('is-preloading');
 initSmoothScroll();
 initCursorScrub(document.querySelector('.hero__video'));
 initNavLogo(document.querySelector('.nav__logo'));
@@ -34,3 +36,7 @@ initGrid(document.querySelector('.grid'));
 initVacancies(document.querySelector('.vacancies'), document.querySelector('.resume-modal'));
 initFooter(document.querySelector('.footer'));
 initVideoModal(document.querySelector('.video-modal:not(.article-modal)'), document.querySelectorAll('.showreel[data-vimeo]'));
+
+// Прелоадер запускаем последним: к этому моменту все модули уже создали
+// свои <img>, и он дождётся их загрузки, прежде чем открыть сайт.
+initPreloader(document.querySelector('.preloader'));
