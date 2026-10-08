@@ -186,8 +186,8 @@ export function initHeroStickers(hero) {
 
   hero.addEventListener('pointerdown', (e) => {
     if (e.button !== 0) return;
-    // Клики по подсказке и по ссылкам не считаем тапом по области.
-    if (e.target.closest('.hero__hint, a, button')) return;
+    // Клики по подсказке, плееру и ссылкам не считаем тапом по области.
+    if (e.target.closest('.hero__hint, .hero-player, a, button')) return;
     const rect = hero.getBoundingClientRect();
     addSticker(e.clientX - rect.left, e.clientY - rect.top);
   });
@@ -245,7 +245,7 @@ function initCursor(hero, images, rotAt) {
       hero.classList.add('hero--cursor');
     }
     // Над подсказкой и ссылками — обычный курсор.
-    const overControl = !!e.target.closest('.hero__hint, a, button');
+    const overControl = !!e.target.closest('.hero__hint, .hero-player, a, button');
     cur.classList.toggle('hero__cursor--hidden', overControl);
     // Курсор (и цветок, и силуэт) поворачивается так же, как повернётся стикер в этой точке.
     cur.style.setProperty('--rot', `${rotAt(tx, ty)}deg`);

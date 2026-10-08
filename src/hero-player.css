@@ -1,0 +1,186 @@
+/* ---------- Hero: мини-плеер (hero-player в Figma, 109:3322) ---------- */
+
+/* Стеклянная карточка 338 × 105 в левом нижнем углу хиро (отступы 36px). */
+.hero-player {
+  position: absolute;
+  left: 36px;
+  bottom: 36px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 338px;
+  max-width: calc(100% - 72px);
+  height: 105px;
+  padding: 17px;
+  overflow: hidden;
+  border-radius: 27px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  color: var(--color-white);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.hero-player--ready {
+  opacity: 1;
+  transform: none;
+}
+
+.hero-player[hidden] {
+  display: none;
+}
+
+/* Обложка 71 × 71, клик — следующий трек */
+.hero-player__cover {
+  flex: 0 0 auto;
+  width: 71px;
+  height: 71px;
+  border-radius: 16px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.hero-player__cover[hidden] {
+  display: block;
+}
+
+.hero-player__details {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 100%;
+  padding: 0 4px 5px 0;
+}
+
+.hero-player__text {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  font-size: 16px;
+  line-height: 16px;
+}
+
+.hero-player__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hero-player__title {
+  max-width: 140px;
+  overflow: hidden;
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.hero-player__explicit {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  color: var(--color-white-72);
+}
+
+.hero-player__explicit[hidden] {
+  display: none;
+}
+
+.hero-player__artist {
+  overflow: hidden;
+  font-weight: 400;
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-white);
+  opacity: 0.5;
+}
+
+/* Кнопка play/pause 32 × 32 */
+.hero-player__play {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-white);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.2s ease-out;
+}
+
+.hero-player__play:hover {
+  transform: scale(1.1);
+}
+
+.hero-player__play:active {
+  transform: scale(0.94);
+}
+
+.hero-player__play:focus-visible {
+  outline: 1px solid var(--color-white-72);
+  outline-offset: 2px;
+}
+
+.hero-player__play svg {
+  display: block;
+  width: 32px;
+  height: 32px;
+}
+
+.hero-player__play .hero-player__icon-pause,
+.hero-player--playing .hero-player__play .hero-player__icon-play {
+  display: none;
+}
+
+.hero-player--playing .hero-player__play .hero-player__icon-pause {
+  display: block;
+}
+
+/* Тонкая полоска прогресса по нижнему краю карточки (в Figma её нет —
+   просто чтобы было видно, что играет). --progress от 0 до 1. */
+.hero-player__progress {
+  position: absolute;
+  left: 17px;
+  right: 17px;
+  bottom: 0;
+  height: 2px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.hero-player--playing .hero-player__progress {
+  opacity: 1;
+}
+
+.hero-player__progress::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.5);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left;
+}
+
+@media (max-width: 720px) {
+  .hero-player {
+    left: 16px;
+    bottom: 16px;
+    max-width: calc(100% - 32px);
+  }
+}
