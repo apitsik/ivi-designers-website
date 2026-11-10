@@ -1,18 +1,32 @@
 /* ---------- Team ---------- */
 
-/* Макет (Figma «Team», step 4 – step 14): сцена 1440 × 832 на чёрном.
-   H2 814 px по центру на top 289. Три постера 470 × 554 по центру сцены
-   и девять мелких стикеров вокруг — позиции в index.html, в процентах
-   их пересчитывает src/team.js.
+/* Макет Figma «Сайт команды иви — Для экспорта»: раскадровка Team step 1 –
+   step 13 (node 34:445 … 215:1140), ховер — node 215:733, попап — 215:1195.
+   Кадр макета 1440 × 832.
 
-   Секция высокая: экран сцены + по экрану на каждый шаг скролла
-   (--steps ставит team.js). Сцена sticky, так что пока страница едет,
-   на экране остаётся она, а стикеры поднимаются снизу по --p. */
+   Устройство сцены. Секция высокая (экран + --steps экранов), внутри —
+   sticky-сцена на высоту экрана. В сцену вписан кадр 1440 × 832, его
+   масштаб к реальной ширине лежит в --u (ставит team.js). Папки и стикеры
+   позиционируются числами прямо из макета: transform: scale(--u)
+   translate(--x, --y). Поэтому внутри папки все размеры — пиксели макета,
+   и пропорции не плывут ни на каком экране.
+
+   Что происходит по скроллу (доли считает team.js):
+   1. Папки по очереди выезжают снизу и собираются в стопку с наклоном.
+   2. Пауза — стопка стоит, её можно разглядеть, навести и открыть.
+   3. Заголовок уходит в блюр, первая папка едет на своё место,
+      остальные опускаются вниз.
+   4. К папке по одному подъезжают стикеры.
+   5. Папка со стикерами уходит вверх (стикеры быстрее — параллакс),
+      снизу приходит следующая. Для третьей папки шага 5 нет. */
 
 .team {
   position: relative;
   z-index: 1;
-  --steps: 3;
+  --steps: 5;
+  /* Подпись на язычке в макете набрана Fira Mono; в репозитории её нет,
+     поэтому берём ближайший системный моноширинный */
+  --font-mono: 'Fira Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   height: calc(100vh * (1 + var(--steps)));
   height: calc(100svh * (1 + var(--steps)));
   /* Тот же цвет и тот же плавный переход, что у плашки extra-text:
@@ -28,18 +42,39 @@
   height: 100vh;
   height: 100svh;
   overflow: hidden;
-  /* Высота кадра макета 832 при ширине 1440: стикеры расставлены в долях
-     этого кадра, а сам кадр вписан по центру экрана */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* ----- заголовок ----- */
+/* ----- надзаголовок и заголовок ----- */
+
+/* Кадр макета: ширина экрана, высота по пропорции 1440 / 832. На широких
+   экранах он не выше экрана; на узких и высоких — по ширине. Заголовок
+   лежит в том же кадре, но размер шрифта у него свой, отзывчивый. */
+.team__scene {
+  position: relative;
+  width: 100%;
+  max-width: calc(100vh * 1440 / 832);
+  max-width: calc(100svh * 1440 / 832);
+  aspect-ratio: 1440 / 832;
+}
+
+.team__kicker {
+  position: absolute;
+  top: 19.83%; /* 165 / 832 */
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: var(--p1-size, 24px);
+  line-height: 1.2;
+  color: var(--color-white-72);
+  white-space: nowrap;
+}
 
 .team__title {
   position: absolute;
-  top: 34.7%; /* 289 / 832 */
+  top: 24.64%; /* 205 / 832 */
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
@@ -52,6 +87,11 @@
   letter-spacing: var(--h1-tracking);
   text-align: center;
   color: var(--color-white);
+  /* --fade ставит team.js: 0 — заголовок чёткий, 1 — ушёл в блюр */
+  --fade: 0;
+  opacity: calc(1 - var(--fade));
+  filter: blur(calc(var(--fade) * 12px));
+  will-change: opacity, filter;
 }
 
 /* Тот же эффект, что у остальных H2 (showreels.css, extra-text.css):
@@ -71,46 +111,465 @@
 
 /* ----- стикеры ----- */
 
-/* Кадр макета: ширина экрана, высота по пропорции 1440 / 832. На широких
-   экранах он не выше экрана; на узких и высоких — по ширине, с запасом
-   сверху и снизу. Стикеры позиционируются в процентах от кадра. */
-.team__stickers {
-  position: relative;
-  width: 100%;
-  max-width: calc(100vh * 1440 / 832);
-  max-width: calc(100svh * 1440 / 832);
-  aspect-ratio: 1440 / 832;
+/* --x / --y — координаты макета, их на каждый кадр считает team.js
+   (выезд снизу, параллакс при уходе вверх). --o — прозрачность. */
+.team__sticker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  transform-origin: 0 0;
+  transform: scale(var(--u, 1)) translate(var(--x, 0px), var(--y, 0px));
+  opacity: var(--o, 0);
   pointer-events: none;
+  will-change: transform, opacity;
 }
 
-/* --p — прогресс выезда (team.js): 0 — стикер ниже нижнего края экрана,
-   1 — на своём месте. Едет снизу вверх, по пути проявляется. */
-.team__sticker {
-  --p: 0;
-  --rot: 0deg;
-  position: absolute;
+.team__sticker img {
   display: block;
-  height: auto;
-  aspect-ratio: var(--ratio, 1);
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  transform: translateY(calc((1 - var(--p)) * 110vh)) rotate(var(--rot));
-  transform-origin: center;
-  opacity: clamp(0, calc(var(--p) * 3), 1);
+  transform: rotate(var(--rot, 0deg));
   filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.45));
-  will-change: transform, opacity;
   user-select: none;
   -webkit-user-drag: none;
 }
 
-/* Постеры — главный акцент, лежат под мелкими стикерами своего шага,
-   но поверх всего предыдущего шага (порядок в DOM) */
-.team__sticker--poster {
-  filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.6));
+/* ----- папка ----- */
+
+/* Слои снизу вверх: задняя часть с язычком → листы → передний сгиб,
+   на котором лежат номер, название, описание и полоски. На ховере
+   передний сгиб отклоняется в 3D, поэтому текст на нём наклоняется
+   и слегка искажается вместе с ним — как у настоящей папки. */
+.team-folder {
+  /* --folder — цвет папки, стоит в index.html; задняя часть на тон темнее */
+  --folder-back: color-mix(in srgb, var(--folder) 86%, #000000);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 660px;
+  height: 446px;
+  transform-origin: 0 0;
+  transform: scale(var(--u, 1)) translate(var(--x, 0px), var(--y, 0px));
+  pointer-events: none;
+  will-change: transform;
 }
 
+/* Наклон в стопке и подрастание на ховере — отдельным слоем, чтобы
+   не спорить с позиционированием выше */
+.team-folder__tilt {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--rot, 0deg)) scale(var(--grow, 1));
+  transform-origin: 50% 50%;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  /* перспектива для переднего сгиба */
+  perspective: 1400px;
+  perspective-origin: 50% 90%;
+}
+
+/* Папку можно трогать, только когда она стоит на месте: в стопке-превью
+   и когда доехала до своей позиции. Класс ставит team.js. */
+.team-folder.is-live {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.team-folder.is-live:is(:hover, :focus-visible) .team-folder__tilt,
+.team-folder.is-open .team-folder__tilt {
+  --grow: 1.035;
+}
+
+/* задняя часть: корпус + язычок */
+
+/* Левый верхний угол корпуса не скруглён: над ним стоит язычок, и левое
+   ребро папки должно читаться одной прямой линией, без ступеньки */
+.team-folder__back {
+  position: absolute;
+  left: 0;
+  top: 57px;
+  width: 660px;
+  height: 388px;
+  border-radius: 0 28px 28px 28px;
+  background: var(--folder-back);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* язычок слева сверху; заходит на корпус, чтобы шов не был виден */
+.team-folder__back::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -57px;
+  width: 184px;
+  height: 85px;
+  border-radius: 20px 20px 0 0;
+  background: inherit;
+}
+
+/* Вогнутая галтель: правое ребро язычка плавно разворачивается
+   в верхнее ребро корпуса, как на сгибе настоящей папки */
+.team-folder__back::after {
+  content: '';
+  position: absolute;
+  left: 184px;
+  top: -24px;
+  width: 24px;
+  height: 24px;
+  background: radial-gradient(circle at 100% 0, transparent 0 24px, var(--folder-back) 24px);
+}
+
+.team-folder__tab {
+  position: absolute;
+  left: 51px;
+  top: 19px;
+  width: 82px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+  text-align: center;
+  text-transform: uppercase;
+  color: rgba(18, 18, 18, 0.72);
+  white-space: nowrap;
+}
+
+/* листы */
+
+/* Карман, в котором лежат листы. Снизу он обрезан ровно по нижнему краю
+   папки, поэтому листы не вываливаются из неё; сверху у него запас, чтобы
+   на ховере они могли выехать выше края папки, как в макете. */
+.team-folder__sheets {
+  --pocket: 240px;
+  position: absolute;
+  left: 0;
+  top: calc(var(--pocket) * -1);
+  width: 660px;
+  height: calc(var(--pocket) + 445px);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Лежат между задней частью и передним сгибом — поэтому в покое их
+   не видно. На ховере выезжают вверх, каждый со своим таймингом. */
+.team-folder__sheet {
+  position: absolute;
+  background: #d8d8d8;
+  box-shadow: -5px -8px 47.7px rgba(0, 0, 0, 0.25);
+  transform-origin: 50% 100%;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* дальний лист — чуть повёрнут */
+.team-folder__sheet--back {
+  left: 283px;
+  top: calc(var(--pocket) + 95px);
+  width: 341px;
+  height: 418px;
+  transform: translateY(0) rotate(2deg);
+  transition-delay: 0.06s;
+}
+
+/* ближний лист — прямой */
+.team-folder__sheet--front {
+  left: 99px;
+  top: calc(var(--pocket) + 100px);
+  width: 445px;
+  height: 398px;
+  transform: translateY(0);
+}
+
+.team-folder.is-live:is(:hover, :focus-visible) .team-folder__sheet--back {
+  transform: translateY(-131px) rotate(6.55deg);
+}
+
+.team-folder.is-live:is(:hover, :focus-visible) .team-folder__sheet--front {
+  transform: translateY(-83px);
+}
+
+/* Клик: листы рвутся наружу — но не успевают, сверху приходит попап */
+.team-folder.is-open .team-folder__sheet--back {
+  transform: translateY(-210px) rotate(9deg) scale(1.03);
+  transition-duration: 0.34s;
+  transition-delay: 0s;
+}
+
+.team-folder.is-open .team-folder__sheet--front {
+  transform: translateY(-150px) scale(1.03);
+  transition-duration: 0.34s;
+  transition-delay: 0.04s;
+}
+
+/* передний сгиб */
+
+.team-folder__front {
+  position: absolute;
+  left: 0;
+  top: 85px;
+  width: 660px;
+  height: 360px;
+  border-radius: 28px;
+  background: var(--folder);
+  box-shadow: inset 0 4px 1px rgba(255, 255, 255, 0.25), 0 -2px 24px rgba(0, 0, 0, 0.22);
+  transform-origin: 50% 100%;
+  transform: rotateX(0deg);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+}
+
+/* Отклоняется верхним краем к зрителю: из-за перспективы верх становится
+   шире, а номер, название и описание на нём наклоняются и слегка
+   искажаются — ровно как на макете (node 215:733). */
+.team-folder.is-live:is(:hover, :focus-visible) .team-folder__front {
+  transform: rotateX(-9.5deg);
+}
+
+.team-folder.is-open .team-folder__front {
+  transform: rotateX(-15deg);
+  transition-duration: 0.34s;
+}
+
+.team-folder__num,
+.team-folder__name,
+.team-folder__desc {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  color: rgba(18, 18, 18, 0.72);
+  white-space: nowrap;
+}
+
+.team-folder__num {
+  top: 83px; /* 168 − 85 */
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: -0.32px;
+}
+
+.team-folder__name {
+  top: 104px; /* 189 − 85 */
+  font-size: 80px;
+  font-weight: 500;
+  line-height: 0.92;
+  letter-spacing: -2.4px;
+  color: #000000;
+}
+
+.team-folder__desc {
+  top: 197px; /* 282 − 85 */
+  width: 429px;
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: -0.32px;
+  text-align: center;
+  white-space: normal;
+}
+
+/* Полоски у нижнего края — сгиб картона */
+.team-folder__lines {
+  position: absolute;
+  left: 0;
+  top: 308px; /* 393 − 85 */
+  width: 660px;
+  height: 28px;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.16)) 0 0 / 100% 1px no-repeat,
+    linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)) 0 1px / 100% 1px no-repeat,
+    linear-gradient(rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.16)) 0 27px / 100% 1px no-repeat;
+}
+
+/* ----- попап команды ----- */
+
+/* Оверлей, блюр и появление диалога — общие с попапами шоурилов и статей
+   (классы .video-modal, src/showreels.css). Внутри — горизонтальный
+   слайдер карточек 592 px высотой с шагом 24 px (макет node 215:1195). */
+.team-modal .video-modal__dialog {
+  max-width: none;
+  width: 100%;
+  gap: 24px;
+}
+
+.team-modal__name {
+  margin: 0;
+  font-size: var(--p3-size);
+  line-height: 1.2;
+  color: var(--color-white-72);
+  text-align: center;
+}
+
+.team-modal__viewport {
+  width: 100%;
+  overflow: hidden;
+}
+
+.team-modal__track {
+  display: flex;
+  gap: 24px;
+  align-items: stretch;
+  height: min(592px, 64vh);
+  transform: translateX(var(--shift, 0px));
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.team-modal__card {
+  position: relative;
+  flex: 0 0 auto;
+  height: 100%;
+  border-radius: 48px;
+  overflow: hidden;
+  background: #e0dcdc;
+}
+
+/* Текст прижат к низу карточки — как в макете, но не ломается,
+   когда карточка ниже 592 px на небольшом экране */
+.team-modal__card--text {
+  width: 330px;
+  padding: 72px 29px 36px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.team-modal__card--poster {
+  width: 395px;
+  background: #101014;
+}
+
+/* Карточка-стопка: постер сверху, короткая подпись снизу (node 215:1220) */
+.team-modal__card--stack {
+  width: 391px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+}
+
+.team-modal__card--stack .team-modal__poster {
+  flex: 0 0 52.4%; /* 310 / 592 */
+  border-radius: 24px;
+  overflow: hidden;
+  background: #101014;
+}
+
+.team-modal__card--stack .team-modal__note {
+  position: relative;
+  flex: 1 1 auto;
+  border-radius: 24px;
+  background: #e0dcdc;
+  padding: 0 35px 32px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.team-modal__card--stack .team-modal__dot {
+  top: 27px;
+  right: 31px;
+}
+
+.team-modal__card--poster img,
+.team-modal__poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.team-modal__text {
+  margin: 0;
+  font-size: var(--p3-size);
+  line-height: 1.2;
+  letter-spacing: -0.32px;
+  color: rgba(0, 0, 0, 0.64);
+}
+
+.team-modal__text p {
+  margin: 0 0 1.2em;
+}
+
+.team-modal__text p:last-child {
+  margin-bottom: 0;
+}
+
+/* точка в правом верхнем углу текстовой карточки */
+.team-modal__dot {
+  position: absolute;
+  top: 32px;
+  right: 32px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #121212;
+}
+
+.team-modal__nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--p3-size);
+  line-height: 1.375;
+  color: var(--color-white-72);
+}
+
+.team-modal__arrow {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: color 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.team-modal__arrow:is(:hover, :focus-visible) {
+  color: var(--color-white);
+}
+
+.team-modal__arrow[disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ----- бережный режим ----- */
+
+/* Со сниженной анимацией сцена не залипает и ничего не ездит: секция
+   становится обычным вертикальным списком папок, стикеры убраны. */
 @media (prefers-reduced-motion: reduce) {
   .team {
+    height: auto;
     transition: none;
+    padding: 96px 0 120px;
+  }
+
+  .team__stage {
+    position: static;
+    height: auto;
+    display: block;
+  }
+
+  .team__scene {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 24px;
+    aspect-ratio: auto;
+  }
+
+  .team__kicker,
+  .team__title {
+    position: static;
+    transform: none;
+    opacity: 1;
+    filter: none;
   }
 
   .team__title .word {
@@ -121,20 +580,49 @@
   }
 
   .team__sticker {
-    --p: 1;
+    display: none;
+  }
+
+  .team-folder {
+    position: relative;
+    transform: scale(var(--u, 1));
+    transform-origin: 50% 0;
+    margin-bottom: calc(446px * (var(--u, 1) - 1));
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .team-folder__tilt,
+  .team-folder__front,
+  .team-folder__sheet {
+    transition: none;
+    transform: none;
+  }
+
+  .team-modal__track {
+    transition: none;
   }
 }
 
+/* ----- телефон ----- */
+
 @media (max-width: 720px) {
+  /* Кадр шире экрана, чтобы папка не стала крошечной: центр сцены
+     остаётся в центре, края кадра уходят за экран */
+  .team__scene {
+    width: 190vw;
+    max-width: none;
+  }
+
   .team__title {
-    top: 22%;
     padding: 0 16px;
   }
 
-  /* На телефоне кадр шире экрана, чтобы постеры не стали крошечными:
-     центр сцены остаётся в центре, края кадра уходят за экран */
-  .team__stickers {
-    width: 180vw;
-    max-width: none;
+  .team-modal .video-modal__dialog {
+    gap: 16px;
+  }
+
+  .team-modal__track {
+    height: min(592px, 58vh);
   }
 }

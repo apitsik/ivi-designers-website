@@ -175,36 +175,171 @@
         </div>
       </section>
 
-      <!-- Team: сцена залипает на экране, пока секция прокручивается на 3 шага.
-           Заголовок проявляется из блюра, как остальные H2. Каждый шаг скролла
-           поднимает снизу один крупный постер команды, а следом каскадом —
-           три мелких стикера вокруг него (step 4 – step 14 в Figma).
-           Позиции и повороты — из макета 1440 × 832, стикеры в data-* атрибутах
-           читает src/team.js. -->
+      <!-- Команды. Сцена залипает на экране, пока секция прокручивается:
+           папки по очереди выезжают снизу в стопку, пауза на превью, затем
+           каждая по очереди выходит на середину со своими стикерами
+           (src/team.js, раскадровка Team step 1 – step 13 в Figma).
+
+           Координаты — прямо из макета 1440 × 832, лежат в data-*:
+           data-stack-* — место в стопке, data-park-* — куда папка опускается,
+           пока ждёт очереди, data-enter-* — откуда выезжает снизу.
+           У стикеров data-x / data-y — левый верхний угол без поворота,
+           data-w / data-h — размер, data-rot — поворот, data-order — очередь.
+
+           Тексты папок и содержимое попапа правятся здесь же. -->
       <section class="team" id="teams" aria-labelledby="team-title">
         <div class="team__stage">
-          <h2 id="team-title" class="team__title" data-words>
-            Каждая команда делает свою работу<br />с любовью
-          </h2>
+          <div class="team__scene">
+            <p class="team__kicker">Команды</p>
+            <h2 id="team-title" class="team__title" data-words>
+              Каждая команда делает свою работу<br />с любовью
+            </h2>
 
-          <div class="team__stickers" aria-hidden="true">
-            <!-- Шаг 1: Бренд-команда -->
-            <img class="team__sticker team__sticker--poster" src="/images/team/team-sticker-1.png" alt="" data-step="0" data-order="0" data-x="485" data-y="128" data-w="470" data-h="554" />
-            <img class="team__sticker" src="/images/team/team-sticker-2.png" alt="" data-step="0" data-order="1" data-x="868" data-y="178" data-w="243" data-h="221" />
-            <img class="team__sticker" src="/images/team/team-sticker-3.png" alt="" data-step="0" data-order="2" data-x="111" data-y="178" data-w="288" data-h="222" data-rot="-9.54" />
-            <img class="team__sticker" src="/images/team/team-sticker-4.png" alt="" data-step="0" data-order="3" data-x="317" data-y="501" data-w="336" data-h="144" />
+            <!-- (01) Продукт -->
+            <article
+              class="team-folder"
+              style="--folder: #a69898"
+              data-stack-x="424" data-stack-y="541" data-stack-rot="0"
+              data-park-x="424" data-park-y="828"
+              data-enter-y="1180" data-enter-rot="5"
+              data-detail-name="Команда дизайна продукта"
+              role="button" tabindex="-1" aria-label="Команда продукта — открыть"
+            >
+              <div class="team-folder__tilt">
+                <div class="team-folder__back"></div>
+                <p class="team-folder__tab">продукт</p>
+                <div class="team-folder__sheets">
+                  <span class="team-folder__sheet team-folder__sheet--back"></span>
+                  <span class="team-folder__sheet team-folder__sheet--front"></span>
+                </div>
+                <div class="team-folder__front">
+                  <p class="team-folder__num">(01)</p>
+                  <p class="team-folder__name">продукт</p>
+                  <p class="team-folder__desc">Делаем красиво и удобно на разных платформах.<br />TV, Web, App</p>
+                  <div class="team-folder__lines"></div>
+                </div>
+              </div>
+              <!-- Содержимое попапа. Карточка с картинкой, которой ещё нет
+                   в public/images/team, просто не покажется. -->
+              <template class="team-folder__detail">
+                <div class="team-modal__card team-modal__card--text">
+                  <span class="team-modal__dot"></span>
+                  <div class="team-modal__text">
+                    <p>Делаем красиво и удобно на разных платформах: TV, Web, App.</p>
+                  </div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster">
+                  <img src="/images/team/team-detail-product-1.jpg" alt="" />
+                </div>
+                <div class="team-modal__card team-modal__card--poster">
+                  <img src="/images/team/team-detail-product-2.jpg" alt="" />
+                </div>
+              </template>
+            </article>
 
-            <!-- Шаг 2: вторая команда -->
-            <img class="team__sticker team__sticker--poster" src="/images/team/team-sticker-5.png" alt="" data-step="1" data-order="0" data-x="524" data-y="153" data-w="470" data-h="554" data-rot="-2.95" />
-            <img class="team__sticker" src="/images/team/team-sticker-6.png" alt="" data-step="1" data-order="1" data-x="810" data-y="92" data-w="300.5" data-h="419" />
-            <img class="team__sticker" src="/images/team/team-sticker-7.png" alt="" data-step="1" data-order="2" data-x="1035" data-y="434" data-w="262" data-h="221" data-rot="14.23" />
-            <img class="team__sticker" src="/images/team/team-sticker-8.png" alt="" data-step="1" data-order="3" data-x="184.5" data-y="577" data-w="212" data-h="128" data-rot="14.26" />
+            <!-- (02) Контент -->
+            <article
+              class="team-folder"
+              style="--folder: #d9d9d9"
+              data-stack-x="340" data-stack-y="587" data-stack-rot="-6"
+              data-park-x="340" data-park-y="874"
+              data-enter-y="1240" data-enter-rot="-11"
+              data-detail-name="Команда дизайна контента"
+              role="button" tabindex="-1" aria-label="Команда контента — открыть"
+            >
+              <div class="team-folder__tilt">
+                <div class="team-folder__back"></div>
+                <p class="team-folder__tab">контент</p>
+                <div class="team-folder__sheets">
+                  <span class="team-folder__sheet team-folder__sheet--back"></span>
+                  <span class="team-folder__sheet team-folder__sheet--front"></span>
+                </div>
+                <div class="team-folder__front">
+                  <p class="team-folder__num">(02)</p>
+                  <p class="team-folder__name">контент</p>
+                  <p class="team-folder__desc">Создаём самые классные постеры<br />для фильмов и сериалов собственного производства</p>
+                  <div class="team-folder__lines"></div>
+                </div>
+              </div>
+              <template class="team-folder__detail">
+                <div class="team-modal__card team-modal__card--text">
+                  <span class="team-modal__dot"></span>
+                  <div class="team-modal__text">
+                    <p>Команда дизайна контента занимается созданием самых классных постеров для фильмов и сериалов собственного производства.</p>
+                    <p>За каждой картинкой стоят сотни часов работы, множество итераций и согласований. Всё для того, чтобы получить лучший из возможных результатов.</p>
+                    <p>Практически для каждого тайтла готовим: 20 оригинальных кейвижалов, сотни ресайзов, тайтл тритмент, характер постеры и тд.</p>
+                  </div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster">
+                  <img src="/images/team/team-detail-content-1.jpg" alt="" />
+                </div>
+                <div class="team-modal__card team-modal__card--poster">
+                  <img src="/images/team/team-detail-content-2.jpg" alt="" />
+                </div>
+                <div class="team-modal__card team-modal__card--stack">
+                  <div class="team-modal__poster">
+                    <img src="/images/team/team-detail-content-3.jpg" alt="" />
+                  </div>
+                  <div class="team-modal__note">
+                    <span class="team-modal__dot"></span>
+                    <p class="team-modal__text">Для каждого нашего тайтла мы делаем тайтл тритмент. То есть название в подходящей стилистике</p>
+                  </div>
+                </div>
+              </template>
+            </article>
 
-            <!-- Шаг 3: третья команда -->
-            <img class="team__sticker team__sticker--poster" src="/images/team/team-sticker-9.png" alt="" data-step="2" data-order="0" data-x="441" data-y="189" data-w="470" data-h="554" />
-            <img class="team__sticker" src="/images/team/team-sticker-10.png" alt="" data-step="2" data-order="1" data-x="264" data-y="372" data-w="220" data-h="139" />
-            <img class="team__sticker" src="/images/team/team-sticker-11.png" alt="" data-step="2" data-order="2" data-x="759" data-y="298" data-w="408" data-h="264" />
-            <img class="team__sticker" src="/images/team/team-sticker-12.png" alt="" data-step="2" data-order="3" data-x="906.7" data-y="586" data-w="280" data-h="158" />
+            <!-- (03) Бренд -->
+            <article
+              class="team-folder"
+              style="--folder: #c98caa"
+              data-stack-x="452" data-stack-y="677" data-stack-rot="0"
+              data-park-x="452" data-park-y="964"
+              data-enter-y="1300" data-enter-rot="7"
+              data-detail-name="Команда бренд-дизайна"
+              role="button" tabindex="-1" aria-label="Команда бренда — открыть"
+            >
+              <div class="team-folder__tilt">
+                <div class="team-folder__back"></div>
+                <p class="team-folder__tab">бренд</p>
+                <div class="team-folder__sheets">
+                  <span class="team-folder__sheet team-folder__sheet--back"></span>
+                  <span class="team-folder__sheet team-folder__sheet--front"></span>
+                </div>
+                <div class="team-folder__front">
+                  <p class="team-folder__num">(03)</p>
+                  <p class="team-folder__name">бренд</p>
+                  <p class="team-folder__desc">Формируем бренд-айдентику и оформляем оригинальные креативы повсеместно</p>
+                  <div class="team-folder__lines"></div>
+                </div>
+              </div>
+              <template class="team-folder__detail">
+                <div class="team-modal__card team-modal__card--text">
+                  <span class="team-modal__dot"></span>
+                  <div class="team-modal__text">
+                    <p>Формируем бренд-айдентику и оформляем оригинальные креативы повсеместно.</p>
+                  </div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster">
+                  <img src="/images/team/team-detail-brand-1.jpg" alt="" />
+                </div>
+                <div class="team-modal__card team-modal__card--poster">
+                  <img src="/images/team/team-detail-brand-2.jpg" alt="" />
+                </div>
+              </template>
+            </article>
+
+            <!-- Стикеры: по три на команду, подъезжают снизу по очереди -->
+            <span class="team__sticker" data-folder="0" data-order="1" data-x="72.4" data-y="318.32" data-w="288" data-h="222" data-rot="-9.54"><img src="/images/team/team-sticker-3.png" alt="" /></span>
+            <span class="team__sticker" data-folder="0" data-order="2" data-x="1097.43" data-y="346.84" data-w="243" data-h="221" data-rot="5.99"><img src="/images/team/team-sticker-2.png" alt="" /></span>
+            <span class="team__sticker" data-folder="0" data-order="3" data-x="246" data-y="585" data-w="336" data-h="144"><img src="/images/team/team-sticker-4.png" alt="" /></span>
+
+            <span class="team__sticker" data-folder="1" data-order="1" data-x="34" data-y="101" data-w="332.77" data-h="464"><img src="/images/team/team-sticker-6.png" alt="" /></span>
+            <span class="team__sticker" data-folder="1" data-order="2" data-x="1080.53" data-y="171.53" data-w="277.65" data-h="234.2" data-rot="14.23"><img src="/images/team/team-sticker-7.png" alt="" /></span>
+            <span class="team__sticker" data-folder="1" data-order="3" data-x="127.34" data-y="451.97" data-w="234.77" data-h="141.75" data-rot="-15"><img src="/images/team/team-sticker-8.png" alt="" /></span>
+
+            <span class="team__sticker" data-folder="2" data-order="1" data-x="1106.07" data-y="231.19" data-w="261" data-h="165" data-rot="17.95"><img src="/images/team/team-sticker-10.png" alt="" /></span>
+            <span class="team__sticker" data-folder="2" data-order="2" data-x="108" data-y="449" data-w="344" data-h="222"><img src="/images/team/team-sticker-11.png" alt="" /></span>
+            <span class="team__sticker" data-folder="2" data-order="3" data-x="978" data-y="428" data-w="356" data-h="201"><img src="/images/team/team-sticker-12.png" alt="" /></span>
           </div>
         </div>
       </section>
@@ -433,6 +568,31 @@
               <a class="article-modal__link" href="#" target="_blank" rel="noopener">Смотреть</a>
             </div>
           </article>
+        </div>
+      </div>
+    </div>
+
+    <!-- Попап команды: те же оверлей, блюр и анимация, что у попапов
+         шоурилов и статей (классы .video-modal), внутри горизонтальный
+         слайдер карточек (src/team.css). Карточки приходят из <template>
+         внутри самой папки в секции «Команды» — текст и картинки правятся
+         там же, рядом с командой. -->
+    <div class="video-modal team-modal" hidden aria-hidden="true">
+      <div class="video-modal__overlay" data-close></div>
+      <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+      <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="team-modal-title">
+        <p id="team-modal-title" class="team-modal__name"></p>
+        <div class="team-modal__viewport">
+          <div class="team-modal__track"></div>
+        </div>
+        <div class="team-modal__nav">
+          <button class="team-modal__arrow" type="button" data-dir="-1">&lsaquo; туда</button>
+          <span class="team-modal__bullet" aria-hidden="true">&bull;</span>
+          <button class="team-modal__arrow" type="button" data-dir="1">сюда &rsaquo;</button>
         </div>
       </div>
     </div>

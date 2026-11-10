@@ -32,7 +32,7 @@ initHeroStickers(document.querySelector('.hero'));
 initHeroPlayer(document.querySelector('.hero-player'));
 initShowreels(document.querySelector('.showreels'));
 initExtraText(document.querySelector('.extra-text'));
-initTeam(document.querySelector('.team'));
+initTeam(document.querySelector('.team'), document.querySelector('.team-modal'));
 initAwards(document.querySelector('.awards'));
 initArticles(document.querySelector('.articles'), document.querySelector('.article-modal'));
 initGrid(document.querySelector('.grid'));
