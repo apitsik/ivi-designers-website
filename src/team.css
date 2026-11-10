@@ -62,19 +62,19 @@
 
 .team__kicker {
   position: absolute;
-  top: 19.83%; /* 165 / 832 */
+  top: 14.42%; /* 120 / 832 */
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
-  font-size: var(--p1-size, 24px);
-  line-height: 1.2;
+  font-size: var(--p2-size);
+  line-height: var(--p2-line);
   color: var(--color-white-72);
   white-space: nowrap;
 }
 
 .team__title {
   position: absolute;
-  top: 24.64%; /* 205 / 832 */
+  top: 28.85%; /* 240 / 832 */
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
@@ -290,17 +290,20 @@
   transform: translateY(-83px);
 }
 
-/* Клик: листы рвутся наружу — но не успевают, сверху приходит попап */
+/* Клик: папка раскрывается сильнее и листы рвутся наружу — это видно
+   до того, как сверху придёт попап (задержку держит team.js) */
 .team-folder.is-open .team-folder__sheet--back {
-  transform: translateY(-210px) rotate(9deg) scale(1.03);
-  transition-duration: 0.34s;
+  transform: translateY(-250px) rotate(10deg) scale(1.05);
+  transition-duration: 0.42s;
+  transition-timing-function: cubic-bezier(0.34, 1.3, 0.5, 1);
   transition-delay: 0s;
 }
 
 .team-folder.is-open .team-folder__sheet--front {
-  transform: translateY(-150px) scale(1.03);
-  transition-duration: 0.34s;
-  transition-delay: 0.04s;
+  transform: translateY(-186px) scale(1.05);
+  transition-duration: 0.42s;
+  transition-timing-function: cubic-bezier(0.34, 1.3, 0.5, 1);
+  transition-delay: 0.06s;
 }
 
 /* передний сгиб */
@@ -328,8 +331,8 @@
 }
 
 .team-folder.is-open .team-folder__front {
-  transform: rotateX(-15deg);
-  transition-duration: 0.34s;
+  transform: rotateX(-24deg);
+  transition-duration: 0.42s;
 }
 
 .team-folder__num,
@@ -387,13 +390,22 @@
 /* Оверлей, блюр и появление диалога — общие с попапами шоурилов и статей
    (классы .video-modal, src/showreels.css). Внутри — горизонтальный
    слайдер карточек 592 px высотой с шагом 24 px (макет node 215:1195). */
+/* Содержимое тянется на всю высоту окна, сверху и снизу по 120 px.
+   Карточки держат пропорции макета (ширина : высота от кадра 592), так
+   что при любой высоте экрана раскладка остаётся макетной. */
+.team-modal {
+  padding: 120px 48px;
+}
+
 .team-modal .video-modal__dialog {
   max-width: none;
   width: 100%;
+  height: 100%;
   gap: 24px;
 }
 
 .team-modal__name {
+  flex: 0 0 auto;
   margin: 0;
   font-size: var(--p3-size);
   line-height: 1.2;
@@ -402,46 +414,62 @@
 }
 
 .team-modal__viewport {
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
   overflow: hidden;
+  cursor: grab;
+}
+
+.team-modal__viewport.is-dragging {
+  cursor: grabbing;
 }
 
 .team-modal__track {
   display: flex;
   gap: 24px;
   align-items: stretch;
-  height: min(592px, 64vh);
+  height: 100%;
   transform: translateX(var(--shift, 0px));
   transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+/* пока тянут мышью, слайдер идёт за курсором без доводки */
+.team-modal__viewport.is-dragging .team-modal__track {
+  transition: none;
 }
 
 .team-modal__card {
   position: relative;
   flex: 0 0 auto;
   height: 100%;
+  width: auto;
   border-radius: 48px;
   overflow: hidden;
   background: #e0dcdc;
 }
 
-/* Текст прижат к низу карточки — как в макете, но не ломается,
-   когда карточка ниже 592 px на небольшом экране */
+/* Текст прижат к низу карточки — как в макете */
 .team-modal__card--text {
-  width: 330px;
+  aspect-ratio: 330 / 592;
   padding: 72px 29px 36px;
   display: flex;
   align-items: flex-end;
 }
 
+/* Заглушка под картинку: шейп со скруглением из макета (48).
+   Когда появится реальный постер, внутрь кладётся <img>. */
 .team-modal__card--poster {
-  width: 395px;
-  background: #101014;
+  aspect-ratio: 395 / 592;
+  background: #26262b;
 }
 
 /* Карточка-стопка: постер сверху, короткая подпись снизу (node 215:1220) */
 .team-modal__card--stack {
-  width: 391px;
+  aspect-ratio: 391 / 592;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -452,9 +480,9 @@
 
 .team-modal__card--stack .team-modal__poster {
   flex: 0 0 52.4%; /* 310 / 592 */
-  border-radius: 24px;
+  border-radius: 80px;
   overflow: hidden;
-  background: #101014;
+  background: #26262b;
 }
 
 .team-modal__card--stack .team-modal__note {
@@ -618,11 +646,11 @@
     padding: 0 16px;
   }
 
-  .team-modal .video-modal__dialog {
-    gap: 16px;
+  .team-modal {
+    padding: 72px 16px;
   }
 
-  .team-modal__track {
-    height: min(592px, 58vh);
+  .team-modal .video-modal__dialog {
+    gap: 16px;
   }
 }

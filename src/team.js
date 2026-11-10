@@ -45,10 +45,14 @@ const STICKER_START = 0.34; // когда пошёл первый стикер
 const STICKER_GAP = 0.1; // сдвиг между соседними
 const STICKER_LEN = 0.18; // сколько едет один стикер
 
-// Следующая папка начинает подниматься снизу раньше, чем предыдущая
-// доедет вверх: их пути перекрываются, и на экране не возникает пустоты
-// (в макете это шаг 11 — одна папка ещё уходит, другая уже видна).
-const OVERLAP = 0.3;
+// Следующая папка трогается с места ровно тогда, когда предыдущая
+// начинает уходить вверх: пустоты на экране не возникает, но пока папка
+// стоит в центре, следующей ещё не видно (в макете это шаг 11).
+const OVERLAP = 0.2;
+
+// Запас за краем сцены в пикселях макета: на него папка уезжает сверх
+// самого края, чтобы не выглядывала тень
+const MARGIN = 60;
 
 // Стикеры уходят вверх быстрее папки — за счёт этого получается параллакс
 const PARALLAX = 1.16;
@@ -104,10 +108,22 @@ export function initTeam(section, modal) {
     };
   });
 
-  // Масштаб кадра: сцена может быть и уже, и шире 1440
+  // Масштаб кадра: сцена может быть и уже, и шире 1440.
+  //
+  // Кадр 1440 × 832 вписан в экран по ширине, поэтому над ним и под ним
+  // обычно остаются поля — и папка, уехавшая за край кадра, в этих полях
+  // всё ещё видна. Высоту полей (в единицах макета) держим в outset и
+  // прибавляем ко всем позициям за кадром: так припаркованной снизу папки
+  // не видно, пока текущая стоит в центре, на любом экране.
+  const stage = section.querySelector('.team__stage');
+  let outset = MARGIN;
+
   const resize = () => {
     if (!scene) return;
-    scene.style.setProperty('--u', scene.clientWidth / DESIGN_W);
+    const u = scene.clientWidth / DESIGN_W;
+    scene.style.setProperty('--u', u);
+    const band = stage ? (stage.clientHeight - scene.clientHeight) / 2 : 0;
+    outset = MARGIN + (u > 0 ? Math.max(0, band / u) : 0);
   };
 
   // ----- попап -----
@@ -157,7 +173,11 @@ export function initTeam(section, modal) {
   };
 
   const place = (item, i, p) => {
-    const { el, enter, stack, park, start, last, stickers } = item;
+    const { el, stack, start, last, stickers } = item;
+    // Всё, что за кадром, отодвигаем на величину полей (см. resize)
+    const enter = { ...item.enter, y: item.enter.y + outset };
+    const park = { ...item.park, y: item.park.y + outset };
+    const exit = { x: REST.x, y: EXIT_Y - outset, rot: 0 };
     // Первая папка выходит прямо из стопки, остальные стартуют с нахлёстом
     const arriveFrom = i === 0 ? start : start - OVERLAP * SPAN;
     const arriveTo = start + ARRIVE * SPAN;
@@ -182,7 +202,7 @@ export function initTeam(section, modal) {
       pos = mix(i === 0 ? stack : park, REST, ease(range(p, arriveFrom, arriveTo)));
     } else if (!last && p > leaveFrom) {
       // уходим вверх
-      pos = mix(REST, { x: REST.x, y: EXIT_Y, rot: 0 }, ease(range(p, leaveFrom, leaveTo)));
+      pos = mix(REST, exit, ease(range(p, leaveFrom, leaveTo)));
     } else {
       pos = REST;
       live = true;
@@ -200,8 +220,8 @@ export function initTeam(section, modal) {
     stickers.forEach(({ node, y, order }, k) => {
       const from = start + (STICKER_START + k * STICKER_GAP) * SPAN;
       const t = ease(range(p, from, from + STICKER_LEN * SPAN));
-      const shift = out * (EXIT_Y - REST.y) * PARALLAX;
-      node.style.setProperty('--y', `${(y + (1 - t) * STICKER_RISE + shift).toFixed(2)}px`);
+      const shift = out * (exit.y - REST.y) * PARALLAX;
+      node.style.setProperty('--y', `${(y + (1 - t) * (STICKER_RISE + outset) + shift).toFixed(2)}px`);
       node.style.setProperty('--o', Math.min(clamp(t * 3, 0, 1), 1 - clamp((out - 0.55) / 0.45, 0, 1)).toFixed(3));
     });
   };
@@ -281,7 +301,8 @@ function initDetail(modal) {
     track.style.setProperty('--shift', '0px');
     index = 0;
 
-    // Листы успевают рвануть наружу, и сверху приходит попап
+    // Папка успевает заметно раскрыться — листы рвутся наружу, передний
+    // сгиб отваливается сильнее, — и только потом сверху приходит попап
     setTimeout(() => {
       modal.hidden = false;
       modal.setAttribute('aria-hidden', 'false');
@@ -292,7 +313,7 @@ function initDetail(modal) {
         go(0);
       }));
       closeBtn?.focus({ preventScroll: true });
-    }, 170);
+    }, 420);
   };
 
   const close = () => {
@@ -312,6 +333,52 @@ function initDetail(modal) {
       opener = null;
     }
   };
+
+  // Ближайшая карточка к произвольному сдвигу — куда слайдер доводится
+  // после того, как его отпустили
+  const nearest = (shift) => {
+    let best = 0;
+    let bestGap = Infinity;
+    for (let k = 0; k < track.children.length; k += 1) {
+      const gap = Math.abs(shiftFor(k) - shift);
+      if (gap < bestGap) {
+        bestGap = gap;
+        best = k;
+      }
+    }
+    return best;
+  };
+
+  // Слайдер можно просто тянуть — мышью или пальцем
+  let dragging = false;
+  let startX = 0;
+  let startShift = 0;
+
+  viewport.addEventListener('pointerdown', (e) => {
+    if (track.children.length < 2) return;
+    dragging = true;
+    startX = e.clientX;
+    startShift = shiftFor(index);
+    viewport.classList.add('is-dragging');
+    viewport.setPointerCapture(e.pointerId);
+  });
+
+  viewport.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const shift = clamp(startShift - (e.clientX - startX), 0, maxShift());
+    track.style.setProperty('--shift', `${-shift}px`);
+  });
+
+  const endDrag = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    viewport.classList.remove('is-dragging');
+    go(nearest(clamp(startShift - (e.clientX - startX), 0, maxShift())));
+  };
+
+  viewport.addEventListener('pointerup', endDrag);
+  viewport.addEventListener('pointercancel', endDrag);
+  viewport.addEventListener('dragstart', (e) => e.preventDefault());
 
   arrows.forEach((a) => a.addEventListener('click', () => go(index + Number(a.dataset.dir))));
   modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
