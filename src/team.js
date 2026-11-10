@@ -23,8 +23,10 @@
 import { splitWords, observeReveal } from './reveal.js';
 import { lenis } from './smooth-scroll.js';
 
-// Кадр макета
+// Кадр макета и размер папки в нём
 const DESIGN_W = 1440;
+const DESIGN_H = 832;
+const FOLDER_H = 446;
 
 // Сколько экранов скролла занимает секция сверх самой сцены
 const STEPS = 5;
@@ -185,7 +187,6 @@ export function initTeam(section, modal) {
     const leaveTo = start + SPAN;
 
     let pos;
-    let live = false;
 
     if (p < STACK_END) {
       // выезжают по очереди снизу и собираются в стопку
@@ -193,7 +194,6 @@ export function initTeam(section, modal) {
     } else if (p < PREVIEW_END) {
       // пауза: стопку можно разглядеть и открыть
       pos = stack;
-      live = true;
     } else if (p < arriveFrom) {
       // своей очереди ещё нет: опускаемся из стопки вниз и ждём
       pos = mix(stack, park, ease(range(p, PREVIEW_END, PREVIEW_END + ARRIVE * SPAN)));
@@ -205,15 +205,20 @@ export function initTeam(section, modal) {
       pos = mix(REST, exit, ease(range(p, leaveFrom, leaveTo)));
     } else {
       pos = REST;
-      live = true;
     }
 
     el.style.setProperty('--x', `${pos.x.toFixed(2)}px`);
     el.style.setProperty('--y', `${pos.y.toFixed(2)}px`);
     el.style.setProperty('--rot', `${pos.rot.toFixed(2)}deg`);
-    el.classList.toggle('is-live', live);
-    // В табуляцию попадает только та папка, которую сейчас видно
-    el.tabIndex = live ? 0 : -1;
+
+    // Навести и открыть папку можно на всём её пути, а не только в
+    // финальной точке: ховер и клик живут, пока папку видно на экране.
+    // Поля над кадром и под ним тоже видимая часть экрана — поэтому
+    // считаем с их учётом (band), иначе папка «оживала» бы с опозданием.
+    const band = outset - MARGIN;
+    const onScreen = pos.y + FOLDER_H > -band && pos.y < DESIGN_H + band;
+    el.classList.toggle('is-live', onScreen);
+    el.tabIndex = onScreen ? 0 : -1;
 
     // Стикеры: подъезжают по одному после того, как папка встала на место
     const out = last ? 0 : ease(range(p, leaveFrom, leaveTo));
