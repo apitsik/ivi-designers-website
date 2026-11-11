@@ -571,16 +571,20 @@
           <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </button>
+      <!-- Подпись и навигация вынесены из диалога по той же причине, что и
+           крестик: у диалога на время анимации стоит transform, и позиции
+           внутри него считались бы от него, а не от окна. Подпись идёт по
+           одной линии с крестиком, навигация — по центру нижнего отступа. -->
+      <p id="team-modal-title" class="team-modal__name"></p>
       <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="team-modal-title">
-        <p id="team-modal-title" class="team-modal__name"></p>
         <div class="team-modal__viewport">
           <div class="team-modal__track"></div>
         </div>
-        <div class="team-modal__nav">
-          <button class="team-modal__arrow" type="button" data-dir="-1">&lsaquo; туда</button>
-          <span class="team-modal__bullet" aria-hidden="true">&bull;</span>
-          <button class="team-modal__arrow" type="button" data-dir="1">сюда &rsaquo;</button>
-        </div>
+      </div>
+      <div class="team-modal__nav">
+        <button class="team-modal__arrow" type="button" data-dir="-1">&lsaquo; туда</button>
+        <span class="team-modal__bullet" aria-hidden="true">&bull;</span>
+        <button class="team-modal__arrow" type="button" data-dir="1">сюда &rsaquo;</button>
       </div>
     </div>
 

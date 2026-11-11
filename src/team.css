@@ -394,23 +394,33 @@
    Карточки держат пропорции макета (ширина : высота от кадра 592), так
    что при любой высоте экрана раскладка остаётся макетной. */
 .team-modal {
-  padding: 120px 48px;
+  --pad: 120px;
+  padding: var(--pad) 48px;
 }
 
 .team-modal .video-modal__dialog {
   max-width: none;
   width: 100%;
   height: 100%;
-  gap: 24px;
+  gap: 0;
 }
 
+/* Подпись сверху — по одной линии с крестиком: он стоит на 32 px от верха
+   окна и сам 48 px высотой, значит его центр на 56 px. Подпись и навигация
+   лежат вне диалога (см. index.html) и позиционируются от окна, поэтому
+   карточкам достаётся ровно высота между отступами. */
 .team-modal__name {
-  flex: 0 0 auto;
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translate(-50%, -50%);
   margin: 0;
   font-size: var(--p3-size);
   line-height: 1.2;
   color: var(--color-white-72);
   text-align: center;
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
 }
 
 .team-modal__viewport {
@@ -535,13 +545,25 @@
   background: #121212;
 }
 
+/* Навигация — по центру нижнего отступа */
 .team-modal__nav {
+  position: absolute;
+  bottom: calc(var(--pad) / 2);
+  left: 50%;
+  transform: translate(-50%, 50%);
   display: flex;
   align-items: center;
   gap: 12px;
   font-size: var(--p3-size);
   line-height: 1.375;
   color: var(--color-white-72);
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
+}
+
+.team-modal.video-modal--open .team-modal__name,
+.team-modal.video-modal--open .team-modal__nav {
+  opacity: 1;
 }
 
 .team-modal__arrow {
@@ -647,10 +669,7 @@
   }
 
   .team-modal {
-    padding: 72px 16px;
-  }
-
-  .team-modal .video-modal__dialog {
-    gap: 16px;
+    --pad: 88px;
+    padding: var(--pad) 16px;
   }
 }
