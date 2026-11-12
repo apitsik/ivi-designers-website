@@ -319,7 +319,7 @@ export function initTeam(section, modal) {
       node.style.setProperty('--y', `${(y - shift).toFixed(2)}px`);
       node.style.setProperty('--o', clamp(t * 2.5, 0, 1).toFixed(3));
       // Приклеивание: бумага прижимается к стене вокруг верхнего ребра
-      stick.style.setProperty('--stick-rx', `${(-(1 - t) * NOTE_TILT).toFixed(2)}deg`);
+      stick.style.setProperty('--stick-rx', `${((1 - t) * NOTE_TILT).toFixed(2)}deg`);
       node.classList.toggle('is-live', t > 0.8);
       node.tabIndex = t > 0.8 ? 0 : -1;
     });
@@ -348,93 +348,28 @@ export function initTeam(section, modal) {
 // стикер отлипает и через три секунды приклеивается обратно.
 const PEEL_BACK = 3000; // сколько стикер лежит внизу, прежде чем вернуться
 const STICK_BACK = 820; // сколько длится возврат с пружиной
-const SLICES = 12; // на сколько полос режем лист
-const GLUE = 0.2; // верхняя доля на клею — она не гнётся
-
-// Режем лист на горизонтальные полосы, вложенные друг в друга: поворот
-// каждой складывается с поворотом всех, что выше, и изгиб получается
-// дугой, а не переломом. Доля полосы (--w) растёт от клейкой зоны к низу,
-// а сумма долей равна единице — значит общий угол не зависит от их числа.
-//
-// Режем в натуральных пикселях картинки и целыми числами: если резать в
-// уже уменьшенных, каждая полоса пересчитает изображение со своим дробным
-// сдвигом и на стыках появятся светлые нити. Готовый лист уменьшаем целиком.
-function buildSlices(node, paper) {
-  const img = paper.querySelector('img');
-  if (!img) return false;
-
-  const natW = img.naturalWidth;
-  const natH = img.naturalHeight;
-  const boxW = parseFloat(node.style.width) || node.offsetWidth;
-  if (!natW || !natH || !boxW) return false;
-
-  const src = img.currentSrc || img.src;
-  const scale = document.createElement('span');
-  scale.className = 'team-note__scale';
-  scale.style.width = `${natW}px`;
-  scale.style.height = `${natH}px`;
-  scale.style.setProperty('--paper-scale', (boxW / natW).toFixed(5));
-
-  const step = Math.round(natH / SLICES);
-  const weights = [];
-  for (let i = 0; i < SLICES; i += 1) {
-    weights.push(Math.max(0, (i + 1) / SLICES - GLUE) / (1 - GLUE));
-  }
-  const total = weights.reduce((a, b) => a + b, 0) || 1;
-
-  let host = scale;
-  for (let i = 0; i < SLICES; i += 1) {
-    const slice = document.createElement('span');
-    slice.className = 'team-note__slice';
-    slice.style.top = `${i === 0 ? 0 : step}px`;
-    // последняя полоса добирает остаток, остальные заходят друг на друга
-    const last = i === SLICES - 1;
-    slice.style.height = `${last ? natH - step * i : step + 2}px`;
-    slice.style.width = `${natW}px`;
-    slice.style.backgroundImage = `url("${src}")`;
-    slice.style.backgroundSize = `${natW}px ${natH}px`;
-    slice.style.backgroundPosition = `0 ${-i * step}px`;
-    slice.style.setProperty('--w', (weights[i] / total).toFixed(4));
-    host.appendChild(slice);
-    host = slice;
-  }
-
-  paper.appendChild(scale);
-  img.remove();
-  return true;
-}
-
-// Картинка может быть ещё не загружена — тогда ждём и режем после
-function sliceWhenReady(node, paper, done) {
-  const img = paper.querySelector('img');
-  if (!img) return;
-  if (img.complete && img.naturalWidth) {
-    done(buildSlices(node, paper));
-  } else {
-    img.addEventListener('load', () => done(buildSlices(node, paper)), { once: true });
-  }
-}
+const CURL_REACH = 0.8; // с какого расстояния до уголка он начинает заворачиваться
 
 function initNotes(notes, reduced) {
   if (reduced) return;
 
-  notes.forEach(({ node, paper, stick }, k) => {
-    sliceWhenReady(node, paper, (ok) => {
-      if (!ok) return;
-      const shadow = document.createElement('span');
-      shadow.className = 'team-note__shadow';
-      node.insertBefore(shadow, stick);
-    });
+  notes.forEach(({ node, paper }, k) => {
+    // изнанка завёрнутого уголка — отдельным слоем поверх листа
+    const curl = document.createElement('span');
+    curl.className = 'team-note__curl';
+    paper.appendChild(curl);
+
+    const shadow = document.createElement('span');
+    shadow.className = 'team-note__shadow';
+    node.insertBefore(shadow, node.firstElementChild);
+
     // падают с разным наклоном, чтобы не выглядело под копирку
     node.style.setProperty('--fall-spin', `${(k % 2 ? 1 : -1) * (9 + k * 5)}deg`);
 
     let away = 0;
     let back = 0;
 
-    const relax = () => {
-      node.style.setProperty('--lift', '0');
-      node.style.setProperty('--side', '0');
-    };
+    const relax = () => node.style.setProperty('--curl', '0');
 
     node.addEventListener('pointermove', (e) => {
       if (node.classList.contains('is-falling') || node.classList.contains('is-sticking')) return;
@@ -442,10 +377,14 @@ function initNotes(notes, reduced) {
       if (!r.width || !r.height) return;
       const px = (e.clientX - r.left) / r.width;
       const py = (e.clientY - r.top) / r.height;
-      // ниже клейкой полосы бумага свободна: чем ниже курсор, тем сильнее
-      // отгибается край, а левее или правее — тот уголок и заворачивается
-      node.style.setProperty('--lift', clamp((py - GLUE) / (1 - GLUE), 0, 1).toFixed(3));
-      node.style.setProperty('--side', clamp((px - 0.5) * 2, -1, 1).toFixed(3));
+      // заворачивается тот уголок, к которому курсор ближе, и тем сильнее,
+      // чем он ближе — верх листа на клею, там загиба нет совсем
+      const left = px < 0.5;
+      const dist = Math.hypot(px - (left ? 0 : 1), py - 1);
+      node.classList.toggle('is-curl-left', left);
+      node.classList.toggle('is-curl-right', !left);
+      node.style.setProperty('--side', left ? '-1' : '1');
+      node.style.setProperty('--curl', clamp(1 - dist / CURL_REACH, 0, 1).toFixed(3));
     });
 
     node.addEventListener('pointerleave', relax);

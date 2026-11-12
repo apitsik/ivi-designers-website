@@ -647,17 +647,18 @@
 
 /* стикеры */
 
-/* Клейкий слой у офисного стикера только сверху, поэтому бумага живёт
-   так: верхние 20 % держатся намертво, а всё, что ниже, свободно и может
-   изгибаться. Чтобы изгиб был мягким, а не как у картонки, лист нарезан
-   на горизонтальные полосы (их строит team.js), вложенные друг в друга:
-   каждая доворачивается на свою долю, и поворот копится сверху вниз —
-   получается дуга, а не перелом.
+/* Клейкий слой у офисного стикера только сверху, нижние уголки свободны —
+   и заворачивается именно уголок, а не вся нижняя грань.
+   Сделано как у настоящей бумаги, двумя частями:
+   у самого листа вырезан угол (clip-path), а на его месте лежит
+   треугольный клапан, который разворачивается вокруг линии сгиба —
+   диагонали — и выходит на зрителя. В прорези видна чернота страницы,
+   как и должно быть под отогнутым краем.
 
    Три слоя, каждый отвечает за своё:
    __stick — приклеивание по скроллу, поворот вокруг верхнего ребра;
    __paper — падение и возврат по клику;
-   __slice — изгиб под курсором. */
+   __curl  — завёрнутый уголок под курсором. */
 .team-note {
   padding: 0;
   border: 0;
@@ -667,10 +668,12 @@
   cursor: pointer;
   perspective: 900px;
   transform-style: preserve-3d;
-  /* --lift: насколько отогнут низ, --side: в какую сторону (−1 … 1).
-     Ставит team.js по положению курсора. */
-  --lift: 0;
-  --side: 0;
+  /* --curl: 0…1, насколько завёрнут уголок; --side: −1 левый, +1 правый */
+  --curl: 0;
+  --side: -1;
+  /* размер уголка при полном загибе и цвет изнанки бумаги */
+  --curl-max: 42%;
+  --curl-size: calc(var(--curl) * var(--curl-max));
 }
 
 .team-note__stick {
@@ -692,63 +695,70 @@
   transform-style: preserve-3d;
 }
 
-/* Полосы живут в натуральных пикселях картинки и целыми числами — иначе
-   каждая пересчитывала бы изображение со своим дробным сдвигом, и на
-   стыках вылезали бы светлые нити. Уменьшаем уже готовый лист целиком. */
-.team-note__scale {
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform-origin: 0 0;
-  transform: scale(var(--paper-scale, 1));
-  transform-style: preserve-3d;
-}
-
-/* Полоса бумаги. --w — её доля общего изгиба (у клейкой зоны 0),
-   ставится при нарезке. Полосы чуть выше своего шага и заходят друг на
-   друга, иначе на сгибе видны щели. */
-.team-note__slice {
-  position: absolute;
-  left: 0;
+/* Сам лист: целая картинка, у которой вырезан заворачивающийся угол */
+.team-note__paper img {
+  display: block;
   width: 100%;
-  background-repeat: no-repeat;
-  transform-origin: 50% 0;
-  transform:
-    rotateX(calc(var(--lift) * var(--w, 0) * -38deg))
-    rotateY(calc(var(--side) * var(--lift) * var(--w, 0) * -26deg));
-  transform-style: preserve-3d;
-  transition: transform 0.3s ease;
-  will-change: transform;
+  height: 100%;
+  object-fit: contain;
+  transition: clip-path 0.3s ease;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-/* Тень отдельным слоем позади листа: фильтр нельзя вешать на сами полосы —
-   он схлопнул бы всю трёхмерность. Уведена далеко назад по оси Z, иначе
-   отогнутый край выезжает вперёд и начинает её протыкать. */
+.team-note.is-curl-left .team-note__paper img {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--curl-size) 100%, 0 calc(100% - var(--curl-size)));
+}
+
+.team-note.is-curl-right .team-note__paper img {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--curl-size)), calc(100% - var(--curl-size)) 100%, 0 100%);
+}
+
+/* Завёрнутый уголок — изнанка листа, на ней ничего не напечатано.
+   Градиент идёт от тени у сгиба к свету на кончике, поэтому бумага
+   читается объёмной, а не плоским треугольником. */
+.team-note__curl {
+  position: absolute;
+  bottom: 0;
+  width: var(--curl-size);
+  aspect-ratio: 1;
+  opacity: clamp(0, calc(var(--curl) * 5), 1);
+  transform-origin: 50% 50%;
+  transition: transform 0.3s ease, width 0.3s ease, opacity 0.25s ease;
+  filter: drop-shadow(0 5px 9px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+
+.team-note.is-curl-left .team-note__curl {
+  left: 0;
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+  background: linear-gradient(135deg, #cdbb7c 0%, #ecdc9c 34%, #fdf7d2 100%);
+  transform: rotate3d(1, 1, 0, calc(var(--curl) * var(--curl-way, 1) * 158deg));
+}
+
+.team-note.is-curl-right .team-note__curl {
+  right: 0;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  background: linear-gradient(-135deg, #cdbb7c 0%, #ecdc9c 34%, #fdf7d2 100%);
+  transform: rotate3d(1, -1, 0, calc(var(--curl) * var(--curl-way, 1) * -158deg));
+}
+
+/* Тень всего листа отдельным слоем позади: фильтр нельзя вешать на сам
+   лист — он схлопнул бы трёхмерность клапана. Под загибом усиливается. */
 .team-note__shadow {
   position: absolute;
   inset: 2% 2% 0;
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.6);
-  opacity: calc(0.4 + var(--lift) * 0.4);
-  filter: blur(calc(9px + var(--lift) * 18px));
-  transform: translate3d(calc(var(--side) * -7px), calc(7px + var(--lift) * 20px), -60px);
+  opacity: calc(0.4 + var(--curl) * 0.35);
+  filter: blur(calc(9px + var(--curl) * 14px));
+  transform: translate3d(calc(var(--side) * 5px), calc(7px + var(--curl) * 12px), -60px);
   transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s ease;
-}
-
-/* пока полосы не нарезаны (и в бережном режиме) показываем картинку как есть */
-.team-note img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  user-select: none;
-  -webkit-user-drag: none;
 }
 
 /* Клик: лист отклеивается и падает вниз за край экрана */
 .team-note.is-falling {
-  --lift: 0;
-  --side: 0;
+  --curl: 0;
   pointer-events: none;
 }
 
@@ -782,7 +792,10 @@
     transform: rotate(var(--rot, 0deg));
   }
 
-  .team-note__slice,
+  .team-note__curl {
+    display: none;
+  }
+
   .team-note__shadow {
     transition: none;
   }
