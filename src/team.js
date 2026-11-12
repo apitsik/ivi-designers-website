@@ -1,24 +1,24 @@
 // Team: сцена (100vh) залипает на экране, пока секция прокручивается, и за
-// это время показывает три команды — папками с документами.
-// Раскадровка в Figma: Team step 1 – step 13 (node 34:445 … 215:1140),
-// ховер — node 215:733, попап — node 215:1195.
+// это время рассказывает про команды — сначала папками, потом общим фото.
+// Раскадровка в Figma: Team step 1 – step 16 (node 34:445 … 217:1385),
+// ховер папки — node 215:733, попап — node 215:1195.
 //
 // Порядок по скроллу:
 //   1. Папки по очереди выезжают снизу и собираются в стопку с наклоном.
-//   2. Пауза: стопка стоит, её можно разглядеть, навести и открыть.
-//   3. Заголовок уходит в блюр, первая папка едет на своё место,
-//      остальные опускаются вниз.
+//   2. Пауза: стопку можно разглядеть, навести и открыть.
+//   3. Заголовок уходит в блюр, первая папка едет на место, остальные вниз.
 //   4. К папке по одному подъезжают стикеры.
 //   5. Папка со стикерами уходит вверх (стикеры быстрее — параллакс),
-//      снизу приходит следующая. У третьей папки шага 5 нет.
+//      снизу приходит следующая. И так три раза.
+//   6. Пока третья папка доезжает вверх, надзаголовок меняется на
+//      «А ещё у нас есть», снизу выходят три фото, затем по очереди
+//      приклеиваются четыре жёлтых стикера.
+//   7. Дальше всё уходит вверх параллаксом.
 //
 // Координаты берутся прямо из макета (кадр 1440 × 832) и лежат в data-*
 // в index.html. Кадр вписан в экран, его масштаб — в --u, поэтому внутри
-// папки всё считается в пикселях макета. На каждый кадр модуль пишет
-// в CSS --x / --y / --rot / --o, а переходы и изинги делает CSS.
-//
-// Ховер и клик живут в CSS (team.css), здесь только класс .is-live —
-// он разрешает трогать папку, когда она стоит на месте.
+// всё считается в пикселях макета. На каждый кадр модуль пишет в CSS
+// --x / --y / --rot / --o, а переходы и изинги делает CSS.
 
 import { splitWords, observeReveal } from './reveal.js';
 import { lenis } from './smooth-scroll.js';
@@ -29,32 +29,28 @@ const DESIGN_H = 832;
 const FOLDER_H = 446;
 
 // Сколько экранов скролла занимает секция сверх самой сцены
-const STEPS = 5;
+const STEPS = 8;
 
 // Фазы по общему прогрессу секции (0 — сцена прилипла, 1 — отлипает)
-const STACK_END = 0.16; // стопка собралась
-const PREVIEW_END = 0.3; // конец паузы-превью
-const SPAN = (1 - PREVIEW_END) / 3; // отрезок на одну папку
+const STACK_END = 0.12; // стопка собралась
+const PREVIEW_END = 0.24; // конец паузы-превью
+const SPAN = 0.17; // отрезок на одну папку
 
 // Доли внутри отрезка одной папки. Складываются в непрерывный рассказ:
 // папка приезжает (0 → 0.30), по одному подъезжают три стикера
 // (0.34 → 0.72), всё стоит на месте (0.72 → 0.80), уходит вверх (0.80 → 1).
 // Между концом последнего стикера и началом ухода обязателен зазор —
 // иначе стикер не успевает встать, а папка уже едет.
-const ARRIVE = 0.3; // едет на своё место
-const LEAVE = 0.2; // уходит вверх
-const STICKER_START = 0.34; // когда пошёл первый стикер
-const STICKER_GAP = 0.1; // сдвиг между соседними
-const STICKER_LEN = 0.18; // сколько едет один стикер
+const ARRIVE = 0.3;
+const LEAVE = 0.2;
+const STICKER_START = 0.34;
+const STICKER_GAP = 0.1;
+const STICKER_LEN = 0.18;
 
 // Следующая папка трогается с места ровно тогда, когда предыдущая
 // начинает уходить вверх: пустоты на экране не возникает, но пока папка
 // стоит в центре, следующей ещё не видно (в макете это шаг 11).
 const OVERLAP = 0.2;
-
-// Запас за краем сцены в пикселях макета: на него папка уезжает сверх
-// самого края, чтобы не выглядывала тень
-const MARGIN = 60;
 
 // Стикеры уходят вверх быстрее папки — за счёт этого получается параллакс
 const PARALLAX = 1.16;
@@ -66,11 +62,40 @@ const EXIT_Y = -560;
 // Откуда стикер выезжает: ниже своего места на столько пикселей макета
 const STICKER_RISE = 620;
 
+// Запас за краем сцены в пикселях макета: на него папка уезжает сверх
+// самого края, чтобы не выглядывала тень
+const MARGIN = 60;
+
+// ----- четвёртый экран, «А ещё у нас есть» -----
+
+// Начинается, когда третья папка почти уехала за верх экрана
+const OTHERS_START = PREVIEW_END + 3 * SPAN - 0.02;
+// Надзаголовок меняется на этом отрезке
+const SWAP_FROM = OTHERS_START - 0.01;
+const SWAP_TO = OTHERS_START + 0.05;
+// Фото выходят снизу по очереди
+const PHOTO_START = OTHERS_START;
+const PHOTO_GAP = 0.025;
+const PHOTO_LEN = 0.085;
+const PHOTO_RISE = 520;
+// Затем по очереди приклеиваются стикеры
+const NOTE_START = 0.865;
+const NOTE_GAP = 0.016;
+const NOTE_LEN = 0.04;
+// На сколько стикер отогнут от стены, пока не приклеился
+const NOTE_TILT = 78;
+// Дальше всё уходит вверх параллаксом
+const OTHERS_OUT = 0.965;
+const OTHERS_OUT_DIST = 420;
+
 export function initTeam(section, modal) {
   if (!section) return;
 
   const scene = section.querySelector('.team__scene');
+  const stage = section.querySelector('.team__stage');
   const title = section.querySelector('[data-words]');
+  const kickerMain = section.querySelector('.team__kicker--main');
+  const kickerOthers = section.querySelector('.team__kicker--others');
   const folders = [...section.querySelectorAll('.team-folder')];
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -83,18 +108,23 @@ export function initTeam(section, modal) {
 
   // ----- раскладка -----
 
+  // Размер и горизонтальная позиция — из data-* макета; вертикальную
+  // двигает скролл, поэтому её держим отдельно
+  const layout = (node) => {
+    const d = node.dataset;
+    node.style.width = `${parseFloat(d.w)}px`;
+    node.style.height = `${parseFloat(d.h)}px`;
+    node.style.setProperty('--x', `${parseFloat(d.x)}px`);
+    return { node, y: parseFloat(d.y), order: parseInt(d.order, 10) || 1 };
+  };
+
   const items = folders.map((el, i) => {
     const d = el.dataset;
     const stickers = [...section.querySelectorAll(`.team__sticker[data-folder="${i}"]`)]
       .map((node) => {
-        const s = node.dataset;
-        const w = parseFloat(s.w);
-        const h = parseFloat(s.h);
-        node.style.width = `${w}px`;
-        node.style.height = `${h}px`;
-        node.style.setProperty('--x', `${parseFloat(s.x)}px`);
-        node.firstElementChild?.style.setProperty('--rot', `${s.rot || 0}deg`);
-        return { node, y: parseFloat(s.y), order: parseInt(s.order, 10) || 1 };
+        const item = layout(node);
+        node.firstElementChild?.style.setProperty('--rot', `${node.dataset.rot || 0}deg`);
+        return item;
       })
       .sort((a, b) => a.order - b.order);
 
@@ -104,11 +134,29 @@ export function initTeam(section, modal) {
       enter: { x: num(d.stackX), y: num(d.enterY), rot: num(d.enterRot) },
       stack: { x: num(d.stackX), y: num(d.stackY), rot: num(d.stackRot) },
       park: { x: num(d.parkX), y: num(d.parkY), rot: 0 },
-      // границы отрезка этой папки
       start: PREVIEW_END + i * SPAN,
-      last: i === folders.length - 1,
     };
   });
+
+  // Фото и стикеры четвёртого экрана
+  const photos = [...section.querySelectorAll('.team-photo')]
+    .map((node) => {
+      const item = layout(node);
+      item.frame = node.querySelector('.team-photo__frame');
+      item.frame.style.setProperty('--rot', `${node.dataset.rot || 0}deg`);
+      return item;
+    })
+    .sort((a, b) => a.order - b.order);
+
+  const notes = [...section.querySelectorAll('.team-note')]
+    .map((node) => {
+      const item = layout(node);
+      item.stick = node.querySelector('.team-note__stick');
+      item.paper = node.querySelector('.team-note__paper');
+      item.stick.style.setProperty('--rot', `${node.dataset.rot || 0}deg`);
+      return item;
+    })
+    .sort((a, b) => a.order - b.order);
 
   // Масштаб кадра: сцена может быть и уже, и шире 1440.
   //
@@ -117,7 +165,6 @@ export function initTeam(section, modal) {
   // всё ещё видна. Высоту полей (в единицах макета) держим в outset и
   // прибавляем ко всем позициям за кадром: так припаркованной снизу папки
   // не видно, пока текущая стоит в центре, на любом экране.
-  const stage = section.querySelector('.team__stage');
   let outset = MARGIN;
 
   const resize = () => {
@@ -128,7 +175,7 @@ export function initTeam(section, modal) {
     outset = MARGIN + (u > 0 ? Math.max(0, band / u) : 0);
   };
 
-  // ----- попап -----
+  // ----- попап и интерактив -----
 
   const detail = modal ? initDetail(modal) : null;
 
@@ -142,6 +189,9 @@ export function initTeam(section, modal) {
     });
   });
 
+  initNotes(notes, reduced);
+  initPhotos(photos, stage, reduced);
+
   // ----- бережный режим -----
 
   // Ничего не ездит: сцена не залипает (это делает CSS), папки стоят
@@ -150,6 +200,11 @@ export function initTeam(section, modal) {
     items.forEach(({ el }) => {
       el.classList.add('is-live');
       el.style.setProperty('--rot', '0deg');
+    });
+    [...photos, ...notes].forEach(({ node, y }) => {
+      node.classList.add('is-live');
+      node.style.setProperty('--y', `${y}px`);
+      node.style.setProperty('--o', 1);
     });
     resize();
     window.addEventListener('resize', resize);
@@ -171,11 +226,18 @@ export function initTeam(section, modal) {
     const fade = ease(range(p, PREVIEW_END, PREVIEW_END + ARRIVE * SPAN));
     title?.style.setProperty('--fade', fade.toFixed(4));
 
-    items.forEach((item, i) => place(item, i, p));
+    // Надзаголовок меняется на четвёртом экране
+    const swap = ease(range(p, SWAP_FROM, SWAP_TO));
+    scene?.style.setProperty('--swap', swap.toFixed(4));
+    kickerMain?.setAttribute('aria-hidden', swap > 0.5 ? 'true' : 'false');
+    kickerOthers?.setAttribute('aria-hidden', swap > 0.5 ? 'false' : 'true');
+
+    items.forEach((item, i) => placeFolder(item, i, p));
+    placeOthers(p);
   };
 
-  const place = (item, i, p) => {
-    const { el, stack, start, last, stickers } = item;
+  const placeFolder = (item, i, p) => {
+    const { el, stack, start, stickers } = item;
     // Всё, что за кадром, отодвигаем на величину полей (см. resize)
     const enter = { ...item.enter, y: item.enter.y + outset };
     const park = { ...item.park, y: item.park.y + outset };
@@ -200,8 +262,8 @@ export function initTeam(section, modal) {
     } else if (p < arriveTo) {
       // едем на своё место: первая — прямо из стопки, остальные — снизу
       pos = mix(i === 0 ? stack : park, REST, ease(range(p, arriveFrom, arriveTo)));
-    } else if (!last && p > leaveFrom) {
-      // уходим вверх
+    } else if (p > leaveFrom) {
+      // уходим вверх — третья папка тоже, за ней начинается четвёртый экран
       pos = mix(REST, exit, ease(range(p, leaveFrom, leaveTo)));
     } else {
       pos = REST;
@@ -221,13 +283,45 @@ export function initTeam(section, modal) {
     el.tabIndex = onScreen ? 0 : -1;
 
     // Стикеры: подъезжают по одному после того, как папка встала на место
-    const out = last ? 0 : ease(range(p, leaveFrom, leaveTo));
-    stickers.forEach(({ node, y, order }, k) => {
+    const out = ease(range(p, leaveFrom, leaveTo));
+    stickers.forEach(({ node, y }, k) => {
       const from = start + (STICKER_START + k * STICKER_GAP) * SPAN;
       const t = ease(range(p, from, from + STICKER_LEN * SPAN));
       const shift = out * (exit.y - REST.y) * PARALLAX;
       node.style.setProperty('--y', `${(y + (1 - t) * (STICKER_RISE + outset) + shift).toFixed(2)}px`);
       node.style.setProperty('--o', Math.min(clamp(t * 3, 0, 1), 1 - clamp((out - 0.55) / 0.45, 0, 1)).toFixed(3));
+    });
+  };
+
+  // Четвёртый экран: фото выезжают снизу, стикеры приклеиваются, потом
+  // всё уходит вверх с разной скоростью
+  const placeOthers = (p) => {
+    const out = ease(range(p, OTHERS_OUT, 1));
+
+    photos.forEach(({ node, y, frame }, k) => {
+      const from = PHOTO_START + k * PHOTO_GAP;
+      const t = ease(range(p, from, from + PHOTO_LEN));
+      const shift = out * OTHERS_OUT_DIST * (1 + k * 0.12);
+      node.style.setProperty('--y', `${(y + (1 - t) * (PHOTO_RISE + outset) - shift).toFixed(2)}px`);
+      node.style.setProperty('--o', clamp(t * 2.5, 0, 1).toFixed(3));
+      node.classList.toggle('is-live', t > 0.5);
+      if (t < 0.5) {
+        frame.style.setProperty('--dx', '0px');
+        frame.style.setProperty('--dy', '0px');
+      }
+    });
+
+    notes.forEach(({ node, y, stick }, k) => {
+      const from = NOTE_START + k * NOTE_GAP;
+      const t = ease(range(p, from, from + NOTE_LEN));
+      // Стикеры уходят чуть быстрее фото — так получается параллакс
+      const shift = out * OTHERS_OUT_DIST * (1.3 + k * 0.1);
+      node.style.setProperty('--y', `${(y - shift).toFixed(2)}px`);
+      node.style.setProperty('--o', clamp(t * 2.5, 0, 1).toFixed(3));
+      // Приклеивание: бумага прижимается к стене вокруг верхнего ребра
+      stick.style.setProperty('--stick-rx', `${(-(1 - t) * NOTE_TILT).toFixed(2)}deg`);
+      node.classList.toggle('is-live', t > 0.8);
+      node.tabIndex = t > 0.8 ? 0 : -1;
     });
   };
 
@@ -245,6 +339,105 @@ export function initTeam(section, modal) {
   });
   resize();
   measure();
+}
+
+// ---------- стикеры: ховер и клик ----------
+
+// Клейкий слой только сверху, нижние уголки свободны. Курсор ближе к
+// нижнему левому углу — загибается он, ближе к правому — правый. По клику
+// стикер отлипает и через три секунды приклеивается обратно.
+const PEEL_BACK = 3000;
+
+function initNotes(notes, reduced) {
+  if (reduced) return;
+
+  notes.forEach(({ node, paper, stick }) => {
+    let timer = 0;
+
+    const reset = () => {
+      paper.style.setProperty('--rx', '0deg');
+      paper.style.setProperty('--ry', '0deg');
+      stick.style.setProperty('--lift', '0');
+    };
+
+    node.addEventListener('pointermove', (e) => {
+      if (node.classList.contains('is-peeled')) return;
+      const r = node.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      // где курсор внутри стикера: 0 — верх и лево, 1 — низ и право
+      const px = (e.clientX - r.left) / r.width;
+      const py = (e.clientY - r.top) / r.height;
+      // чем ниже курсор, тем сильнее отгибается уголок
+      const lift = clamp((py - 0.3) / 0.7, 0, 1);
+      // в какую сторону: −1 — левый уголок, +1 — правый
+      const side = clamp((px - 0.5) * 2, -1, 1);
+      paper.style.setProperty('--rx', `${(-16 * lift).toFixed(2)}deg`);
+      paper.style.setProperty('--ry', `${(-9 * side * lift).toFixed(2)}deg`);
+      stick.style.setProperty('--lift', lift.toFixed(3));
+    });
+
+    node.addEventListener('pointerleave', reset);
+
+    node.addEventListener('click', () => {
+      if (node.classList.contains('is-peeled')) return;
+      reset();
+      node.classList.add('is-peeled');
+      clearTimeout(timer);
+      timer = setTimeout(() => node.classList.remove('is-peeled'), PEEL_BACK);
+    });
+  });
+}
+
+// ---------- фото: отходят от курсора ----------
+
+// Считаем на всю сцену разом: фото реагирует, когда курсор подошёл близко,
+// а не только когда он прямо на нём.
+const PHOTO_REACH = 260; // радиус в пикселях экрана
+const PHOTO_PUSH = 26; // на сколько отодвигается
+
+function initPhotos(photos, stage, reduced) {
+  if (reduced || !stage || !photos.length) return;
+
+  let point = null;
+  let ticking = false;
+
+  const apply = () => {
+    ticking = false;
+    photos.forEach(({ node, frame }) => {
+      if (!point || !node.classList.contains('is-live')) {
+        frame.style.setProperty('--dx', '0px');
+        frame.style.setProperty('--dy', '0px');
+        return;
+      }
+      const r = node.getBoundingClientRect();
+      const dx = point.x - (r.left + r.width / 2);
+      const dy = point.y - (r.top + r.height / 2);
+      const dist = Math.hypot(dx, dy);
+      const near = clamp(1 - dist / PHOTO_REACH, 0, 1);
+      if (!near) {
+        frame.style.setProperty('--dx', '0px');
+        frame.style.setProperty('--dy', '0px');
+        return;
+      }
+      const k = (near * PHOTO_PUSH) / (dist || 1);
+      frame.style.setProperty('--dx', `${(-dx * k).toFixed(2)}px`);
+      frame.style.setProperty('--dy', `${(-dy * k).toFixed(2)}px`);
+    });
+  };
+
+  const onMove = (e) => {
+    point = { x: e.clientX, y: e.clientY };
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(apply);
+    }
+  };
+
+  stage.addEventListener('pointermove', onMove);
+  stage.addEventListener('pointerleave', () => {
+    point = null;
+    apply();
+  });
 }
 
 // ---------- попап команды ----------

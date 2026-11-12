@@ -62,7 +62,7 @@
 
 .team__kicker {
   position: absolute;
-  top: 14.42%; /* 120 / 832 */
+  top: 20.43%; /* 170 / 832 — между надзаголовком и H2 ровно 48 px */
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
@@ -70,6 +70,16 @@
   line-height: var(--p2-line);
   color: var(--color-white-72);
   white-space: nowrap;
+}
+
+/* На четвёртом экране надзаголовок меняется: «Команды» уходит,
+   «А ещё у нас есть» проявляется. --swap ставит team.js. */
+.team__kicker--main {
+  opacity: calc(1 - var(--swap, 0));
+}
+
+.team__kicker--others {
+  opacity: var(--swap, 0);
 }
 
 .team__title {
@@ -395,7 +405,8 @@
    что при любой высоте экрана раскладка остаётся макетной. */
 .team-modal {
   --pad: 120px;
-  padding: var(--pad) 48px;
+  --side: 48px;
+  padding: var(--pad) var(--side);
 }
 
 .team-modal .video-modal__dialog {
@@ -423,10 +434,13 @@
   transition: opacity 0.35s ease-out;
 }
 
+/* Слайдер во всю ширину окна и уходит за его край — по бокам его ничто
+   не подрезает. Первая карточка при этом стоит на отступе, как в макете. */
 .team-modal__viewport {
   flex: 1 1 auto;
   min-height: 0;
-  width: 100%;
+  width: 100vw;
+  margin-left: calc(var(--side) * -1);
   overflow: hidden;
   cursor: grab;
 }
@@ -437,6 +451,7 @@
 
 .team-modal__track {
   display: flex;
+  padding-left: var(--side);
   gap: 24px;
   align-items: stretch;
   height: 100%;
@@ -585,6 +600,124 @@
   cursor: default;
 }
 
+/* ----- четвёртый экран: «А ещё у нас есть» ----- */
+
+/* Макет Team step 16 (node 217:1385). Три фото-полароида выезжают снизу
+   на свои места, затем по очереди приклеиваются четыре жёлтых стикера.
+   Позиционируются так же, как папки и стикеры выше: числа из макета,
+   --x / --y / --o на каждый кадр ставит team.js. */
+
+.team-photo,
+.team-note {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  transform: scale(var(--u, 1)) translate(var(--x, 0px), var(--y, 0px));
+  opacity: var(--o, 0);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.team-photo.is-live,
+.team-note.is-live {
+  pointer-events: auto;
+}
+
+/* фото */
+
+.team-photo__frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* --dx / --dy — отход от курсора (team.js) */
+  transform: rotate(var(--rot, 0deg)) translate(var(--dx, 0px), var(--dy, 0px));
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.team-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 34px rgba(0, 0, 0, 0.5));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* стикеры */
+
+/* Клейкий слой у офисного стикера только сверху, поэтому вся бумага
+   поворачивается вокруг верхнего ребра: так она и приклеивается при
+   появлении, и загибается на ховере, и отлипает по клику. */
+.team-note {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  perspective: 800px;
+  transform-style: preserve-3d;
+}
+
+/* приклеивание: --stick-rx ставит team.js по скроллу, без перехода */
+.team-note__stick {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 0;
+  transform: rotate(var(--rot, 0deg)) rotateX(var(--stick-rx, 0deg));
+  transform-style: preserve-3d;
+}
+
+/* ховер и клик: --rx / --ry / --ty ставит team.js от положения курсора */
+.team-note__paper {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 0;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty, 0px));
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease-out;
+  transform-style: preserve-3d;
+}
+
+.team-note img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* тень растёт вместе с отрывом уголка (--lift) */
+  filter: drop-shadow(0 calc(5px + var(--lift, 0) * 16px) calc(9px + var(--lift, 0) * 18px) rgba(0, 0, 0, calc(0.4 + var(--lift, 0) * 0.25)));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Клик: стикер отлипает и висит на верхнем ребре. Через три секунды
+   team.js снимает класс, и он приклеивается обратно. */
+.team-note.is-peeled .team-note__paper {
+  --rx: -68deg;
+  --ry: 0deg;
+  --ty: 12px;
+  transition-duration: 0.55s;
+}
+
+.team-note:focus-visible {
+  outline: 2px solid var(--color-white);
+  outline-offset: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-photo__frame,
+  .team-note__paper {
+    transition: none;
+  }
+
+  .team-note__stick {
+    transform: rotate(var(--rot, 0deg));
+  }
+}
+
 /* ----- бережный режим ----- */
 
 /* Со сниженной анимацией сцена не залипает и ничего не ездит: секция
@@ -670,6 +803,7 @@
 
   .team-modal {
     --pad: 88px;
-    padding: var(--pad) 16px;
+    --side: 16px;
+    padding: var(--pad) var(--side);
   }
 }

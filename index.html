@@ -190,7 +190,8 @@
       <section class="team" id="teams" aria-labelledby="team-title">
         <div class="team__stage">
           <div class="team__scene">
-            <p class="team__kicker">Команды</p>
+            <p class="team__kicker team__kicker--main">Команды</p>
+            <p class="team__kicker team__kicker--others" aria-hidden="true">А ещё у нас есть</p>
             <h2 id="team-title" class="team__title" data-words>
               Каждая команда делает свою работу<br />с любовью
             </h2>
@@ -327,6 +328,20 @@
             <span class="team__sticker" data-folder="2" data-order="1" data-x="1106.07" data-y="231.19" data-w="261" data-h="165" data-rot="17.95"><img src="/images/team/team-sticker-10.png" alt="" /></span>
             <span class="team__sticker" data-folder="2" data-order="2" data-x="108" data-y="449" data-w="344" data-h="222"><img src="/images/team/team-sticker-11.png" alt="" /></span>
             <span class="team__sticker" data-folder="2" data-order="3" data-x="978" data-y="428" data-w="356" data-h="201"><img src="/images/team/team-sticker-12.png" alt="" /></span>
+
+            <!-- Четвёртый экран: «А ещё у нас есть» (макет Team step 16,
+                 node 217:1385). Пока третья папка доезжает вверх, снизу
+                 выходят три фото, затем по очереди приклеиваются четыре
+                 жёлтых стикера. Координаты — те же, что у остальных:
+                 левый верхний угол без поворота, размер и угол в data-*. -->
+            <span class="team-photo" data-order="1" data-x="243.22" data-y="322.73" data-w="248" data-h="292" data-rot="-8.5"><span class="team-photo__frame"><img src="/images/team/team-others-photo-1.png" alt="" /></span></span>
+            <span class="team-photo" data-order="2" data-x="644.12" data-y="341.96" data-w="248" data-h="290" data-rot="8.07"><span class="team-photo__frame"><img src="/images/team/team-others-photo-2.png" alt="" /></span></span>
+            <span class="team-photo" data-order="3" data-x="975" data-y="270" data-w="248" data-h="292" data-rot="0"><span class="team-photo__frame"><img src="/images/team/team-others-photo-3.png" alt="" /></span></span>
+
+            <button class="team-note" type="button" tabindex="-1" data-order="1" data-x="133.23" data-y="308.28" data-w="180" data-h="180.9" data-rot="-4.79" aria-label="Менеджеры"><span class="team-note__stick"><span class="team-note__paper"><img src="/images/team/team-others-sticker-1.png" alt="" /></span></span></button>
+            <button class="team-note" type="button" tabindex="-1" data-order="2" data-x="526.01" data-y="242.71" data-w="180" data-h="182" data-rot="15.47" aria-label="Продюсеры"><span class="team-note__stick"><span class="team-note__paper"><img src="/images/team/team-others-sticker-4.png" alt="" /></span></span></button>
+            <button class="team-note" type="button" tabindex="-1" data-order="3" data-x="421.04" data-y="517.0" data-w="180" data-h="182" data-rot="1.94" aria-label="Копирайтеры"><span class="team-note__stick"><span class="team-note__paper"><img src="/images/team/team-others-sticker-2.png" alt="" /></span></span></button>
+            <button class="team-note" type="button" tabindex="-1" data-order="4" data-x="887.57" data-y="486.47" data-w="180" data-h="182" data-rot="-5.68" aria-label="Моушен"><span class="team-note__stick"><span class="team-note__paper"><img src="/images/team/team-others-sticker-3.png" alt="" /></span></span></button>
           </div>
         </div>
       </section>
