@@ -647,9 +647,17 @@
 
 /* стикеры */
 
-/* Клейкий слой у офисного стикера только сверху, поэтому вся бумага
-   поворачивается вокруг верхнего ребра: так она и приклеивается при
-   появлении, и загибается на ховере, и отлипает по клику. */
+/* Клейкий слой у офисного стикера только сверху, поэтому бумага живёт
+   так: верхние 20 % держатся намертво, а всё, что ниже, свободно и может
+   изгибаться. Чтобы изгиб был мягким, а не как у картонки, лист нарезан
+   на горизонтальные полосы (их строит team.js), вложенные друг в друга:
+   каждая доворачивается на свою долю, и поворот копится сверху вниз —
+   получается дуга, а не перелом.
+
+   Три слоя, каждый отвечает за своё:
+   __stick — приклеивание по скроллу, поворот вокруг верхнего ребра;
+   __paper — падение и возврат по клику;
+   __slice — изгиб под курсором. */
 .team-note {
   padding: 0;
   border: 0;
@@ -657,11 +665,14 @@
   font: inherit;
   color: inherit;
   cursor: pointer;
-  perspective: 800px;
+  perspective: 900px;
   transform-style: preserve-3d;
+  /* --lift: насколько отогнут низ, --side: в какую сторону (−1 … 1).
+     Ставит team.js по положению курсора. */
+  --lift: 0;
+  --side: 0;
 }
 
-/* приклеивание: --stick-rx ставит team.js по скроллу, без перехода */
 .team-note__stick {
   display: block;
   width: 100%;
@@ -671,35 +682,89 @@
   transform-style: preserve-3d;
 }
 
-/* ховер и клик: --rx / --ry / --ty ставит team.js от положения курсора */
 .team-note__paper {
   display: block;
+  position: relative;
   width: 100%;
   height: 100%;
   transform-origin: 50% 0;
-  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty, 0px));
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease-out;
+  transform: translateY(var(--drop, 0px)) rotate(var(--spin, 0deg));
   transform-style: preserve-3d;
 }
 
+/* Полосы живут в натуральных пикселях картинки и целыми числами — иначе
+   каждая пересчитывала бы изображение со своим дробным сдвигом, и на
+   стыках вылезали бы светлые нити. Уменьшаем уже готовый лист целиком. */
+.team-note__scale {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  transform: scale(var(--paper-scale, 1));
+  transform-style: preserve-3d;
+}
+
+/* Полоса бумаги. --w — её доля общего изгиба (у клейкой зоны 0),
+   ставится при нарезке. Полосы чуть выше своего шага и заходят друг на
+   друга, иначе на сгибе видны щели. */
+.team-note__slice {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background-repeat: no-repeat;
+  transform-origin: 50% 0;
+  transform:
+    rotateX(calc(var(--lift) * var(--w, 0) * -38deg))
+    rotateY(calc(var(--side) * var(--lift) * var(--w, 0) * -26deg));
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+  will-change: transform;
+}
+
+/* Тень отдельным слоем позади листа: фильтр нельзя вешать на сами полосы —
+   он схлопнул бы всю трёхмерность. Уведена далеко назад по оси Z, иначе
+   отогнутый край выезжает вперёд и начинает её протыкать. */
+.team-note__shadow {
+  position: absolute;
+  inset: 2% 2% 0;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  opacity: calc(0.4 + var(--lift) * 0.4);
+  filter: blur(calc(9px + var(--lift) * 18px));
+  transform: translate3d(calc(var(--side) * -7px), calc(7px + var(--lift) * 20px), -60px);
+  transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s ease;
+}
+
+/* пока полосы не нарезаны (и в бережном режиме) показываем картинку как есть */
 .team-note img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  /* тень растёт вместе с отрывом уголка (--lift) */
-  filter: drop-shadow(0 calc(5px + var(--lift, 0) * 16px) calc(9px + var(--lift, 0) * 18px) rgba(0, 0, 0, calc(0.4 + var(--lift, 0) * 0.25)));
   user-select: none;
   -webkit-user-drag: none;
 }
 
-/* Клик: стикер отлипает и висит на верхнем ребре. Через три секунды
-   team.js снимает класс, и он приклеивается обратно. */
-.team-note.is-peeled .team-note__paper {
-  --rx: -68deg;
-  --ry: 0deg;
-  --ty: 12px;
-  transition-duration: 0.55s;
+/* Клик: лист отклеивается и падает вниз за край экрана */
+.team-note.is-falling {
+  --lift: 0;
+  --side: 0;
+  pointer-events: none;
+}
+
+.team-note.is-falling .team-note__paper {
+  --drop: 1200px;
+  --spin: var(--fall-spin, 16deg);
+  transition: transform 0.85s cubic-bezier(0.55, 0, 0.9, 0.42);
+}
+
+.team-note.is-falling .team-note__shadow {
+  opacity: 0;
+}
+
+/* Возврат: прилетает обратно и с пружиной приклеивается */
+.team-note.is-sticking .team-note__paper {
+  transition: transform 0.8s cubic-bezier(0.22, 1.45, 0.36, 1);
 }
 
 .team-note:focus-visible {
@@ -715,6 +780,11 @@
 
   .team-note__stick {
     transform: rotate(var(--rot, 0deg));
+  }
+
+  .team-note__slice,
+  .team-note__shadow {
+    transition: none;
   }
 }
 

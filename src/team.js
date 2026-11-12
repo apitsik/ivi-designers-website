@@ -301,7 +301,7 @@ export function initTeam(section, modal) {
     photos.forEach(({ node, y, frame }, k) => {
       const from = PHOTO_START + k * PHOTO_GAP;
       const t = ease(range(p, from, from + PHOTO_LEN));
-      const shift = out * OTHERS_OUT_DIST * (1 + k * 0.12);
+      const shift = out * OTHERS_OUT_DIST * (0.85 + k * 0.2);
       node.style.setProperty('--y', `${(y + (1 - t) * (PHOTO_RISE + outset) - shift).toFixed(2)}px`);
       node.style.setProperty('--o', clamp(t * 2.5, 0, 1).toFixed(3));
       node.classList.toggle('is-live', t > 0.5);
@@ -313,9 +313,9 @@ export function initTeam(section, modal) {
 
     notes.forEach(({ node, y, stick }, k) => {
       const from = NOTE_START + k * NOTE_GAP;
-      const t = ease(range(p, from, from + NOTE_LEN));
+      const t = easeBack(range(p, from, from + NOTE_LEN));
       // Стикеры уходят чуть быстрее фото — так получается параллакс
-      const shift = out * OTHERS_OUT_DIST * (1.3 + k * 0.1);
+      const shift = out * OTHERS_OUT_DIST * (1.45 + k * 0.16);
       node.style.setProperty('--y', `${(y - shift).toFixed(2)}px`);
       node.style.setProperty('--o', clamp(t * 2.5, 0, 1).toFixed(3));
       // Приклеивание: бумага прижимается к стене вокруг верхнего ребра
@@ -346,44 +346,122 @@ export function initTeam(section, modal) {
 // Клейкий слой только сверху, нижние уголки свободны. Курсор ближе к
 // нижнему левому углу — загибается он, ближе к правому — правый. По клику
 // стикер отлипает и через три секунды приклеивается обратно.
-const PEEL_BACK = 3000;
+const PEEL_BACK = 3000; // сколько стикер лежит внизу, прежде чем вернуться
+const STICK_BACK = 820; // сколько длится возврат с пружиной
+const SLICES = 12; // на сколько полос режем лист
+const GLUE = 0.2; // верхняя доля на клею — она не гнётся
+
+// Режем лист на горизонтальные полосы, вложенные друг в друга: поворот
+// каждой складывается с поворотом всех, что выше, и изгиб получается
+// дугой, а не переломом. Доля полосы (--w) растёт от клейкой зоны к низу,
+// а сумма долей равна единице — значит общий угол не зависит от их числа.
+//
+// Режем в натуральных пикселях картинки и целыми числами: если резать в
+// уже уменьшенных, каждая полоса пересчитает изображение со своим дробным
+// сдвигом и на стыках появятся светлые нити. Готовый лист уменьшаем целиком.
+function buildSlices(node, paper) {
+  const img = paper.querySelector('img');
+  if (!img) return false;
+
+  const natW = img.naturalWidth;
+  const natH = img.naturalHeight;
+  const boxW = parseFloat(node.style.width) || node.offsetWidth;
+  if (!natW || !natH || !boxW) return false;
+
+  const src = img.currentSrc || img.src;
+  const scale = document.createElement('span');
+  scale.className = 'team-note__scale';
+  scale.style.width = `${natW}px`;
+  scale.style.height = `${natH}px`;
+  scale.style.setProperty('--paper-scale', (boxW / natW).toFixed(5));
+
+  const step = Math.round(natH / SLICES);
+  const weights = [];
+  for (let i = 0; i < SLICES; i += 1) {
+    weights.push(Math.max(0, (i + 1) / SLICES - GLUE) / (1 - GLUE));
+  }
+  const total = weights.reduce((a, b) => a + b, 0) || 1;
+
+  let host = scale;
+  for (let i = 0; i < SLICES; i += 1) {
+    const slice = document.createElement('span');
+    slice.className = 'team-note__slice';
+    slice.style.top = `${i === 0 ? 0 : step}px`;
+    // последняя полоса добирает остаток, остальные заходят друг на друга
+    const last = i === SLICES - 1;
+    slice.style.height = `${last ? natH - step * i : step + 2}px`;
+    slice.style.width = `${natW}px`;
+    slice.style.backgroundImage = `url("${src}")`;
+    slice.style.backgroundSize = `${natW}px ${natH}px`;
+    slice.style.backgroundPosition = `0 ${-i * step}px`;
+    slice.style.setProperty('--w', (weights[i] / total).toFixed(4));
+    host.appendChild(slice);
+    host = slice;
+  }
+
+  paper.appendChild(scale);
+  img.remove();
+  return true;
+}
+
+// Картинка может быть ещё не загружена — тогда ждём и режем после
+function sliceWhenReady(node, paper, done) {
+  const img = paper.querySelector('img');
+  if (!img) return;
+  if (img.complete && img.naturalWidth) {
+    done(buildSlices(node, paper));
+  } else {
+    img.addEventListener('load', () => done(buildSlices(node, paper)), { once: true });
+  }
+}
 
 function initNotes(notes, reduced) {
   if (reduced) return;
 
-  notes.forEach(({ node, paper, stick }) => {
-    let timer = 0;
+  notes.forEach(({ node, paper, stick }, k) => {
+    sliceWhenReady(node, paper, (ok) => {
+      if (!ok) return;
+      const shadow = document.createElement('span');
+      shadow.className = 'team-note__shadow';
+      node.insertBefore(shadow, stick);
+    });
+    // падают с разным наклоном, чтобы не выглядело под копирку
+    node.style.setProperty('--fall-spin', `${(k % 2 ? 1 : -1) * (9 + k * 5)}deg`);
 
-    const reset = () => {
-      paper.style.setProperty('--rx', '0deg');
-      paper.style.setProperty('--ry', '0deg');
-      stick.style.setProperty('--lift', '0');
+    let away = 0;
+    let back = 0;
+
+    const relax = () => {
+      node.style.setProperty('--lift', '0');
+      node.style.setProperty('--side', '0');
     };
 
     node.addEventListener('pointermove', (e) => {
-      if (node.classList.contains('is-peeled')) return;
+      if (node.classList.contains('is-falling') || node.classList.contains('is-sticking')) return;
       const r = node.getBoundingClientRect();
       if (!r.width || !r.height) return;
-      // где курсор внутри стикера: 0 — верх и лево, 1 — низ и право
       const px = (e.clientX - r.left) / r.width;
       const py = (e.clientY - r.top) / r.height;
-      // чем ниже курсор, тем сильнее отгибается уголок
-      const lift = clamp((py - 0.3) / 0.7, 0, 1);
-      // в какую сторону: −1 — левый уголок, +1 — правый
-      const side = clamp((px - 0.5) * 2, -1, 1);
-      paper.style.setProperty('--rx', `${(-16 * lift).toFixed(2)}deg`);
-      paper.style.setProperty('--ry', `${(-9 * side * lift).toFixed(2)}deg`);
-      stick.style.setProperty('--lift', lift.toFixed(3));
+      // ниже клейкой полосы бумага свободна: чем ниже курсор, тем сильнее
+      // отгибается край, а левее или правее — тот уголок и заворачивается
+      node.style.setProperty('--lift', clamp((py - GLUE) / (1 - GLUE), 0, 1).toFixed(3));
+      node.style.setProperty('--side', clamp((px - 0.5) * 2, -1, 1).toFixed(3));
     });
 
-    node.addEventListener('pointerleave', reset);
+    node.addEventListener('pointerleave', relax);
 
     node.addEventListener('click', () => {
-      if (node.classList.contains('is-peeled')) return;
-      reset();
-      node.classList.add('is-peeled');
-      clearTimeout(timer);
-      timer = setTimeout(() => node.classList.remove('is-peeled'), PEEL_BACK);
+      if (node.classList.contains('is-falling')) return;
+      relax();
+      clearTimeout(away);
+      clearTimeout(back);
+      node.classList.remove('is-sticking');
+      node.classList.add('is-falling');
+      away = setTimeout(() => {
+        node.classList.remove('is-falling');
+        node.classList.add('is-sticking');
+        back = setTimeout(() => node.classList.remove('is-sticking'), STICK_BACK);
+      }, PEEL_BACK);
     });
   });
 }
@@ -620,6 +698,14 @@ function mix(a, b, t) {
 // Мягкое торможение в конце пути
 function ease(t) {
   return 1 - Math.pow(1 - t, 3);
+}
+
+// То же, но с перелётом: лист касается стены, слегка отыгрывает назад
+// и только потом прилипает
+function easeBack(t) {
+  const c = 1.7;
+  const u = t - 1;
+  return 1 + (c + 1) * u * u * u + c * u * u;
 }
 
 function clamp(v, min, max) {
