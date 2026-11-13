@@ -348,17 +348,134 @@ export function initTeam(section, modal) {
 // стикер отлипает и через три секунды приклеивается обратно.
 const PEEL_BACK = 3000; // сколько стикер лежит внизу, прежде чем вернуться
 const STICK_BACK = 820; // сколько длится возврат с пружиной
-const CURL_REACH = 0.8; // с какого расстояния до уголка он начинает заворачиваться
+
+// Пластика листа — как у стикеров в хиро: лист режется на полосы и гнётся
+// волной. Полосы — соседи, а не вложены друг в друга: цепочку проходим
+// здесь и каждой полосе ставим готовое положение. У вложенных повороты
+// копятся слоями, и на стыках вылезают швы.
+const STRIPS = 10; // полос на лист
+const GLUE = 0.2; // верхняя доля на клею — она не гнётся
+const CURL_DEG = 92; // общий угол отгиба при полном наведении
+// Линия сгиба строго горизонтальна. Наклонить её нельзя: полосы плоские,
+// и при наклонной оси соседние расходятся клиньями тем сильнее, чем
+// дальше от оси. Крен в сторону курсора даёт поворот всего листа.
+const SWAY_DEG = 12; // на сколько лист разворачивается к курсору
+const CURL_REACH = 0.85; // с какого расстояния до нижнего края лист реагирует
+
+// Бумага на картинке не до конца непрозрачная (альфа 245 из 255). Если
+// нарезать её как есть, в местах нахлёста она складывается сама с собой и
+// даёт светлую полосу, а без нахлёста между слоями просвечивает фон. Поэтому
+// перед нарезкой доводим непрозрачные места до конца — на глаз разницы в
+// четыре процента нет, а полосы поперёк листа пропадают.
+function opaque(img, w, h) {
+  const src = img.currentSrc || img.src;
+  try {
+    const cv = document.createElement('canvas');
+    cv.width = w;
+    cv.height = h;
+    const ctx = cv.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0);
+    const data = ctx.getImageData(0, 0, w, h);
+    const px = data.data;
+    for (let i = 3; i < px.length; i += 4) {
+      if (px[i] > 128) px[i] = 255;
+    }
+    ctx.putImageData(data, 0, 0);
+    return cv.toDataURL('image/png');
+  } catch {
+    return src;
+  }
+}
+
+// Лист → полосы. Режем в натуральных пикселях картинки и целыми числами,
+// иначе каждая полоса пересчитает изображение со своим дробным сдвигом.
+function buildStrips(node, paper) {
+  const img = paper.querySelector('img');
+  if (!img) return null;
+  const natW = img.naturalWidth;
+  const natH = img.naturalHeight;
+  const boxW = parseFloat(node.style.width) || node.offsetWidth;
+  if (!natW || !natH || !boxW) return null;
+
+  const src = opaque(img, natW, natH);
+  const sheet = document.createElement('span');
+  sheet.className = 'team-note__sheet';
+  sheet.style.width = `${natW}px`;
+  sheet.style.height = `${natH}px`;
+  sheet.style.setProperty('--paper-scale', (boxW / natW).toFixed(5));
+
+  // шаг целый: при дробном каждая полоса пересчитает картинку со своим
+  // дробным сдвигом, и на стыках появятся светлые нити
+  const step = Math.max(1, Math.round(natH / STRIPS));
+  const strips = [];
+  const weights = [];
+  for (let k = 0; k < STRIPS; k += 1) {
+    const st = document.createElement('span');
+    st.className = 'team-note__strip';
+    st.style.width = `${natW}px`;
+    // Последняя добирает остаток, остальные заходят друг на друга на
+    // пару пикселей — чтобы между слоями не просвечивал фон
+    const last = k === STRIPS - 1;
+    st.style.height = `${last ? Math.max(step, natH - step * k) : step + 2}px`;
+    st.style.transformOrigin = '0 0';
+    st.style.backgroundImage = `url("${src}")`;
+    st.style.backgroundSize = `${natW}px ${natH}px`;
+    st.style.backgroundPosition = `0 ${-k * step}px`;
+    sheet.appendChild(st);
+    strips.push(st);
+    // доля общего изгиба: в клейкой зоне ноль, дальше растёт к низу
+    weights.push(Math.max(0, (k + 1) / STRIPS - GLUE) / (1 - GLUE));
+  }
+  const total = weights.reduce((a, b) => a + b, 0) || 1;
+
+  paper.appendChild(sheet);
+  img.remove();
+  return { strips, step, weights: weights.map((w) => w / total) };
+}
+
+// Кадр изгиба. Идём по цепочке сверху вниз и копим ориентацию полосы
+// честной матрицей поворота: сгиб между полосами может быть наклонным
+// (тогда заворачивается ближний к курсору нижний угол, а не вся грань),
+// а при наклонной оси положение следующей полосы уже не выводится из
+// одних лишь y и z — полосы разъезжаются. Поэтому каждой полосе отдаём
+// готовую matrix3d: начало — конец предыдущей, поворот — накопленный.
+function bendSheet(sheet, curl) {
+  const { strips, step, weights } = sheet;
+  const totalDeg = curl * CURL_DEG;
+
+  // ориентация (по строкам) и начало текущей полосы
+  let r = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+  let ox = 0;
+  let oy = 0;
+  let oz = 0;
+
+  for (let k = 0; k < strips.length; k += 1) {
+    strips[k].style.transform =
+      `matrix3d(${r[0]},${r[3]},${r[6]},0,${r[1]},${r[4]},${r[7]},0,${r[2]},${r[5]},${r[8]},0,` +
+      `${ox.toFixed(2)},${oy.toFixed(2)},${oz.toFixed(2)},1)`;
+
+    // нижний край этой полосы — начало следующей
+    ox += r[1] * step;
+    oy += r[4] * step;
+    oz += r[7] * step;
+
+    // сгиб под полосой: поворот вокруг её верхнего ребра
+    const a = (totalDeg * weights[k] * Math.PI) / 180;
+    const c = Math.cos(a);
+    const sn = Math.sin(a);
+    const m = [1, 0, 0, 0, c, -sn, 0, sn, c];
+    r = [
+      r[0] * m[0] + r[1] * m[3] + r[2] * m[6], r[0] * m[1] + r[1] * m[4] + r[2] * m[7], r[0] * m[2] + r[1] * m[5] + r[2] * m[8],
+      r[3] * m[0] + r[4] * m[3] + r[5] * m[6], r[3] * m[1] + r[4] * m[4] + r[5] * m[7], r[3] * m[2] + r[4] * m[5] + r[5] * m[8],
+      r[6] * m[0] + r[7] * m[3] + r[8] * m[6], r[6] * m[1] + r[7] * m[4] + r[8] * m[7], r[6] * m[2] + r[7] * m[5] + r[8] * m[8],
+    ];
+  }
+}
 
 function initNotes(notes, reduced) {
   if (reduced) return;
 
   notes.forEach(({ node, paper }, k) => {
-    // изнанка завёрнутого уголка — отдельным слоем поверх листа
-    const curl = document.createElement('span');
-    curl.className = 'team-note__curl';
-    paper.appendChild(curl);
-
     const shadow = document.createElement('span');
     shadow.className = 'team-note__shadow';
     node.insertBefore(shadow, node.firstElementChild);
@@ -366,10 +483,43 @@ function initNotes(notes, reduced) {
     // падают с разным наклоном, чтобы не выглядело под копирку
     node.style.setProperty('--fall-spin', `${(k % 2 ? 1 : -1) * (9 + k * 5)}deg`);
 
+    let sheet = null;
+    const ready = () => {
+      sheet = buildStrips(node, paper);
+      if (sheet) bendSheet(sheet, 0);
+    };
+    const img = paper.querySelector('img');
+    if (img && img.complete && img.naturalWidth) ready();
+    else img?.addEventListener('load', ready, { once: true });
+
     let away = 0;
     let back = 0;
+    let frame = 0;
+    // куда тянемся и где сейчас: лист догоняет курсор, а не прыгает за ним,
+    // и так же мягко распрямляется, когда курсор ушёл
+    const want = { curl: 0, side: 0 };
+    const now = { curl: 0, side: 0 };
 
-    const relax = () => node.style.setProperty('--curl', '0');
+    const draw = () => {
+      now.curl += (want.curl - now.curl) * 0.18;
+      now.side += (want.side - now.side) * 0.18;
+      const rest = Math.abs(want.curl - now.curl) < 0.002 && Math.abs(want.side - now.side) < 0.002;
+      if (rest) {
+        now.curl = want.curl;
+        now.side = want.side;
+      }
+      if (sheet) bendSheet(sheet, now.curl);
+      node.style.setProperty('--curl', now.curl.toFixed(3));
+      node.style.setProperty('--side', now.side.toFixed(3));
+      node.style.setProperty('--sway', `${(now.side * now.curl * SWAY_DEG).toFixed(2)}deg`);
+      frame = rest ? 0 : requestAnimationFrame(draw);
+    };
+
+    const schedule = (curl, side) => {
+      want.curl = curl;
+      want.side = side;
+      if (!frame) frame = requestAnimationFrame(draw);
+    };
 
     node.addEventListener('pointermove', (e) => {
       if (node.classList.contains('is-falling') || node.classList.contains('is-sticking')) return;
@@ -377,21 +527,17 @@ function initNotes(notes, reduced) {
       if (!r.width || !r.height) return;
       const px = (e.clientX - r.left) / r.width;
       const py = (e.clientY - r.top) / r.height;
-      // заворачивается тот уголок, к которому курсор ближе, и тем сильнее,
-      // чем он ближе — верх листа на клею, там загиба нет совсем
-      const left = px < 0.5;
-      const dist = Math.hypot(px - (left ? 0 : 1), py - 1);
-      node.classList.toggle('is-curl-left', left);
-      node.classList.toggle('is-curl-right', !left);
-      node.style.setProperty('--side', left ? '-1' : '1');
-      node.style.setProperty('--curl', clamp(1 - dist / CURL_REACH, 0, 1).toFixed(3));
+      // чем ближе курсор к нижнему краю, тем сильнее отгиб; верх на клею
+      const curl = clamp((py - GLUE) / (CURL_REACH - GLUE), 0, 1);
+      // куда наклонена линия сгиба — туда и заворачивается угол
+      schedule(curl, clamp((px - 0.5) * 2, -1, 1));
     });
 
-    node.addEventListener('pointerleave', relax);
+    node.addEventListener('pointerleave', () => schedule(0, 0));
 
     node.addEventListener('click', () => {
       if (node.classList.contains('is-falling')) return;
-      relax();
+      schedule(0, 0);
       clearTimeout(away);
       clearTimeout(back);
       node.classList.remove('is-sticking');
