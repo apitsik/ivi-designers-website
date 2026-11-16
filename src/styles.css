@@ -22,8 +22,8 @@
   /* Курсоры из макета (public/cursors). Числа после файла — точка клика:
      остриё стрелки и кончик указательного пальца. Везде, где в модулях
      стоял pointer или default, подставляются эти переменные. */
-  --cursor-arrow: url('/cursors/arrow.svg') 3 1, url('/cursors/arrow.png') 3 1, default;
-  --cursor-hand: url('/cursors/hand.svg') 10 1, url('/cursors/hand.png') 10 1, pointer;
+  --cursor-arrow: url('/cursors/arrow.svg') 2 1, url('/cursors/arrow.png') 2 1, default;
+  --cursor-hand: url('/cursors/hand.svg') 9 1, url('/cursors/hand.png') 9 1, pointer;
 
   --font-base: 'IVI Sans Base', system-ui, sans-serif;
 
@@ -271,13 +271,58 @@ h1 {
   position: absolute;
   top: calc(50% + 23px);
   left: 50%;
-  width: 692px;
+  width: 1010px;
   max-width: 100vw;
-  aspect-ratio: 692 / 390;
+  aspect-ratio: 1010 / 568;
   height: auto;
   transform: translate(-50%, -50%);
   object-fit: cover;
   pointer-events: none;
+}
+
+/* ----- награда Red Dot (Figma 314:5880) -----
+   Надпись 220 × 119 прижата к правому нижнему углу. Шарик лежит под ней
+   и по наведению выезжает влево — как будто вылезает из-за надписи. */
+.hero__award {
+  position: absolute;
+  right: 32px;
+  bottom: 24px;
+  z-index: 2;
+  display: block;
+  width: 220px;
+  line-height: 0;
+}
+
+.hero__award-mark {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hero__award-ball {
+  position: absolute;
+  left: -55px;
+  top: 0;
+  z-index: 0;
+  width: 95px;
+  height: auto;
+  opacity: 0;
+  transform: translateX(56px) scale(0.84);
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease-out;
+}
+
+.hero__award:is(:hover, :focus-visible) .hero__award-ball {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__award-ball {
+    transition-duration: 0.2s;
+    transform: none;
+  }
 }
 
 .hero__subtitle {
@@ -318,5 +363,16 @@ h1 {
   .hero__hint,
   .hero__subtitle {
     font-size: 16px;
+  }
+
+  .hero__award {
+    right: 16px;
+    bottom: 16px;
+    width: 148px;
+  }
+
+  .hero__award-ball {
+    left: -37px;
+    width: 64px;
   }
 }
