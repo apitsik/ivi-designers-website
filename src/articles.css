@@ -191,14 +191,92 @@
 /* Оверлей, блюр, крестик и анимация — общие классы .video-modal
    (src/showreels.css). Здесь только сама карточка 496 × 526 (Figma 59:2444):
    радиус 64, padding 32, картинка 496 × 330 сверху, текст у нижнего края. */
-.article-modal__stage {
-  position: relative;
-  width: 100%;
-  max-width: 496px;
+/* Слайдер: лента карточек, активная по центру, соседние видно по краям.
+   --shift ставит articles.js. */
+.article-modal__viewport {
+  width: 100vw;
+  overflow: hidden;
+  cursor: grab;
 }
 
-.article-modal__stage .video-modal__glow {
+.article-modal__track {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  transform: translateX(var(--shift, 0px));
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.article-modal__track.is-still {
+  transition: none;
+}
+
+.article-modal__slide {
+  position: relative;
+  flex: 0 0 auto;
+  width: 496px;
+  max-width: 86vw;
+  opacity: 0.22;
+  transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.article-modal__slide.is-active {
+  opacity: 1;
+}
+
+.article-modal__slide:not(.is-active) {
+  cursor: pointer;
+}
+
+.article-modal__slide .video-modal__glow {
   border-radius: 64px;
+}
+
+/* Диалог статьи шире обычного: лента уезжает за края экрана */
+.article-modal .video-modal__dialog {
+  max-width: none;
+}
+
+.article-modal__kind {
+  margin: 0 0 -8px;
+  font-size: var(--p4-size, 14px);
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.48);
+}
+
+/* Подписи и стрелки — в нижнем отступе, как в попапе команд */
+.article-modal__nav {
+  position: absolute;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--p4-size, 14px);
+  line-height: 22px;
+  color: var(--color-white-72);
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 2;
+}
+
+.video-modal--open .article-modal__nav {
+  opacity: 1;
+}
+
+.article-modal__arrow {
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.article-modal__arrow:is(:hover, :focus-visible) {
+  color: var(--color-white);
 }
 
 .article-modal__card {

@@ -190,10 +190,11 @@
       <section class="team" id="teams" aria-labelledby="team-title">
         <div class="team__stage">
           <div class="team__scene">
-            <p class="team__kicker team__kicker--main">Команды</p>
-            <p class="team__kicker team__kicker--others" aria-hidden="true">А ещё у нас есть</p>
             <h2 id="team-title" class="team__title" data-words>
               Каждая команда делает свою работу<br />с любовью
+            </h2>
+            <h2 class="team__title team__title--others" data-words aria-hidden="true">
+              Не дизайнерами<br />едиными
             </h2>
 
             <!-- (01) Продукт -->
@@ -220,9 +221,10 @@
                   <div class="team-folder__lines"></div>
                 </div>
               </div>
-              <!-- Содержимое попапа. Вместо постеров пока шейпы-заглушки:
-                   чтобы поставить настоящую картинку, положите внутрь
-                   карточки <img src="/images/team/…" alt="" />. -->
+              <!-- Содержимое попапа (Figma «product-team», 302:1445).
+                   style="--w" — ширина карточки в пикселях макета при высоте
+                   592; у половинок стопки --h — высота. Порядок карточек
+                   здесь = порядок в слайдере. -->
               <template class="team-folder__detail">
                 <div class="team-modal__card team-modal__card--text">
                   <span class="team-modal__dot"></span>
@@ -230,8 +232,20 @@
                     <p>Делаем красиво и удобно на разных платформах: TV, Web, App.</p>
                   </div>
                 </div>
-                <div class="team-modal__card team-modal__card--poster"></div>
-                <div class="team-modal__card team-modal__card--poster"></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 429.63"><img src="/images/team/detail/product-team-poster01.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 429.63"><img src="/images/team/detail/product-team-poster02.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 668.61"><video src="/video/team/product-team-poster03.mp4" muted playsinline loop preload="metadata"></video></div>
+                <div class="team-modal__card team-modal__card--stack" style="--w: 511">
+                  <div class="team-modal__poster" style="--h: 234.93"><img src="/images/team/detail/product-team-poster04.jpg" alt="" /></div>
+                  <div class="team-modal__poster" style="--h: 338.66"><img src="/images/team/detail/product-team-poster05.jpg" alt="" /></div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 737.93"><img src="/images/team/detail/product-team-poster06.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 992.25"><video src="/video/team/product-team-poster07.mp4" muted playsinline loop preload="metadata"></video></div>
+                <div class="team-modal__card team-modal__card--stack" style="--w: 396">
+                  <div class="team-modal__poster" style="--h: 270.46"><img src="/images/team/detail/product-team-poster08.jpg" alt="" /></div>
+                  <div class="team-modal__poster" style="--h: 309.41"><img src="/images/team/detail/product-team-poster09.jpg" alt="" /></div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 921.1"><img src="/images/team/detail/product-team-poster10.jpg" alt="" /></div>
               </template>
             </article>
 
@@ -268,15 +282,24 @@
                     <p>Практически для каждого тайтла готовим: 20 оригинальных кейвижалов, сотни ресайзов, тайтл тритмент, характер постеры и тд.</p>
                   </div>
                 </div>
-                <div class="team-modal__card team-modal__card--poster"></div>
-                <div class="team-modal__card team-modal__card--poster"></div>
-                <div class="team-modal__card team-modal__card--stack">
-                  <div class="team-modal__poster"></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 394.67"><img src="/images/team/detail/content-team-poster01.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 394.67"><img src="/images/team/detail/content-team-poster02.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--stack" style="--w: 391">
+                  <div class="team-modal__poster" style="--h: 311.02"><img src="/images/team/detail/content-team-poster03.jpg" alt="" /></div>
                   <div class="team-modal__note">
                     <span class="team-modal__dot"></span>
                     <p class="team-modal__text">Для каждого нашего тайтла мы делаем тайтл тритмент. То есть название в подходящей стилистике</p>
                   </div>
                 </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 542.67"><img src="/images/team/detail/content-team-poster04.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 1051.79"><img src="/images/team/detail/content-team-poster06.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 384.8"><img src="/images/team/detail/content-team-poster09.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--stack" style="--w: 362.06">
+                  <div class="team-modal__poster" style="--h: 288"><img src="/images/team/detail/content-team-poster08.jpg" alt="" /></div>
+                  <div class="team-modal__poster" style="--h: 288"><img src="/images/team/detail/content-team-poster07.jpg" alt="" /></div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 394.67"><img src="/images/team/detail/content-team-poster10.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 394.67"><img src="/images/team/detail/content-team-poster05.jpg" alt="" /></div>
               </template>
             </article>
 
@@ -311,8 +334,21 @@
                     <p>Формируем бренд-айдентику и оформляем оригинальные креативы повсеместно.</p>
                   </div>
                 </div>
-                <div class="team-modal__card team-modal__card--poster"></div>
-                <div class="team-modal__card team-modal__card--poster"></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 418.71"><img src="/images/team/detail/brand-team-poster01.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 273.46"><img src="/images/team/detail/brand-team-poster02.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 1049.9"><img src="/images/team/detail/brand-team-poster03.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--stack" style="--w: 362.06">
+                  <div class="team-modal__poster" style="--h: 288"><img src="/images/team/detail/brand-team-poster04.jpg" alt="" /></div>
+                  <div class="team-modal__poster" style="--h: 288"><img src="/images/team/detail/brand-team-poster05.jpg" alt="" /></div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 525"><img src="/images/team/detail/brand-team-poster06.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 521"><img src="/images/team/detail/brand-team-poster07.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 992.25"><video src="/video/team/brand-team-poster08.mp4" muted playsinline loop preload="metadata"></video></div>
+                <div class="team-modal__card team-modal__card--stack" style="--w: 360">
+                  <div class="team-modal__poster" style="--h: 216"><img src="/images/team/detail/brand-team-poster09.jpg" alt="" /></div>
+                  <div class="team-modal__poster" style="--h: 360"><img src="/images/team/detail/brand-team-poster10.jpg" alt="" /></div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 1137.57"><img src="/images/team/detail/brand-team-poster11.jpg" alt="" /></div>
               </template>
             </article>
 
@@ -471,7 +507,11 @@
             </h2>
             <p class="vacancies__subtitle">Нам не хватает только тебя. Ничего не бойся, мы милашки</p>
           </div>
-          <button class="vacancies__button" type="button" data-resume-open>Отправить резюме</button>
+          <div class="vacancies__actions">
+            <button class="vacancies__button" type="button" data-resume-open>Отправить резюме</button>
+            <!-- TODO: поставить ссылку на страницу вакансий -->
+            <a class="vacancies__button vacancies__button--ghost" href="#" target="_blank" rel="noopener">Все вакансии</a>
+          </div>
         </div>
       </section>
     </main>
@@ -557,20 +597,17 @@
           <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </button>
+      <!-- Карточки слайдера собирает src/articles.js из массива ARTICLES:
+           соседние видно по краям, список закольцован. -->
       <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="article-modal-title">
-        <div class="article-modal__stage">
-          <div class="video-modal__glow" aria-hidden="true"></div>
-          <article class="article-modal__card">
-            <img class="article-modal__img" alt="" />
-            <div class="article-modal__body">
-              <div class="article-modal__text">
-                <h3 id="article-modal-title" class="article-modal__title"></h3>
-                <p class="article-modal__desc"></p>
-              </div>
-              <a class="article-modal__link" href="#" target="_blank" rel="noopener">Смотреть</a>
-            </div>
-          </article>
+        <div class="article-modal__viewport">
+          <div class="article-modal__track"></div>
         </div>
+      </div>
+      <div class="article-modal__nav">
+        <button class="article-modal__arrow" type="button" data-dir="-1">&lsaquo; туда</button>
+        <span class="article-modal__bullet" aria-hidden="true">&bull;</span>
+        <button class="article-modal__arrow" type="button" data-dir="1">сюда &rsaquo;</button>
       </div>
     </div>
 

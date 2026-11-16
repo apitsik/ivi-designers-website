@@ -113,7 +113,7 @@
   background: var(--color-black);
   border-radius: var(--card-radius);
   overflow: hidden;
-  cursor: url('/cursors/eyes.svg') 32 32, url('/cursors/eyes.png') 32 32, pointer;
+  cursor: url('/cursors/hand.svg') 10 4, url('/cursors/hand.png') 10 4, pointer;
   will-change: transform;
   -webkit-tap-highlight-color: transparent;
 }

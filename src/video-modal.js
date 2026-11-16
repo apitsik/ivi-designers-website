@@ -121,6 +121,11 @@ function buildPlayer(id, name) {
     title: '0',
     byline: '0',
     portrait: '0',
+    // Без интерфейса плеера: ни панели, ни логотипа, ни оверлеев
+    controls: '0',
+    badge: '0',
+    pip: '0',
+    playsinline: '1',
     dnt: '1',
   });
   iframe.src = `https://player.vimeo.com/video/${id}?${params}`;

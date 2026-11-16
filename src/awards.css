@@ -26,8 +26,6 @@
   transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
   color: var(--color-white);
   text-align: center;
-  /* Курсор над наградами обычный: блок не кликабельный */
-  cursor: default;
 }
 
 .awards__inner {
@@ -45,7 +43,6 @@
   font-weight: 400;
   line-height: 22px;
   letter-spacing: 0;
-  text-transform: uppercase;
 }
 
 .awards__list {
@@ -64,6 +61,21 @@
   gap: 8px;
   white-space: nowrap;
   transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Награда со ссылкой: подчёркивание проявляется по наведению */
+.award--link .award__name {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.12em;
+  text-decoration-thickness: 2px;
+  transition: text-decoration-color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.award--link:is(:hover, :focus-visible) .award__name {
+  text-decoration-color: currentColor;
 }
 
 .award__name {

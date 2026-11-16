@@ -13,68 +13,80 @@
 
 import { lenis } from './smooth-scroll.js';
 
+// kind — подпись над заголовком в попапе («Статья», «Подкаст», «Выступление»)
 const ARTICLES = [
   {
+    kind: 'Статья',
     title: 'Как визуальные UX/UI-решения вызывают нужные ощущения',
     desc: 'Разберем, как маленькие детали делают интерфейс живым и посмотрим на реальные примеры из продукта, которые пользователь может даже не замечать сознательно, но точно чувствует.',
     button: 'Смотреть',
     url: 'https://vkvideo.ru/video-230171290_456239023',
   },
   {
+    kind: 'Подкаст',
     title: 'Игорь Рыжов и Митя Осадчук на подкасте МамкинДизайнер',
     desc: 'Поговорили про онлайн-кинотеатры как цифровой продукт, сериалы собственного производства, про нетривиальные задачи и источники вдохновения, про построение команд и нетоксичную среду в коллективе.',
     button: 'Смотреть',
     url: 'https://www.youtube.com/watch?v=RrlyzNXaVHw',
   },
   {
+    kind: 'Подкаст',
     title: 'В подкасте Пленума про киноиндустрию и дизайн',
     desc: 'С Егором Мызником и Митей Осадчуком обсуждаем тренд на локальный шопинг, этику космической рекламы, виртуальные путешествия и то, чем станет обязательное российское ПО — госрегулированием или толчком для IT.',
     button: 'Слушать',
     url: 'https://open.spotify.com/episode/5ohDVdf61paqpTt20vI4Xu',
   },
   {
+    kind: 'Статья',
     title: 'Статья об исследовании шрифта',
     desc: 'Как люди на самом деле чувствуют шрифты: исследование Жени Савельевой. Рассказываем про оценку гарнитур по методу Чарльза Осгуда: как с помощью биполярных шкал и математики понять, передает ли шрифт нужный характер бренда и настроение.',
     button: 'Читать',
     url: 'https://habr.com/ru/companies/ivi/articles/780000/',
   },
   {
+    kind: 'Статья',
     title: 'Как устроены UX-исследования в Иви',
     desc: 'В этой статье расскажем о наших процессах, их влиянии на эффективность работы, а также о лайфхаках, как небольшая команда исследователей из двух человек может успевать делать все необходимое.',
     button: 'Читать',
     url: 'https://habr.com/ru/companies/ivi/articles/697850/',
   },
   {
+    kind: 'Выступление',
     title: 'Креативные процессы в командах',
     desc: 'Митя Осадчук на сцене Design Prosmotr делится опытом борьбы с рутиной: почему отсутствие творческих процессов губит сотрудников, в чем настоящая причина нежелания брать задачи и как перестроить процессы, чтобы у дизайнеров снова загорелись глаза.',
     button: 'Смотреть',
     url: 'https://www.youtube.com/watch?v=13AE8T5rwz0',
   },
   {
+    kind: 'Подкаст',
     title: 'Создание дизайна для ориджиналс-контента',
     desc: 'Леонид Буравлев и Дмитрий Лаврухин делятся опытом создания концепций для контента «Иви». Разбираем тонкости передачи антуража через афиши, работу нейросетей в интерфейсе и устройство дизайн-системы стриминга.',
     button: 'Слушать',
     url: 'https://dpcast.mave.digital/ep-141',
   },
   {
+    kind: 'Статья',
     title: 'Статья на Sostav про 13 клиническую',
     desc: 'Промо-кампании фильмов бывают не менее увлекательными, чем сам съемочный процесс. Разбираем, с какими вызовами столкнулась команда дизайна «Иви» при продвижении сериалов собственного производства и как создавался визуал для громкой премьеры «13-я клиническая».',
     button: 'Читать',
     url: 'https://www.sostav.ru/publication/s-kakimi-trudnostyami-stalkivaetsya-komanda-dizajna-pri-prodvizhenii-serialov-62874.html',
   },
   {
+    kind: 'Статья',
     title: 'Статья: Нейросети против дизайнеров',
     desc: 'Что происходит в дизайне после массового появления ИИ. В этой статье дизайн-лиды из Сбера, Яндекса, Иви, Skyeng, Ozon, Туту, Flowwow и Wildberries рассказывают, как меняется работа внутри компаний и отделов из-за искусственного интеллекта.',
     button: 'Читать',
     url: 'https://vk.ru/@prosmotr-chto-proishodit-na-rynke-dizaina-posle-massovogo-poyavleniya',
   },
   {
+    kind: 'Подкаст',
     title: 'Нюансы продукта в дизайн-команде Иви',
     desc: 'Поговорили о том, как устроен дизайн и команды в онлайн-кинотеатрах, какие продуктовые модели там есть. Рассказали, как устроен рынок онлайн-кинотеатров, про ограничения платформ и девайсов, и где дизайнеру искать информацию о том, как проектировать дизайн для телевизоров.',
     button: 'Слушать',
     url: 'https://dpcast.mave.digital/ep-139',
   },
   {
+    kind: 'Выступление',
     title: 'Как устроена дизайн-система в Иви',
     desc: 'Олег Топталов из «Иви» раскрывает устройство и эволюцию кроссплатформенной дизайн-системы онлайн-кинотеатра. Выясняем, как единый JSON-формат, несемантические названия и гибкая работа с иконками помогают мгновенно доставлять изменения на все платформы — от Smart TV до мобильных приложений.',
     button: 'Смотреть',
@@ -293,19 +305,122 @@ export function initArticles(section, modal) {
   render();
 
   // ----- попап статьи -----
-  // Повторяет src/video-modal.js: hidden → display → класс --open через два
-  // кадра, закрытие по крестику / оверлею / Esc, выгрузка через 350 мс,
-  // стоп Lenis и возврат фокуса на карточку.
+  // Попап статьи — слайдер: в центре выбранная статья, по бокам видны
+  // соседние, список закольцован. Листается стрелками, драгом, клавишами
+  // и кликом по соседней карточке. Открытие/закрытие — как у остальных
+  // попапов (src/video-modal.js).
   const openModal = (() => {
     if (!modal) return () => {};
-    const img = modal.querySelector('.article-modal__img');
-    const glow = modal.querySelector('.video-modal__glow');
-    const title = modal.querySelector('.article-modal__title');
-    const desc = modal.querySelector('.article-modal__desc');
-    const link = modal.querySelector('.article-modal__link');
+    const viewport = modal.querySelector('.article-modal__viewport');
+    const track = modal.querySelector('.article-modal__track');
     const closeBtn = modal.querySelector('.video-modal__close');
+    const arrows = [...modal.querySelectorAll('.article-modal__arrow')];
     let opener = null;
     let hideTimer = 0;
+    // Список склеен трижды: листаем по средней копии, а когда уходим
+    // в соседнюю — молча перескакиваем обратно. Для человека список
+    // бесконечный, у края ничего не упирается.
+    const COPIES = 3;
+    const N = ARTICLES.length;
+    let index = N; // начало средней копии
+
+    // ----- карточки -----
+    const slides = [];
+    for (let c = 0; c < COPIES; c += 1) {
+      ARTICLES.forEach((a, i) => {
+        const slide = document.createElement('div');
+        slide.className = 'article-modal__slide';
+        slide.setAttribute('aria-hidden', 'true');
+
+        const glow = document.createElement('div');
+        glow.className = 'video-modal__glow';
+        glow.setAttribute('aria-hidden', 'true');
+
+        const card = document.createElement('article');
+        card.className = 'article-modal__card';
+
+        const img = document.createElement('img');
+        img.className = 'article-modal__img';
+        img.alt = '';
+        img.loading = 'lazy';
+        const src = `/images/articles/article-${i + 1}-image.jpg`;
+        img.src = src;
+        glow.style.backgroundImage = `url("${src}")`;
+
+        const body = document.createElement('div');
+        body.className = 'article-modal__body';
+
+        const text = document.createElement('div');
+        text.className = 'article-modal__text';
+
+        const kind = document.createElement('p');
+        kind.className = 'article-modal__kind';
+        kind.textContent = a.kind || '';
+
+        const title = document.createElement('h3');
+        title.className = 'article-modal__title';
+        title.textContent = a.title;
+        if (c === 1 && i === 0) title.id = 'article-modal-title';
+
+        const desc = document.createElement('p');
+        desc.className = 'article-modal__desc';
+        desc.textContent = a.desc;
+
+        const link = document.createElement('a');
+        link.className = 'article-modal__link';
+        link.href = a.url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.textContent = a.button;
+        link.tabIndex = -1;
+
+        text.append(kind, title, desc);
+        body.append(text, link);
+        card.append(img, body);
+        slide.append(glow, card);
+        track.append(slide);
+        slides.push(slide);
+      });
+    }
+
+    // ----- листание -----
+    const shiftFor = (i) => {
+      const slide = slides[i];
+      if (!slide) return 0;
+      return slide.offsetLeft - (viewport.clientWidth - slide.offsetWidth) / 2;
+    };
+
+    const paint = () => {
+      slides.forEach((slide, k) => {
+        const active = k === index;
+        slide.classList.toggle('is-active', active);
+        slide.setAttribute('aria-hidden', active ? 'false' : 'true');
+        const link = slide.querySelector('.article-modal__link');
+        if (link) link.tabIndex = active ? 0 : -1;
+      });
+    };
+
+    const go = (i, animate = true) => {
+      index = i;
+      track.classList.toggle('is-still', !animate);
+      track.style.setProperty('--shift', `${-shiftFor(index)}px`);
+      paint();
+      if (!animate) {
+        // дать браузеру применить сдвиг до возврата анимации
+        void track.offsetWidth;
+        track.classList.remove('is-still');
+      }
+    };
+
+    // Ушли в крайнюю копию — незаметно возвращаемся в среднюю
+    const recenter = () => {
+      if (index >= N && index < N * 2) return;
+      go(((index % N) + N) % N + N, false);
+    };
+
+    track.addEventListener('transitionend', (e) => {
+      if (e.propertyName === 'transform') recenter();
+    });
 
     const close = () => {
       if (modal.hidden) return;
@@ -315,40 +430,77 @@ export function initArticles(section, modal) {
       lenis?.start();
       hideTimer = setTimeout(() => {
         modal.hidden = true;
-        img.removeAttribute('src');
-        if (glow) glow.style.backgroundImage = '';
       }, 350);
       if (opener) opener.focus({ preventScroll: true });
       opener = null;
     };
 
+    arrows.forEach((a) => a.addEventListener('click', () => go(index + Number(a.dataset.dir))));
     modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
     // Клик по пустому месту диалога (вне карточки) — тоже закрытие
     const dialog = modal.querySelector('.video-modal__dialog');
     dialog.addEventListener('click', (e) => {
-      if (e.target === dialog) close();
+      if (e.target === dialog || e.target === viewport) close();
+    });
+    // Клик по соседней карточке подводит её в центр
+    slides.forEach((slide, k) => {
+      slide.addEventListener('click', () => {
+        if (k !== index) go(k);
+      });
     });
     document.addEventListener('keydown', (e) => {
+      if (modal.hidden) return;
       if (e.key === 'Escape') close();
+      if (e.key === 'ArrowRight') go(index + 1);
+      if (e.key === 'ArrowLeft') go(index - 1);
+    });
+
+    // ----- драг -----
+    let dragging = false;
+    let startX = 0;
+    let startShift = 0;
+    let moved = 0;
+
+    viewport.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      moved = 0;
+      startX = e.clientX;
+      startShift = shiftFor(index);
+      track.classList.add('is-still');
+      viewport.setPointerCapture(e.pointerId);
+    });
+
+    viewport.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      moved = e.clientX - startX;
+      track.style.setProperty('--shift', `${-(startShift - moved)}px`);
+    });
+
+    const endDrag = () => {
+      if (!dragging) return;
+      dragging = false;
+      track.classList.remove('is-still');
+      const step = slides[0] ? slides[0].offsetWidth + 24 : 1;
+      go(index - Math.round(moved / step));
+    };
+
+    viewport.addEventListener('pointerup', endDrag);
+    viewport.addEventListener('pointercancel', endDrag);
+    viewport.addEventListener('dragstart', (e) => e.preventDefault());
+
+    window.addEventListener('resize', () => {
+      if (!modal.hidden) go(index, false);
     });
 
     return (i) => {
-      const a = ARTICLES[i];
       opener = cards[i];
       clearTimeout(hideTimer);
-      const src = `/images/articles/article-${i + 1}-image.jpg`;
-      img.src = src;
-      img.alt = '';
-      if (glow) glow.style.backgroundImage = `url("${src}")`;
-      title.textContent = a.title;
-      desc.textContent = a.desc;
-      link.textContent = a.button;
-      link.href = a.url;
 
       modal.hidden = false;
       modal.setAttribute('aria-hidden', 'false');
       document.body.classList.add('video-modal-open');
       lenis?.stop();
+      go(N + i, false);
       requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add('video-modal--open')));
       closeBtn.focus({ preventScroll: true });
     };

@@ -110,6 +110,15 @@
   opacity: 0.7;
 }
 
+/* Две кнопки в ряд (Figma 302:5754): акцентная и прозрачная, gap 16 */
+.vacancies__actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 /* Кнопка: по ховеру светлеет, по нажатию темнеет */
 .vacancies__button {
   display: inline-flex;
@@ -128,7 +137,21 @@
   white-space: nowrap;
   cursor: pointer;
   pointer-events: auto;
+  text-decoration: none;
   transition: background-color 0.25s cubic-bezier(0.25, 1, 0.5, 1), transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Вторая, спокойная: полупрозрачная белая плашка */
+.vacancies__button--ghost {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.vacancies__button--ghost:is(:hover, :focus-visible) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.vacancies__button--ghost:active {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .vacancies__button:hover,

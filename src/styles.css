@@ -49,6 +49,39 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ----- курсоры (Figma 302:5761) -----
+   Нарисованы в public/cursors: стрелка по всей странице, рука — на всём,
+   что кликается. Обе одной толщины линий. Сначала SVG (чёткий в Chrome),
+   следом PNG для браузеров без SVG-курсоров, в конце системный.
+   Числа после файла — точка клика: кончик стрелки и кончик пальца. */
+html,
+body {
+  cursor: url('/cursors/arrow.svg') 4 3, url('/cursors/arrow.png') 4 3, default;
+}
+
+a,
+button,
+summary,
+label[for],
+[role='button'],
+[tabindex]:not([tabindex='-1']),
+input[type='submit'],
+input[type='button'] {
+  cursor: url('/cursors/hand.svg') 10 4, url('/cursors/hand.png') 10 4, pointer;
+}
+
+:disabled,
+[aria-disabled='true'] {
+  cursor: url('/cursors/arrow.svg') 4 3, url('/cursors/arrow.png') 4 3, default;
+}
+
+input[type='text'],
+input[type='email'],
+input[type='tel'],
+textarea {
+  cursor: text;
+}
+
 p,
 h1 {
   margin: 0;

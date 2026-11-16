@@ -12,6 +12,7 @@ import { observeReveal } from './reveal.js';
 // ---------------------------------------------------------------------------
 // СПИСОК НАГРАД — единственное место, которое надо править.
 // name   — название награды (крупно)
+// url    — ссылка на кейс или новость; без неё награда просто не кликается
 // status — пометка рядом: «победа», «золото», «шорт-лист» и т. п.
 // image  — картинка проекта, которая всплывает под курсором
 //          (кладём в public/images/awards/, путь от корня сайта)
@@ -19,17 +20,17 @@ import { observeReveal } from './reveal.js';
 // добавить — дописать ещё одну.
 // ---------------------------------------------------------------------------
 export const AWARDS = [
-  { name: 'G8', status: 'победа', image: '/images/awards/awards-image1.png' },
-  { name: 'Медиабренд', status: 'золото', image: '/images/awards/awards-image2.png' },
+  { name: 'G8', status: 'победа', image: '/images/awards/awards-image1.png', url: 'https://confluence.ivi.ru/pages/viewpage.action?pageId=516883985&spaceKey=DES' },
+  { name: 'Медиабренд', status: 'золото', image: '/images/awards/awards-image2.png', url: 'https://t.me/mediabrandmoscow/3803' },
   { name: 'Red dot', status: 'победа', image: '/images/awards/awards-image3.png' },
-  { name: 'D-Profile', status: 'победа', image: '/images/awards/awards-image4.png' },
-  { name: 'Workspace Digital Award', status: 'золото', image: '/images/awards/awards-image5.png' },
-  { name: 'Среда', status: 'золото', image: '/images/awards/awards-image6.png' },
-  { name: 'Indigo', status: 'золото', image: '/images/awards/awards-image7.png' },
-  { name: 'Медиабренд', status: 'золото', image: '/images/awards/awards-image8.png' },
+  { name: 'D-Profile', status: 'победа', image: '/images/awards/awards-image4.png', url: 'https://dprofile.ru/case/127742/dizain-kollekcii-merca-dlia-ivi' },
+  { name: 'Workspace Digital Award', status: 'золото', image: '/images/awards/awards-image5.png', url: 'https://workspace.ru/awards/cases/ivi-sans-display-novyy-firmennyy-shrift-onlayn-kinoteatra-ivi/' },
+  { name: 'Среда', status: 'золото', image: '/images/awards/awards-image6.png', url: 'https://2024.festivalsreda.ru/works/innovacionnye-dizajnerskie-reshenija-v-reklame/5746/index.html' },
+  { name: 'Indigo', status: 'золото', image: '/images/awards/awards-image7.png', url: 'https://www.indigoaward.com/winners/8421' },
+  { name: 'Медиабренд', status: 'золото', image: '/images/awards/awards-image8.png', url: 'https://t.me/mediabrandmoscow/3554' },
   { name: 'Red dot', status: 'победа', image: '/images/awards/awards-image9.png' },
-  { name: 'Muse', status: 'золото', image: '/images/awards/awards-image10.png' },
-  { name: 'G8', status: 'шорт-лист', image: '/images/awards/awards-image11.png' },
+  { name: 'Muse', status: 'золото', image: '/images/awards/awards-image10.png', url: 'https://museaward.com/winner-info.php?id=229054' },
+  { name: 'G8', status: 'шорт-лист', image: '/images/awards/awards-image11.png', url: 'https://g8.art/ru/works/4962' },
 ];
 
 // Иконка под списком (public/images/awards/awards-icon.svg, 118 × 56)
@@ -56,8 +57,15 @@ export function initAwards(section) {
   if (title) title.style.setProperty('--word-index', index++);
 
   const items = AWARDS.map((award) => {
-    const item = document.createElement('div');
+    // Награда со ссылкой — <a>, без ссылки — обычный <div>
+    const item = document.createElement(award.url ? 'a' : 'div');
     item.className = 'award';
+    if (award.url) {
+      item.href = award.url;
+      item.target = '_blank';
+      item.rel = 'noopener noreferrer';
+      item.classList.add('award--link');
+    }
     item.style.setProperty('--word-index', index++);
     item.dataset.image = award.image;
 

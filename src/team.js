@@ -94,8 +94,7 @@ export function initTeam(section, modal) {
   const scene = section.querySelector('.team__scene');
   const stage = section.querySelector('.team__stage');
   const title = section.querySelector('[data-words]');
-  const kickerMain = section.querySelector('.team__kicker--main');
-  const kickerOthers = section.querySelector('.team__kicker--others');
+  const titleOthers = section.querySelector('.team__title--others');
   const folders = [...section.querySelectorAll('.team-folder')];
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -229,8 +228,7 @@ export function initTeam(section, modal) {
     // Надзаголовок меняется на четвёртом экране
     const swap = ease(range(p, SWAP_FROM, SWAP_TO));
     scene?.style.setProperty('--swap', swap.toFixed(4));
-    kickerMain?.setAttribute('aria-hidden', swap > 0.5 ? 'true' : 'false');
-    kickerOthers?.setAttribute('aria-hidden', swap > 0.5 ? 'false' : 'true');
+    titleOthers?.setAttribute('aria-hidden', swap > 0.5 ? 'false' : 'true');
 
     items.forEach((item, i) => placeFolder(item, i, p));
     placeOthers(p);
@@ -658,6 +656,11 @@ function initDetail(modal) {
         img.closest('.team-modal__card')?.remove();
         go(index);
       }, { once: true });
+    });
+    // Видео в карточках играют, пока попап открыт
+    track.querySelectorAll('video').forEach((v) => {
+      v.muted = true;
+      v.play().catch(() => {});
     });
     track.style.setProperty('--shift', '0px');
     index = 0;

@@ -62,11 +62,11 @@ export function initVacancies(section, modal) {
 function initReveal(section) {
   const title = section.querySelector('[data-words]');
   const subtitle = section.querySelector('.vacancies__subtitle');
-  const button = section.querySelector('.vacancies__button');
+  const buttons = [...section.querySelectorAll('.vacancies__button')];
   let i = 0;
   if (title) i = splitWords(title);
   if (subtitle) subtitle.style.setProperty('--word-index', i++);
-  if (button) button.style.setProperty('--word-index', i);
+  buttons.forEach((b) => b.style.setProperty('--word-index', i));
   observeReveal(section);
 }
 

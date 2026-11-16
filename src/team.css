@@ -60,28 +60,6 @@
   aspect-ratio: 1440 / 832;
 }
 
-.team__kicker {
-  position: absolute;
-  top: 20.43%; /* 170 / 832 — между надзаголовком и H2 ровно 48 px */
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
-  font-size: var(--p2-size);
-  line-height: var(--p2-line);
-  color: var(--color-white-72);
-  white-space: nowrap;
-}
-
-/* На четвёртом экране надзаголовок меняется: «Команды» уходит,
-   «А ещё у нас есть» проявляется. --swap ставит team.js. */
-.team__kicker--main {
-  opacity: calc(1 - var(--swap, 0));
-}
-
-.team__kicker--others {
-  opacity: var(--swap, 0);
-}
-
 .team__title {
   position: absolute;
   top: 28.85%; /* 240 / 832 */
@@ -102,6 +80,13 @@
   opacity: calc(1 - var(--fade));
   filter: blur(calc(var(--fade) * 12px));
   will-change: opacity, filter;
+}
+
+/* Заголовок четвёртого экрана стоит на месте первого и проявляется,
+   когда уехала третья папка. --swap ставит team.js. */
+.team__title--others {
+  opacity: var(--swap, 0);
+  filter: none;
 }
 
 /* Тот же эффект, что у остальных H2 (showreels.css, extra-text.css):
@@ -467,11 +452,14 @@
   transition: none;
 }
 
+/* Ширина карточки задаётся в разметке переменной --w — это ширина из макета
+   при высоте 592. Карточка тянется по высоте попапа, пропорция держится. */
 .team-modal__card {
   position: relative;
   flex: 0 0 auto;
   height: 100%;
   width: auto;
+  aspect-ratio: var(--w, 395) / 592;
   border-radius: 48px;
   overflow: hidden;
   background: #e0dcdc;
@@ -485,16 +473,14 @@
   align-items: flex-end;
 }
 
-/* Заглушка под картинку: шейп со скруглением из макета (48).
-   Когда появится реальный постер, внутрь кладётся <img>. */
 .team-modal__card--poster {
-  aspect-ratio: 395 / 592;
+  border-radius: 64px;
   background: #26262b;
 }
 
-/* Карточка-стопка: постер сверху, короткая подпись снизу (node 215:1220) */
+/* Карточка-стопка: две половинки друг над другом, высота каждой задана
+   в разметке переменной --h (пиксели макета при общей высоте 592) */
 .team-modal__card--stack {
-  aspect-ratio: 391 / 592;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -504,8 +490,8 @@
 }
 
 .team-modal__card--stack .team-modal__poster {
-  flex: 0 0 52.4%; /* 310 / 592 */
-  border-radius: 80px;
+  flex: 0 0 calc(var(--h, 288) / 592 * 100%);
+  border-radius: 64px;
   overflow: hidden;
   background: #26262b;
 }
@@ -513,7 +499,7 @@
 .team-modal__card--stack .team-modal__note {
   position: relative;
   flex: 1 1 auto;
-  border-radius: 24px;
+  border-radius: 16px;
   background: #e0dcdc;
   padding: 0 35px 32px;
   display: flex;
@@ -525,6 +511,7 @@
   right: 31px;
 }
 
+.team-modal__card--poster video,
 .team-modal__card--poster img,
 .team-modal__poster img {
   display: block;
@@ -808,7 +795,6 @@
     aspect-ratio: auto;
   }
 
-  .team__kicker,
   .team__title {
     position: static;
     transform: none;
