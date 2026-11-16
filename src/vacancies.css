@@ -141,19 +141,6 @@
   transition: background-color 0.25s cubic-bezier(0.25, 1, 0.5, 1), transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Вторая, спокойная: полупрозрачная белая плашка */
-.vacancies__button--ghost {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.vacancies__button--ghost:is(:hover, :focus-visible) {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.vacancies__button--ghost:active {
-  background: rgba(255, 255, 255, 0.08);
-}
-
 .vacancies__button:hover,
 .vacancies__button:focus-visible {
   background: #ff3d6e;
@@ -170,6 +157,30 @@
   outline: 1px solid var(--color-white-72);
   outline-offset: 4px;
 }
+
+/* Вторая, спокойная: полупрозрачная белая плашка с размытием под ней.
+   Правила идут после общих — иначе розовый ховер основной кнопки
+   перебивал бы их и вторая тоже розовела. Свой слой (translateZ)
+   нужен, чтобы размытие не пересчитывалось на каждом кадре и кнопка
+   не мерцала под курсором. */
+.vacancies__button--ghost,
+.vacancies__button--ghost:is(:hover, :focus-visible),
+.vacancies__button--ghost:active {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  transform: translateZ(0);
+}
+
+.vacancies__button--ghost:is(:hover, :focus-visible) {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.vacancies__button--ghost:active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateZ(0) scale(0.97);
+}
+
 
 /* ----- проявление из блюра: слова заголовка, затем подзаголовок и кнопка
    той же волной (индексы продолжают нумерацию слов, см. vacancies.js) ----- */

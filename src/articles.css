@@ -214,6 +214,9 @@
   /* Все карточки одной высоты — по самой высокой */
   align-items: stretch;
   gap: 24px;
+  /* Иначе драг ленты выделяет текст во всех карточках */
+  user-select: none;
+  -webkit-user-select: none;
   transform: translateX(var(--shift, 0px));
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
