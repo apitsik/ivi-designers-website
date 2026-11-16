@@ -114,7 +114,7 @@
   background: var(--color-black);
   border-radius: var(--card-radius);
   overflow: hidden;
-  cursor: url('/cursors/hand.svg') 10 4, url('/cursors/hand.png') 10 4, pointer;
+  cursor: url('/cursors/hand.svg') 15 2, url('/cursors/hand.png') 15 2, pointer;
   will-change: transform;
   -webkit-tap-highlight-color: transparent;
 }
