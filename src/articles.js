@@ -439,12 +439,16 @@ export function initArticles(section, modal) {
     modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
     // Клик по пустому месту диалога (вне карточки) — тоже закрытие
     const dialog = modal.querySelector('.video-modal__dialog');
+    // Закрываем только по честному клику мимо карточек: после драга
+    // браузер тоже шлёт click, и модалка «смахивалась» бы при листании
     dialog.addEventListener('click', (e) => {
+      if (Math.abs(moved) > 6) return;
       if (e.target === dialog || e.target === viewport) close();
     });
     // Клик по соседней карточке подводит её в центр
     slides.forEach((slide, k) => {
       slide.addEventListener('click', () => {
+        if (Math.abs(moved) > 6) return;
         if (k !== index) go(k);
       });
     });
@@ -456,15 +460,22 @@ export function initArticles(section, modal) {
     });
 
     // ----- драг -----
+    // Лента идёт за пальцем, а отпускаем — доезжает до ближайшей карточки.
+    // Листает лёгкое движение: достаточно сдвинуть на пятую часть карточки
+    // или просто мазнуть, тянуть через весь экран не надо.
     let dragging = false;
     let startX = 0;
     let startShift = 0;
     let moved = 0;
+    let vel = 0;
+    let lastX = 0;
 
     viewport.addEventListener('pointerdown', (e) => {
       dragging = true;
       moved = 0;
+      vel = 0;
       startX = e.clientX;
+      lastX = e.clientX;
       startShift = shiftFor(index);
       track.classList.add('is-still');
       viewport.setPointerCapture(e.pointerId);
@@ -473,20 +484,41 @@ export function initArticles(section, modal) {
     viewport.addEventListener('pointermove', (e) => {
       if (!dragging) return;
       moved = e.clientX - startX;
+      vel = vel * 0.6 + (e.clientX - lastX) * 0.4;
+      lastX = e.clientX;
       track.style.setProperty('--shift', `${-(startShift - moved)}px`);
     });
 
-    const endDrag = () => {
+    const endDrag = (e) => {
       if (!dragging) return;
       dragging = false;
       track.classList.remove('is-still');
+      viewport.releasePointerCapture?.(e.pointerId);
       const step = slides[0] ? slides[0].offsetWidth + 24 : 1;
-      go(index - Math.round(moved / step));
+      // Сколько карточек прошли пальцем, плюс довесок за скорость броска
+      const flick = Math.abs(vel) > 4 ? Math.sign(vel) : 0;
+      const dragged = moved / step;
+      let by = Math.trunc(dragged);
+      if (!by && Math.abs(dragged) > 0.2) by = Math.sign(dragged);
+      if (!by && flick) by = flick;
+      go(index - by);
     };
 
     viewport.addEventListener('pointerup', endDrag);
     viewport.addEventListener('pointercancel', endDrag);
     viewport.addEventListener('dragstart', (e) => e.preventDefault());
+
+    // Колесо и трекпад тоже листают, по одной карточке за жест
+    let wheelLock = 0;
+    viewport.addEventListener('wheel', (e) => {
+      const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (!d) return;
+      e.preventDefault();
+      const now = performance.now();
+      if (now - wheelLock < 420) return;
+      wheelLock = now;
+      go(index + Math.sign(d));
+    }, { passive: false });
 
     window.addEventListener('resize', () => {
       if (!modal.hidden) go(index, false);

@@ -19,7 +19,6 @@
    а сам хиро гаснет через --hero-fade (ставит showreels.js). */
 .hero {
   opacity: calc(1 - var(--hero-fade, 0));
-  will-change: opacity;
 }
 
 .showreels {
@@ -31,6 +30,8 @@
 
 .showreels__panel {
   position: relative;
+  /* Плашку тоже поднимаем в слой заранее — по той же причине, что и хиро */
+  transform: translateZ(0);
   background: var(--color-white);
   color: var(--color-black);
   /* Скругление 280 px держится, пока плашка проходит первые 70 % экрана,

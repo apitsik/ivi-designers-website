@@ -233,18 +233,26 @@ h1 {
   padding: 198px 24px;
   overflow: hidden;
   isolation: isolate;
+  /* Слой создаётся сразу, а не на первом скролле: иначе в момент, когда
+     браузер поднимает хиро в отдельный слой, он успевает показать один
+     пустой кадр — это и было белое мерцание */
+  will-change: opacity, transform;
+  transform: translateZ(0);
 }
 
+/* Фон лежит обычным слоем под контентом. С z-index: -1 он выпадал из
+   поднятого слоя хиро и на кадр исчезал. */
 .hero__background {
   position: absolute;
   inset: 0;
-  z-index: -1;
-  background: url('/images/hero-background.jpg') center / cover no-repeat;
+  z-index: 0;
+  background: #050005 url('/images/hero-background.jpg') center / cover no-repeat;
   pointer-events: none;
 }
 
 .hero__content {
   position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;

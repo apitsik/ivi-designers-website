@@ -160,6 +160,12 @@
   transform: translateY(6px);
 }
 
+/* Пока открыт попап, своя навигация колоды не просвечивает сквозь блюр:
+   иначе внизу видно две одинаковые подписи */
+.video-modal-open .articles__nav {
+  opacity: 0;
+}
+
 .articles__nav {
   position: relative;
   z-index: 2;
@@ -193,15 +199,20 @@
    радиус 64, padding 32, картинка 496 × 330 сверху, текст у нижнего края. */
 /* Слайдер: лента карточек, активная по центру, соседние видно по краям.
    --shift ставит articles.js. */
+/* Поля по вертикали, чтобы обрезка ленты не резала свечение карточек
+   ровной линией поперёк экрана; отрицательный margin возвращает высоту */
 .article-modal__viewport {
   width: 100vw;
+  padding: 140px 0;
+  margin: -140px 0;
   overflow: hidden;
   cursor: grab;
 }
 
 .article-modal__track {
   display: flex;
-  align-items: center;
+  /* Все карточки одной высоты — по самой высокой */
+  align-items: stretch;
   gap: 24px;
   transform: translateX(var(--shift, 0px));
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
@@ -213,6 +224,7 @@
 
 .article-modal__slide {
   position: relative;
+  display: flex;
   flex: 0 0 auto;
   width: 496px;
   max-width: 86vw;
@@ -289,6 +301,7 @@
   width: 100%;
   max-width: 496px;
   min-height: 526px;
+  height: 100%;
   padding: 32px;
   border-radius: 64px;
   background: var(--color-white);

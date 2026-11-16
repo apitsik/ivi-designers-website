@@ -32,8 +32,8 @@ const FOLDER_H = 446;
 const STEPS = 8;
 
 // Фазы по общему прогрессу секции (0 — сцена прилипла, 1 — отлипает)
-const STACK_END = 0.12; // стопка собралась
-const PREVIEW_END = 0.24; // конец паузы-превью
+const STACK_END = 0.1; // стопка собралась
+const PREVIEW_END = 0.16; // конец паузы-превью
 const SPAN = 0.17; // отрезок на одну папку
 
 // Доли внутри отрезка одной папки. Складываются в непрерывный рассказ:
@@ -42,7 +42,7 @@ const SPAN = 0.17; // отрезок на одну папку
 // Между концом последнего стикера и началом ухода обязателен зазор —
 // иначе стикер не успевает встать, а папка уже едет.
 const ARRIVE = 0.3;
-const LEAVE = 0.2;
+const LEAVE = 0.26;
 const STICKER_START = 0.34;
 const STICKER_GAP = 0.1;
 const STICKER_LEN = 0.18;
@@ -50,14 +50,15 @@ const STICKER_LEN = 0.18;
 // Следующая папка трогается с места ровно тогда, когда предыдущая
 // начинает уходить вверх: пустоты на экране не возникает, но пока папка
 // стоит в центре, следующей ещё не видно (в макете это шаг 11).
-const OVERLAP = 0.2;
+// Поэтому OVERLAP всегда равен LEAVE — разъезжаться им нельзя.
+const OVERLAP = LEAVE;
 
 // Стикеры уходят вверх быстрее папки — за счёт этого получается параллакс
 const PARALLAX = 1.16;
 
 // Общая для всех папок позиция «на экране» и точка ухода вверх
 const REST = { x: 390, y: 248, rot: 0 };
-const EXIT_Y = -560;
+const EXIT_Y = -520;
 
 // Откуда стикер выезжает: ниже своего места на столько пикселей макета
 const STICKER_RISE = 620;
@@ -79,13 +80,13 @@ const PHOTO_GAP = 0.025;
 const PHOTO_LEN = 0.085;
 const PHOTO_RISE = 520;
 // Затем по очереди приклеиваются стикеры
-const NOTE_START = 0.865;
+const NOTE_START = OTHERS_START + 0.14;
 const NOTE_GAP = 0.016;
 const NOTE_LEN = 0.04;
 // На сколько стикер отогнут от стены, пока не приклеился
 const NOTE_TILT = 78;
 // Дальше всё уходит вверх параллаксом
-const OTHERS_OUT = 0.965;
+const OTHERS_OUT = OTHERS_START + 0.235;
 const OTHERS_OUT_DIST = 420;
 
 export function initTeam(section, modal) {
@@ -250,19 +251,19 @@ export function initTeam(section, modal) {
 
     if (p < STACK_END) {
       // выезжают по очереди снизу и собираются в стопку
-      pos = mix(enter, stack, ease(range(p, i * 0.035, STACK_END)));
+      pos = mix(enter, stack, glide(range(p, i * 0.035, STACK_END)));
     } else if (p < PREVIEW_END) {
       // пауза: стопку можно разглядеть и открыть
       pos = stack;
     } else if (p < arriveFrom) {
       // своей очереди ещё нет: опускаемся из стопки вниз и ждём
-      pos = mix(stack, park, ease(range(p, PREVIEW_END, PREVIEW_END + ARRIVE * SPAN)));
+      pos = mix(stack, park, glide(range(p, PREVIEW_END, PREVIEW_END + ARRIVE * SPAN)));
     } else if (p < arriveTo) {
       // едем на своё место: первая — прямо из стопки, остальные — снизу
-      pos = mix(i === 0 ? stack : park, REST, ease(range(p, arriveFrom, arriveTo)));
+      pos = mix(i === 0 ? stack : park, REST, glide(range(p, arriveFrom, arriveTo)));
     } else if (p > leaveFrom) {
       // уходим вверх — третья папка тоже, за ней начинается четвёртый экран
-      pos = mix(REST, exit, ease(range(p, leaveFrom, leaveTo)));
+      pos = mix(REST, exit, glide(range(p, leaveFrom, leaveTo)));
     } else {
       pos = REST;
     }
@@ -281,7 +282,7 @@ export function initTeam(section, modal) {
     el.tabIndex = onScreen ? 0 : -1;
 
     // Стикеры: подъезжают по одному после того, как папка встала на место
-    const out = ease(range(p, leaveFrom, leaveTo));
+    const out = glide(range(p, leaveFrom, leaveTo));
     stickers.forEach(({ node, y }, k) => {
       const from = start + (STICKER_START + k * STICKER_GAP) * SPAN;
       const t = ease(range(p, from, from + STICKER_LEN * SPAN));
@@ -615,27 +616,71 @@ function initDetail(modal) {
   const closeBtn = modal.querySelector('.video-modal__close');
   const arrows = [...modal.querySelectorAll('.team-modal__arrow')];
 
+  const GAP = 24;
+  const FRICTION = 0.93; // как быстро гаснет инерция после броска
+  const CATCH = 0.12; // доля пути за кадр, когда ведут стрелки
+
   let opener = null;
   let hideTimer = 0;
-  let index = 0;
 
-  const maxShift = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
+  // Лента едет свободно: shift — сколько пикселей уехало влево. Карточки
+  // ни к чему не прилипают. loop — ширина одной копии списка: лента
+  // склеена трижды, и как только уезжаем за копию, незаметно
+  // возвращаемся назад. Для человека лента бесконечная.
+  let shift = 0;
+  let loop = 0;
+  let vel = 0;
+  let target = null;
+  let raf = 0;
 
-  const shiftFor = (i) => {
-    const cards = [...track.children];
-    let x = 0;
-    for (let k = 0; k < i && k < cards.length; k += 1) x += cards[k].offsetWidth + 24;
-    return Math.min(x, maxShift());
+  const draw = () => {
+    track.style.setProperty('--shift', `${-shift}px`);
   };
 
-  const go = (i) => {
-    index = clamp(i, 0, Math.max(0, track.children.length - 1));
-    const shift = shiftFor(index);
-    track.style.setProperty('--shift', `${-shift}px`);
-    arrows.forEach((a) => {
-      const dir = Number(a.dataset.dir);
-      a.disabled = dir < 0 ? shift <= 0 : shift >= maxShift() - 1;
-    });
+  // Держим сдвиг внутри одной копии; цель едет вместе с ним, иначе
+  // при перескоке лента дёрнулась бы
+  const wrap = () => {
+    if (loop <= 0) return;
+    while (shift >= loop) {
+      shift -= loop;
+      if (target !== null) target -= loop;
+    }
+    while (shift < 0) {
+      shift += loop;
+      if (target !== null) target += loop;
+    }
+  };
+
+  const tick = () => {
+    raf = 0;
+    if (target !== null) {
+      shift += (target - shift) * CATCH;
+      if (Math.abs(target - shift) < 0.5) {
+        shift = target;
+        target = null;
+      }
+    } else {
+      shift += vel;
+      vel *= FRICTION;
+      if (Math.abs(vel) < 0.08) vel = 0;
+    }
+    wrap();
+    draw();
+    if (target !== null || vel !== 0) raf = requestAnimationFrame(tick);
+  };
+
+  const run = () => {
+    if (!raf) raf = requestAnimationFrame(tick);
+  };
+
+  // Шаг стрелки — примерно экран: лента едет дальше по инерции, поэтому
+  // точная карточка тут не нужна
+  const step = () => Math.max(240, viewport.clientWidth * 0.6);
+
+  const nudge = (dir) => {
+    target = (target === null ? shift : target) + dir * step();
+    vel = 0;
+    run();
   };
 
   const open = (folder) => {
@@ -648,13 +693,21 @@ function initDetail(modal) {
     folder.classList.add('is-open');
 
     name.textContent = folder.dataset.detailName || '';
-    track.replaceChildren(tpl.content.cloneNode(true));
-    // Карточка, картинки для которой ещё не положили в public/images/team,
-    // просто не показывается — в слайдере не будет пустых мест
+
+    // Список склеен трижды — так лента не упирается в край
+    const base = tpl.content.cloneNode(true);
+    track.replaceChildren(base);
+    const one = [...track.children];
+    for (let c = 1; c < 3; c += 1) {
+      one.forEach((card) => track.append(card.cloneNode(true)));
+    }
+
+    // Карточка, картинки для которой ещё не положили, просто не
+    // показывается — в ленте не будет пустых мест
     track.querySelectorAll('img').forEach((img) => {
       img.addEventListener('error', () => {
         img.closest('.team-modal__card')?.remove();
-        go(index);
+        measure();
       }, { once: true });
     });
     // Видео в карточках играют, пока попап открыт
@@ -662,8 +715,11 @@ function initDetail(modal) {
       v.muted = true;
       v.play().catch(() => {});
     });
-    track.style.setProperty('--shift', '0px');
-    index = 0;
+
+    shift = 0;
+    vel = 0;
+    target = null;
+    draw();
 
     // Папка успевает заметно раскрыться — листы рвутся наружу, передний
     // сгиб отваливается сильнее, — и только потом сверху приходит попап
@@ -674,10 +730,21 @@ function initDetail(modal) {
       lenis?.stop();
       requestAnimationFrame(() => requestAnimationFrame(() => {
         modal.classList.add('video-modal--open');
-        go(0);
+        measure();
       }));
       closeBtn?.focus({ preventScroll: true });
     }, 420);
+  };
+
+  // Ширина одной копии списка — по ней считается перескок
+  const measure = () => {
+    const cards = [...track.children];
+    const n = Math.round(cards.length / 3);
+    let w = 0;
+    for (let k = 0; k < n; k += 1) w += cards[k].offsetWidth + GAP;
+    loop = w;
+    wrap();
+    draw();
   };
 
   const close = () => {
@@ -686,6 +753,10 @@ function initDetail(modal) {
     modal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('video-modal-open');
     lenis?.start();
+    cancelAnimationFrame(raf);
+    raf = 0;
+    vel = 0;
+    target = null;
     hideTimer = setTimeout(() => {
       modal.hidden = true;
       track.replaceChildren();
@@ -698,65 +769,77 @@ function initDetail(modal) {
     }
   };
 
-  // Ближайшая карточка к произвольному сдвигу — куда слайдер доводится
-  // после того, как его отпустили
-  const nearest = (shift) => {
-    let best = 0;
-    let bestGap = Infinity;
-    for (let k = 0; k < track.children.length; k += 1) {
-      const gap = Math.abs(shiftFor(k) - shift);
-      if (gap < bestGap) {
-        bestGap = gap;
-        best = k;
-      }
-    }
-    return best;
-  };
-
-  // Слайдер можно просто тянуть — мышью или пальцем
+  // ----- тянем ленту -----
+  // Лента идёт ровно за пальцем, а после броска доезжает по инерции
   let dragging = false;
-  let startX = 0;
-  let startShift = 0;
+  let lastX = 0;
+  let moved = 0;
 
   viewport.addEventListener('pointerdown', (e) => {
-    if (track.children.length < 2) return;
     dragging = true;
-    startX = e.clientX;
-    startShift = shiftFor(index);
+    moved = 0;
+    lastX = e.clientX;
+    vel = 0;
+    target = null;
     viewport.classList.add('is-dragging');
     viewport.setPointerCapture(e.pointerId);
   });
 
   viewport.addEventListener('pointermove', (e) => {
     if (!dragging) return;
-    const shift = clamp(startShift - (e.clientX - startX), 0, maxShift());
-    track.style.setProperty('--shift', `${-shift}px`);
+    const dx = e.clientX - lastX;
+    lastX = e.clientX;
+    moved += Math.abs(dx);
+    shift -= dx;
+    // Скорость считаем по последнему движению, сглаживая рывки мыши
+    vel = vel * 0.6 + -dx * 0.4;
+    wrap();
+    draw();
   });
 
   const endDrag = (e) => {
     if (!dragging) return;
     dragging = false;
     viewport.classList.remove('is-dragging');
-    go(nearest(clamp(startShift - (e.clientX - startX), 0, maxShift())));
+    viewport.releasePointerCapture?.(e.pointerId);
+    // Бросок продолжается по инерции, короткое касание просто
+    // останавливает ленту
+    if (Math.abs(vel) < 0.5) vel = 0;
+    else vel *= 2.2;
+    run();
   };
 
   viewport.addEventListener('pointerup', endDrag);
   viewport.addEventListener('pointercancel', endDrag);
   viewport.addEventListener('dragstart', (e) => e.preventDefault());
 
-  arrows.forEach((a) => a.addEventListener('click', () => go(index + Number(a.dataset.dir))));
+  // Колесо и трекпад тоже крутят ленту
+  viewport.addEventListener('wheel', (e) => {
+    const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    if (!d) return;
+    e.preventDefault();
+    target = null;
+    shift += d;
+    vel = d * 0.25;
+    wrap();
+    draw();
+    run();
+  }, { passive: false });
+
+  arrows.forEach((a) => a.addEventListener('click', () => nudge(Number(a.dataset.dir))));
   modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
   dialog.addEventListener('click', (e) => {
-    if (e.target === dialog) close();
+    // Закрываем только по честному клику мимо карточек, а не после драга
+    if (e.target === dialog && moved < 6) close();
   });
   document.addEventListener('keydown', (e) => {
     if (modal.hidden) return;
     if (e.key === 'Escape') close();
-    if (e.key === 'ArrowRight') go(index + 1);
-    if (e.key === 'ArrowLeft') go(index - 1);
+    if (e.key === 'ArrowRight') nudge(1);
+    if (e.key === 'ArrowLeft') nudge(-1);
   });
   window.addEventListener('resize', () => {
-    if (!modal.hidden) go(index);
+    if (!modal.hidden) measure();
   });
 
   return { open, close };
@@ -786,6 +869,12 @@ function mix(a, b, t) {
 // Мягкое торможение в конце пути
 function ease(t) {
   return 1 - Math.pow(1 - t, 3);
+}
+
+// Для движения папок: разгон и торможение одинаково мягкие. Резкий
+// ease-out на скролле читается как пружина — папка будто догоняет палец.
+function glide(t) {
+  return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
 // То же, но с перелётом: лист касается стены, слегка отыгрывает назад

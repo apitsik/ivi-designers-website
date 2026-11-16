@@ -440,16 +440,11 @@
   gap: 24px;
   align-items: stretch;
   height: 100%;
+  /* Лента едет кадр за кадром из team.js, своей анимации у неё нет */
   transform: translateX(var(--shift, 0px));
-  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
   user-select: none;
   touch-action: pan-y;
-}
-
-/* пока тянут мышью, слайдер идёт за курсором без доводки */
-.team-modal__viewport.is-dragging .team-modal__track {
-  transition: none;
 }
 
 /* Ширина карточки задаётся в разметке переменной --w — это ширина из макета
