@@ -18,7 +18,7 @@
   font-size: var(--p2-size);
   line-height: var(--p2-line);
   color: var(--color-white-72);
-  cursor: default;
+  cursor: var(--cursor-arrow);
   user-select: none;
   pointer-events: none;
 }
@@ -37,7 +37,7 @@
 }
 
 .hero--has-stickers .hero__hint {
-  cursor: pointer;
+  cursor: var(--cursor-hand);
   pointer-events: auto;
 }
 
@@ -152,7 +152,7 @@
 
 .hero--cursor .hero__hint,
 .hero--cursor a {
-  cursor: pointer;
+  cursor: var(--cursor-hand);
 }
 
 .hero__cursor {

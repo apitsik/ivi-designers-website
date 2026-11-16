@@ -114,7 +114,7 @@
   background: var(--color-black);
   border-radius: var(--card-radius);
   overflow: hidden;
-  cursor: url('/cursors/hand.svg') 15 2, url('/cursors/hand.png') 15 2, pointer;
+  cursor: var(--cursor-hand);
   will-change: transform;
   -webkit-tap-highlight-color: transparent;
 }
@@ -354,7 +354,7 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
   color: var(--color-white);
-  cursor: pointer;
+  cursor: var(--cursor-hand);
 }
 
 .video-modal__close:hover,

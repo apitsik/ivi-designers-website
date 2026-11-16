@@ -26,7 +26,7 @@
   transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
   color: var(--color-white);
   /* Блок не кликабельный — обычный курсор */
-  cursor: default;
+  cursor: var(--cursor-arrow);
 }
 
 .grid__inner {
@@ -219,7 +219,7 @@
   text-align: center;
   overflow: hidden;
   isolation: isolate;
-  cursor: pointer;
+  cursor: var(--cursor-hand);
   transition: background-color 0.35s cubic-bezier(0.25, 1, 0.5, 1);
 }
 

@@ -104,7 +104,7 @@
   transform-style: preserve-3d;
   backface-visibility: hidden;
   will-change: transform;
-  cursor: pointer;
+  cursor: var(--cursor-hand);
   -webkit-tap-highlight-color: transparent;
   /* Тонкая светлая кромка отделяет наложенные карточки друг от друга */
   box-shadow: 0 0 0 2px var(--color-white), 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -182,7 +182,7 @@
   background: none;
   font: inherit;
   color: inherit;
-  cursor: pointer;
+  cursor: var(--cursor-hand);
   transition: color 0.2s ease-out;
 }
 
@@ -237,7 +237,7 @@
 }
 
 .article-modal__slide:not(.is-active) {
-  cursor: pointer;
+  cursor: var(--cursor-hand);
 }
 
 .article-modal__slide .video-modal__glow {
@@ -283,7 +283,7 @@
   background: none;
   font: inherit;
   color: inherit;
-  cursor: pointer;
+  cursor: var(--cursor-hand);
   transition: color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 

@@ -168,7 +168,7 @@
    и когда доехала до своей позиции. Класс ставит team.js. */
 .team-folder.is-live {
   pointer-events: auto;
-  cursor: pointer;
+  cursor: var(--cursor-hand);
 }
 
 .team-folder.is-live:is(:hover, :focus-visible) .team-folder__tilt,
@@ -569,7 +569,7 @@
   background: none;
   font: inherit;
   color: inherit;
-  cursor: pointer;
+  cursor: var(--cursor-hand);
   transition: color 0.2s ease-out, opacity 0.2s ease-out;
 }
 
@@ -579,7 +579,7 @@
 
 .team-modal__arrow[disabled] {
   opacity: 0.4;
-  cursor: default;
+  cursor: var(--cursor-arrow);
 }
 
 /* ----- четвёртый экран: «А ещё у нас есть» ----- */
@@ -645,7 +645,7 @@
   background: none;
   font: inherit;
   color: inherit;
-  cursor: pointer;
+  cursor: var(--cursor-hand);
   perspective: 1000px;
   transform-style: preserve-3d;
   /* --curl: 0…1 насколько отогнут лист, --side: −1 влево, +1 вправо */
@@ -814,7 +814,7 @@
     transform-origin: 50% 0;
     margin-bottom: calc(446px * (var(--u, 1) - 1));
     pointer-events: auto;
-    cursor: pointer;
+    cursor: var(--cursor-hand);
   }
 
   .team-folder__tilt,

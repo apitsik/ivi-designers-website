@@ -41,7 +41,7 @@
   border-radius: 16px;
   object-fit: cover;
   background: rgba(255, 255, 255, 0.12);
-  cursor: pointer;
+  cursor: var(--cursor-hand);
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -119,7 +119,7 @@
   border-radius: 50%;
   background: none;
   color: var(--color-white);
-  cursor: pointer;
+  cursor: var(--cursor-hand);
   transition: transform 0.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.2s ease-out;
 }
 
