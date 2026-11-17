@@ -206,7 +206,7 @@
   padding: 140px 0;
   margin: -140px 0;
   overflow: hidden;
-  cursor: grab;
+  cursor: var(--cursor-hand);
 }
 
 .article-modal__track {
@@ -241,10 +241,6 @@
 
 .article-modal__slide:not(.is-active) {
   cursor: var(--cursor-hand);
-}
-
-.article-modal__slide .video-modal__glow {
-  border-radius: 64px;
 }
 
 /* Диалог статьи шире обычного: лента уезжает за края экрана */

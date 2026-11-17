@@ -86,7 +86,7 @@ const NOTE_LEN = 0.04;
 // На сколько стикер отогнут от стены, пока не приклеился
 const NOTE_TILT = 78;
 // Дальше всё уходит вверх параллаксом
-const OTHERS_OUT = OTHERS_START + 0.235;
+const OTHERS_OUT = OTHERS_START + 0.3;
 const OTHERS_OUT_DIST = 420;
 
 export function initTeam(section, modal) {

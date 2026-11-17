@@ -64,8 +64,36 @@ function waitForAssets(root) {
   return Promise.race([Promise.all(tasks), wait(MAX_WAIT_MS)]);
 }
 
+// Метка в памяти браузера: один раз показали — больше не показываем.
+// Живёт до тех пор, пока человек не почистит данные сайта.
+const SEEN_KEY = 'ivi-design-preloader-seen';
+
+function alreadySeen() {
+  try {
+    return localStorage.getItem(SEEN_KEY) === '1';
+  } catch {
+    // Приватный режим или запрет хранилища — показываем как обычно
+    return false;
+  }
+}
+
+function remember() {
+  try {
+    localStorage.setItem(SEEN_KEY, '1');
+  } catch {
+    /* не страшно */
+  }
+}
+
 export function initPreloader(el) {
   if (!el) return Promise.resolve();
+
+  // Второй и следующие визиты: сразу страница, без перебора логотипа
+  if (alreadySeen()) {
+    el.remove();
+    return Promise.resolve();
+  }
+  remember();
   const img = el.querySelector('.preloader__logo');
   const frames = Object.keys(frameModules)
     .sort()

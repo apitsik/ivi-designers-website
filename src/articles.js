@@ -332,10 +332,6 @@ export function initArticles(section, modal) {
         slide.className = 'article-modal__slide';
         slide.setAttribute('aria-hidden', 'true');
 
-        const glow = document.createElement('div');
-        glow.className = 'video-modal__glow';
-        glow.setAttribute('aria-hidden', 'true');
-
         const card = document.createElement('article');
         card.className = 'article-modal__card';
 
@@ -345,7 +341,6 @@ export function initArticles(section, modal) {
         img.loading = 'lazy';
         const src = `images/articles/article-${i + 1}-image.jpg`;
         img.src = src;
-        glow.style.backgroundImage = `url("${src}")`;
 
         const body = document.createElement('div');
         body.className = 'article-modal__body';
@@ -377,7 +372,7 @@ export function initArticles(section, modal) {
         text.append(kind, title, desc);
         body.append(text, link);
         card.append(img, body);
-        slide.append(glow, card);
+        slide.append(card);
         track.append(slide);
         slides.push(slide);
       });

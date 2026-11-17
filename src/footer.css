@@ -63,11 +63,11 @@
 }
 
 .footer__physics.is-hover {
-  cursor: grab;
+  cursor: var(--cursor-hand);
 }
 
 .footer__physics.is-drag {
-  cursor: grabbing;
+  cursor: var(--cursor-hand);
 }
 
 /* ----- текст поверх физики ----- */
