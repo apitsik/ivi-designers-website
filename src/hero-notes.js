@@ -26,14 +26,32 @@ const NOTES = [
   {
     title: 'Как устроена дизайн-система в Иви',
     text: 'Новое выступление',
-    url: 'https://www.youtube.com/watch?v=Ql8eNwFbSS0',
+    url: 'https://www.youtube.com/watch?v=vuOjiTxWvXY',
     icon: 'images/articles/article-11-cover.jpg',
   },
   {
-    title: 'Муза, Индиго и Воркспейс',
-    text: 'Три золота за ivi Sans Display',
+    title: 'Muse Design Awards',
+    text: 'Золото за ivi Sans Display',
     url: 'https://museaward.com/winner-info.php?id=229054',
-    icon: 'images/awards/awards-image5.png',
+    icon: 'images/awards/awards-image10.png',
+  },
+  {
+    title: 'Как визуальные UX/UI-решения вызывают ощущения',
+    text: 'Новая статья',
+    url: 'https://vkvideo.ru/video-230171290_456239023',
+    icon: 'images/articles/article-1-cover.jpg',
+  },
+  {
+    title: 'Медиабренд',
+    text: 'Золото за лучший дизайн логотипа',
+    url: 'https://t.me/mediabrandmoscow/3554',
+    icon: 'images/awards/awards-image8.png',
+  },
+  {
+    title: 'Игорь Рыжов и Митя Осадчук',
+    text: 'Подкаст МамкинДизайнер',
+    url: 'https://www.youtube.com/watch?v=RrlyzNXaVHw',
+    icon: 'images/articles/article-2-cover.jpg',
   },
 ];
 
