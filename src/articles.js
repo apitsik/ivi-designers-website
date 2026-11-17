@@ -124,7 +124,7 @@ export function initArticles(section, modal) {
     btn.setAttribute('aria-label', a.title);
     const img = document.createElement('img');
     img.className = 'article-card__img';
-    img.src = `/images/articles/article-${i + 1}-cover.jpg`;
+    img.src = `images/articles/article-${i + 1}-cover.jpg`;
     img.alt = '';
     img.loading = 'lazy';
     img.draggable = false;
@@ -343,7 +343,7 @@ export function initArticles(section, modal) {
         img.className = 'article-modal__img';
         img.alt = '';
         img.loading = 'lazy';
-        const src = `/images/articles/article-${i + 1}-image.jpg`;
+        const src = `images/articles/article-${i + 1}-image.jpg`;
         img.src = src;
         glow.style.backgroundImage = `url("${src}")`;
 

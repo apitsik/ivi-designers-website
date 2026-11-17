@@ -73,7 +73,7 @@ deploy/nginx.conf   прод-конфиг: https, gzip, кэш по папкам
 - Все анимации уважают `prefers-reduced-motion`: без движения или короткий фейд.
 - Скролл-эффекты считаются от `scrollY`/IntersectionObserver, движение сглаживается lerp'ом — Lenis крутит обычный window-скролл.
 - Переходы и изинги — через CSS `transition`/`cubic-bezier`, JS меняет классы (`is-visible`, `is-leaving`, …). `requestAnimationFrame` — только где нужен непрерывный расчёт (параллакс, физика, драг).
-- Пути к статике абсолютные (`/images/…`); сайт должен лежать в корне домена. Для подпапки — `vite build --base /подпапка/`.
+- Пути к статике: в `index.html` и CSS — абсолютные (`/images/…`), Vite сам переписывает их при сборке; в JS — относительные, без ведущего слэша (`images/…`), их Vite не трогает. Сборка идёт с `--base ./` в `docs/`, поэтому сайт работает и в корне домена, и в подпапке (GitHub Pages: `user.github.io/project`).
 - Видео в сетке: `muted playsinline loop`, `preload="metadata"`; hero-видео — `preload="auto"`, без звука.
 
 ## Медиа

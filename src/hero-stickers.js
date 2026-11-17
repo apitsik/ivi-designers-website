@@ -22,7 +22,7 @@ const SET = [
   { n: 14, w: 175, h: 63, r: 0 },
 ];
 
-const SRC = (n) => `/stickers/heroAreaSticker-${n}.png`;
+const SRC = (n) => `stickers/heroAreaSticker-${n}.png`;
 
 const EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const EASE_IN = 'cubic-bezier(0.55, 0, 1, 0.45)';

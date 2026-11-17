@@ -12,7 +12,7 @@ import Matter from 'matter-js';
 
 const { Engine, Bodies, Body, Composite, Mouse, MouseConstraint, Query, Events, Sleeping } = Matter;
 
-const IMAGES = Array.from({ length: 11 }, (_, i) => `/images/footer/footer-image-${i + 1}.png`);
+const IMAGES = Array.from({ length: 11 }, (_, i) => `images/footer/footer-image-${i + 1}.png`);
 
 const COUNT = 16; // сколько логотипов выпадает
 const DROP_EVERY = 55; // мс между выпадениями — сыплются кучно, как из коробки

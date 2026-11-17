@@ -12,7 +12,7 @@
 //
 // @gdeprostotamangelovsto
 
-const PLAYLIST_URL = '/music/playlist.json';
+const PLAYLIST_URL = 'music/playlist.json';
 
 export async function initHeroPlayer(root) {
   if (!root) return;

@@ -33,7 +33,7 @@ const IMAGES = [
   'vacancies-image-18.jpg',
   'vacancies-image-19.jpg',
   'vacancies-image-20.jpg',
-].map((name) => `/images/vacancies/${name}`);
+].map((name) => `images/vacancies/${name}`);
 
 // ----- параметры следа (по мотивам Smooth Image Trail) -----
 const TRAIL_SPACING = 70; // px пройденного пути между карточками

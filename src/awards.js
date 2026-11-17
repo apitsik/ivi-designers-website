@@ -20,21 +20,21 @@ import { observeReveal } from './reveal.js';
 // добавить — дописать ещё одну.
 // ---------------------------------------------------------------------------
 export const AWARDS = [
-  { name: 'G8', status: 'победа', image: '/images/awards/awards-image1.png', url: 'https://confluence.ivi.ru/pages/viewpage.action?pageId=516883985&spaceKey=DES' },
-  { name: 'Медиабренд', status: 'золото', image: '/images/awards/awards-image2.png', url: 'https://t.me/mediabrandmoscow/3803' },
-  { name: 'Red dot', status: 'победа', image: '/images/awards/awards-image3.png' },
-  { name: 'D-Profile', status: 'победа', image: '/images/awards/awards-image4.png', url: 'https://dprofile.ru/case/127742/dizain-kollekcii-merca-dlia-ivi' },
-  { name: 'Workspace Digital Award', status: 'золото', image: '/images/awards/awards-image5.png', url: 'https://workspace.ru/awards/cases/ivi-sans-display-novyy-firmennyy-shrift-onlayn-kinoteatra-ivi/' },
-  { name: 'Среда', status: 'золото', image: '/images/awards/awards-image6.png', url: 'https://2024.festivalsreda.ru/works/innovacionnye-dizajnerskie-reshenija-v-reklame/5746/index.html' },
-  { name: 'Indigo', status: 'золото', image: '/images/awards/awards-image7.png', url: 'https://www.indigoaward.com/winners/8421' },
-  { name: 'Медиабренд', status: 'золото', image: '/images/awards/awards-image8.png', url: 'https://t.me/mediabrandmoscow/3554' },
-  { name: 'Red dot', status: 'победа', image: '/images/awards/awards-image9.png' },
-  { name: 'Muse', status: 'золото', image: '/images/awards/awards-image10.png', url: 'https://museaward.com/winner-info.php?id=229054' },
-  { name: 'G8', status: 'шорт-лист', image: '/images/awards/awards-image11.png', url: 'https://g8.art/ru/works/4962' },
+  { name: 'G8', status: 'победа', image: 'images/awards/awards-image1.png', url: 'https://confluence.ivi.ru/pages/viewpage.action?pageId=516883985&spaceKey=DES' },
+  { name: 'Медиабренд', status: 'золото', image: 'images/awards/awards-image2.png', url: 'https://t.me/mediabrandmoscow/3803' },
+  { name: 'Red dot', status: 'победа', image: 'images/awards/awards-image3.png' },
+  { name: 'D-Profile', status: 'победа', image: 'images/awards/awards-image4.png', url: 'https://dprofile.ru/case/127742/dizain-kollekcii-merca-dlia-ivi' },
+  { name: 'Workspace Digital Award', status: 'золото', image: 'images/awards/awards-image5.png', url: 'https://workspace.ru/awards/cases/ivi-sans-display-novyy-firmennyy-shrift-onlayn-kinoteatra-ivi/' },
+  { name: 'Среда', status: 'золото', image: 'images/awards/awards-image6.png', url: 'https://2024.festivalsreda.ru/works/innovacionnye-dizajnerskie-reshenija-v-reklame/5746/index.html' },
+  { name: 'Indigo', status: 'золото', image: 'images/awards/awards-image7.png', url: 'https://www.indigoaward.com/winners/8421' },
+  { name: 'Медиабренд', status: 'золото', image: 'images/awards/awards-image8.png', url: 'https://t.me/mediabrandmoscow/3554' },
+  { name: 'Red dot', status: 'победа', image: 'images/awards/awards-image9.png' },
+  { name: 'Muse', status: 'золото', image: 'images/awards/awards-image10.png', url: 'https://museaward.com/winner-info.php?id=229054' },
+  { name: 'G8', status: 'шорт-лист', image: 'images/awards/awards-image11.png', url: 'https://g8.art/ru/works/4962' },
 ];
 
 // Иконка под списком (public/images/awards/awards-icon.svg, 118 × 56)
-export const AWARDS_ICON = '/images/awards/awards-icon.svg';
+export const AWARDS_ICON = 'images/awards/awards-icon.svg';
 
 // Насколько картинка отстаёт от курсора (0 — рывком, 1 — не двигается)
 const FOLLOW_EASE = 0.12;

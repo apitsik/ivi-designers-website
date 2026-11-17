@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --outDir docs",
+    "build": "vite build --outDir docs --base ./",
     "preview": "vite preview",
     "media:compress": "node scripts/compress-media.js public && node scripts/compress-media.js assets/logos"
   },
