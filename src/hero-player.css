@@ -4,7 +4,8 @@
 .hero-player {
   position: absolute;
   left: 36px;
-  bottom: 36px;
+  /* Над стопкой уведомлений (97 + 32 отступ снизу + 16 между ними) */
+  bottom: 145px;
   z-index: 3;
   display: flex;
   align-items: center;
@@ -180,7 +181,7 @@
 @media (max-width: 720px) {
   .hero-player {
     left: 16px;
-    bottom: 16px;
+    bottom: 112px;
     max-width: calc(100% - 32px);
   }
 }
