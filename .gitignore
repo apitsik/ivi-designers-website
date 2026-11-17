@@ -26,4 +26,4 @@ Thumbs.db
 public/fonts/
 
 # Исходники видео, сайт берёт сжатую копию из public/video
-assets/
+/assets/
