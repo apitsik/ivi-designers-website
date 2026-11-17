@@ -1,0 +1,12 @@
+{
+  "collection": "ivi tracks collection",
+  "tracks": [
+    {
+      "title": "Тыктыгыдык",
+      "artist": "",
+      "cover": "/music/placeholder.jpg",
+      "src": "/music/placeholder.mp3",
+      "explicit": true
+    }
+  ]
+}

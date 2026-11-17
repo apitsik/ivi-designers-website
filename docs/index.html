@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Команда дизайна иви</title>
+    <!-- Фавикон — основной логотип из навигации (assets/logos/logo-01) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/fonts/IVI_Sans_Base_Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/IVI_Sans_Base_Medium.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Критичный стиль прелоадера: чёрный экран с первого кадра, до загрузки CSS -->
+    <style>
+      .preloader { position: fixed; inset: 0; z-index: 100; background: #000; }
+      html.is-preloading { overflow: hidden; }
+    </style>
+    <script type="module" crossorigin src="/assets/index-CnGozQPM.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-yiIrhPMt.css">
+  </head>
+  <body>
+    <!-- Прелоадер: кадры логотипа подставляются из assets/logos/ в src/preloader.js -->
+    <div class="preloader" aria-hidden="true">
+      <img class="preloader__logo" alt="" />
+    </div>
+    <header class="nav">
+      <nav class="nav__group nav__group--left" aria-label="Разделы">
+        <a class="nav__item" href="#showreels"><span class="nav__label" data-text="Шоурилы">Шоурилы</span></a>
+        <a class="nav__item" href="#teams"><span class="nav__label" data-text="Команды">Команды</span></a>
+        <a class="nav__item" href="#awards"><span class="nav__label" data-text="Награды">Награды</span></a>
+        <a class="nav__item" href="#articles"><span class="nav__label" data-text="Статьи">Статьи</span></a>
+      </nav>
+
+      <a class="nav__logo" href="#top" aria-label="Наверх страницы">
+        <!-- Кадры логотипа подставляются из assets/logos/ в src/nav-logo.js -->
+        <img class="nav__logo-img" width="64" height="64" alt="" />
+      </a>
+
+      <nav class="nav__group nav__group--right" aria-label="Внешние ссылки">
+        <a class="nav__item" href="#lab"><span class="nav__label" data-text="ivi design lab">ivi design lab</span></a>
+        <a class="nav__item" href="#brandbook"><span class="nav__label" data-text="Брендбук">Брендбук</span></a>
+        <a class="nav__item" href="https://www.behance.net/eeeveee" target="_blank" rel="noopener"><span class="nav__label" data-text="Беханс">Беханс</span></a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__background" aria-hidden="true"></div>
+
+        <div class="hero__content">
+          <video
+            class="hero__video"
+            src="/video/hero-ivi.mp4"
+            muted
+            playsinline
+            preload="auto"
+            disablepictureinpicture
+            disableremoteplayback
+            aria-hidden="true"
+            tabindex="-1"
+          ></video>
+
+          <button class="hero__hint" type="button" aria-pressed="false">
+            <span class="hero__hint-roll">
+              <span>[ тапай, чтобы добавить вайб ]</span>
+              <span>[ удалить вайб ]</span>
+            </span>
+          </button>
+
+          <div class="hero__text">
+            <h1 id="hero-title" class="hero__title">Команда дизайна</h1>
+            <p class="hero__subtitle">
+              Дизайн в Иви всегда про людей. И создаётся<br />
+              такими же людьми
+            </p>
+          </div>
+        </div>
+
+        <!-- Награда Red Dot в правом нижнем углу (Figma 314:5880). Надпись
+             висит всегда, по наведению из-за неё слева выезжает шарик. -->
+        <a
+          class="hero__award"
+          href="https://www.red-dot.org/project/good-no-matter-how-you-look-at-it-showreel-of-the-new-font-92869"
+          target="_blank"
+          rel="noopener"
+          aria-label="Red Dot award 2026 — смотреть проект"
+        >
+          <img class="hero__award-ball" src="/stickers/reddot-ball.png" alt="" width="300" height="300" draggable="false" />
+          <img class="hero__award-mark" src="/stickers/reddot-award.png" alt="" width="660" height="380" draggable="false" />
+        </a>
+
+        <!-- Мини-плеер: подборка из public/music/playlist.json (src/hero-player.js).
+             Пока плейлист не загружен — невидим; если пустой — скрывается. -->
+        <div class="hero-player" aria-label="Плеер подборки">
+          <img class="hero-player__cover" src="" alt="" width="71" height="71" draggable="false" title="Следующий трек" />
+          <div class="hero-player__details">
+            <div class="hero-player__text">
+              <div class="hero-player__row">
+                <span class="hero-player__title">…</span>
+                <svg class="hero-player__explicit" viewBox="0 0 12 12" aria-label="Explicit" role="img" hidden>
+                  <rect x="0.5" y="0.5" width="11" height="11" rx="2.5" fill="none" stroke="currentColor" />
+                  <path d="M4.2 3.2h3.6v1.1H5.4v1.3h2.1v1.05H5.4v1.25h2.4V8.8H4.2z" fill="currentColor" />
+                </svg>
+              </div>
+              <span class="hero-player__artist">ivi tracks collection</span>
+            </div>
+            <button class="hero-player__play" type="button" aria-pressed="false" aria-label="Играть">
+              <svg class="hero-player__icon-play" viewBox="0 0 32 32" aria-hidden="true">
+                <path d="M10.5 7.4c0-1.1 1.2-1.8 2.2-1.2l13 8.6c.9.6.9 1.9 0 2.5l-13 8.6c-1 .6-2.2-.1-2.2-1.2z" fill="currentColor" />
+              </svg>
+              <svg class="hero-player__icon-pause" viewBox="0 0 32 32" aria-hidden="true">
+                <rect x="8" y="6" width="6" height="20" rx="1.5" fill="currentColor" />
+                <rect x="18" y="6" width="6" height="20" rx="1.5" fill="currentColor" />
+              </svg>
+            </button>
+          </div>
+          <span class="hero-player__progress" aria-hidden="true"></span>
+        </div>
+      </section>
+
+      <!-- Шоурилы: белая плашка наезжает на хиро при скролле.
+           Заголовок закреплён на фоне, карточки едут поверх с параллаксом.
+           Клик по карточке открывает попап с плеером Vimeo (src/video-modal.js).
+           Позиции карточек — в src/showreels.css (сетка 1440 × 3460 из Figma). -->
+      <section class="showreels" id="showreels" aria-labelledby="showreels-title">
+        <div class="showreels__panel">
+          <div class="showreels__head">
+            <!-- Слова оборачиваются в span в src/showreels.js и проявляются по очереди -->
+            <h2 id="showreels-title" class="showreels__title" data-words>
+              Смотреть наши шоурилы намного приятнее, чем читать этот текст
+            </h2>
+          </div>
+
+          <div class="showreels__grid">
+            <button class="showreel showreel--1" type="button" data-vimeo="1095898156" data-title="Showreel IVI Sans Base" data-ratio="16/9" data-speed="0.12">
+              <img class="showreel__img" src="/images/showreels/showreel-1.jpg" alt="Шоурил 1" />
+            </button>
+            <button class="showreel showreel--2" type="button" data-vimeo="1001573388" data-title="Year in review" data-ratio="16/9" data-speed="-0.06">
+              <img class="showreel__img" src="/images/showreels/showreel-2.jpg" alt="Шоурил 2" />
+            </button>
+            <button class="showreel showreel--3" type="button" data-vimeo="1198451429" data-title="Showreel Product 2025" data-ratio="9/16" data-speed="0.18">
+              <img class="showreel__img" src="/images/showreels/showreel-3.jpg" alt="Шоурил 3" />
+            </button>
+
+            <!-- Промо-карточка 514 × 600 (Figma 31:25): скругления, градиент и шум
+                 зашиты в фон-PNG, поэтому border-radius не используется -->
+            <div class="showreel-promo" data-speed="0.04" aria-hidden="true">
+              <p class="showreel-promo__text">
+                <span class="showreel-promo__line">Нравится</span>
+                <span class="showreel-promo__line">скроллить?</span>
+                <span class="showreel-promo__line">Тогда и шоуриллы</span>
+                <span class="showreel-promo__line">понравятся</span>
+              </p>
+              <img class="showreel-promo__sticker" src="/images/showreels/showreel-promo-image.png" alt="" width="168" height="168" />
+              <p class="showreel-promo__text showreel-promo__text--muted">
+                <span class="showreel-promo__line">Не стесняйся,</span>
+                <span class="showreel-promo__line">жмякай</span>
+              </p>
+            </div>
+
+            <button class="showreel showreel--4" type="button" data-vimeo="904434513" data-title="Design team showreel" data-ratio="16/9" data-speed="-0.1">
+              <img class="showreel__img" src="/images/showreels/showreel-4.jpg" alt="Шоурил 4" />
+            </button>
+            <button class="showreel showreel--5" type="button" data-vimeo="1019772937" data-title="Icons" data-ratio="16/9" data-speed="0.14">
+              <img class="showreel__img" src="/images/showreels/showreel-5.jpg" alt="Шоурил 5" />
+            </button>
+            <button class="showreel showreel--6" type="button" data-vimeo="1208035628" data-title="3D illustrations showreel" data-ratio="16/9" data-speed="-0.08">
+              <img class="showreel__img" src="/images/showreels/showreel-6.jpg" alt="Шоурил 6" />
+            </button>
+            <button class="showreel showreel--7" type="button" data-vimeo="1213912921" data-title="Motion identity" data-ratio="16/9" data-speed="0.1">
+              <img class="showreel__img" src="/images/showreels/showreel-7.jpg" alt="Шоурил 7" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Extra Text: розовая плашка выезжает снизу и подрастает; когда её верх
+           проходит середину экрана, страница переключается на чёрный
+           (.theme-dark на <html>, src/extra-text.js). Иконка, слова заголовка
+           и подзаголовок проявляются из блюра той же волной, что и заголовок шоурилов. -->
+      <section class="extra-text" id="extra-text" aria-labelledby="extra-text-title">
+        <div class="extra-text__card">
+          <img class="extra-text__icon" src="/images/extra-text/extra-text-image.png" alt="" width="138" height="79" />
+          <h2 id="extra-text-title" class="extra-text__title" data-words>
+            Превращаем идеи<br />в крутой дизайн
+          </h2>
+          <p class="extra-text__subtitle">Почти как магия, только лучше</p>
+        </div>
+      </section>
+
+      <!-- Команды. Сцена залипает на экране, пока секция прокручивается:
+           папки по очереди выезжают снизу в стопку, пауза на превью, затем
+           каждая по очереди выходит на середину со своими стикерами
+           (src/team.js, раскадровка Team step 1 – step 13 в Figma).
+
+           Координаты — прямо из макета 1440 × 832, лежат в data-*:
+           data-stack-* — место в стопке, data-park-* — куда папка опускается,
+           пока ждёт очереди, data-enter-* — откуда выезжает снизу.
+           У стикеров data-x / data-y — левый верхний угол без поворота,
+           data-w / data-h — размер, data-rot — поворот, data-order — очередь.
+
+           Тексты папок и содержимое попапа правятся здесь же. -->
+      <section class="team" id="teams" aria-labelledby="team-title">
+        <div class="team__stage">
+          <div class="team__scene">
+            <h2 id="team-title" class="team__title" data-words>
+              Каждая команда делает свою работу<br />с любовью
+            </h2>
+            <h2 class="team__title team__title--others" data-words aria-hidden="true">
+              Не дизайнерами<br />едиными
+            </h2>
+
+            <!-- (01) Продукт -->
+            <article
+              class="team-folder"
+              style="--folder: #a69898"
+              data-stack-x="424" data-stack-y="541" data-stack-rot="0"
+              data-park-x="424" data-park-y="828"
+              data-enter-y="1180" data-enter-rot="5"
+              data-detail-name="Команда дизайна продукта"
+              role="button" tabindex="-1" aria-label="Команда продукта — открыть"
+            >
+              <div class="team-folder__tilt">
+                <div class="team-folder__back"></div>
+                <p class="team-folder__tab">продукт</p>
+                <div class="team-folder__sheets">
+                  <span class="team-folder__sheet team-folder__sheet--back"></span>
+                  <span class="team-folder__sheet team-folder__sheet--front"></span>
+                </div>
+                <div class="team-folder__front">
+                  <p class="team-folder__num">(01)</p>
+                  <p class="team-folder__name">продукт</p>
+                  <p class="team-folder__desc">Делаем красиво и удобно на разных платформах.<br />TV, Web, App</p>
+                  <div class="team-folder__lines"></div>
+                </div>
+              </div>
+              <!-- Содержимое попапа (Figma «product-team», 302:1445).
+                   style="--w" — ширина карточки в пикселях макета при высоте
+                   592; у половинок стопки --h — высота. Порядок карточек
+                   здесь = порядок в слайдере. -->
+              <template class="team-folder__detail">
+                <div class="team-modal__card team-modal__card--text">
+                  <span class="team-modal__dot"></span>
+                  <div class="team-modal__text">
+                    <p>Делаем красиво и удобно на разных платформах: TV, Web, App.</p>
+                  </div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 429.63"><img src="/images/team/detail/product-team-poster01.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 429.63"><img src="/images/team/detail/product-team-poster02.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 668.61"><video src="/video/team/product-team-poster03.mp4" muted playsinline loop preload="metadata"></video></div>
+                <div class="team-modal__card team-modal__card--stack" style="--w: 511">
+                  <div class="team-modal__poster" style="--h: 234.93"><img src="/images/team/detail/product-team-poster04.jpg" alt="" /></div>
+                  <div class="team-modal__poster" style="--h: 338.66"><img src="/images/team/detail/product-team-poster05.jpg" alt="" /></div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 737.93"><img src="/images/team/detail/product-team-poster06.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 992.25"><video src="/video/team/product-team-poster07.mp4" muted playsinline loop preload="metadata"></video></div>
+                <div class="team-modal__card team-modal__card--stack" style="--w: 396">
+                  <div class="team-modal__poster" style="--h: 270.46"><img src="/images/team/detail/product-team-poster08.jpg" alt="" /></div>
+                  <div class="team-modal__poster" style="--h: 309.41"><img src="/images/team/detail/product-team-poster09.jpg" alt="" /></div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 921.1"><img src="/images/team/detail/product-team-poster10.jpg" alt="" /></div>
+              </template>
+            </article>
+
+            <!-- (02) Контент -->
+            <article
+              class="team-folder"
+              style="--folder: #d9d9d9"
+              data-stack-x="340" data-stack-y="587" data-stack-rot="-6"
+              data-park-x="340" data-park-y="874"
+              data-enter-y="1240" data-enter-rot="-11"
+              data-detail-name="Команда дизайна контента"
+              role="button" tabindex="-1" aria-label="Команда контента — открыть"
+            >
+              <div class="team-folder__tilt">
+                <div class="team-folder__back"></div>
+                <p class="team-folder__tab">контент</p>
+                <div class="team-folder__sheets">
+                  <span class="team-folder__sheet team-folder__sheet--back"></span>
+                  <span class="team-folder__sheet team-folder__sheet--front"></span>
+                </div>
+                <div class="team-folder__front">
+                  <p class="team-folder__num">(02)</p>
+                  <p class="team-folder__name">контент</p>
+                  <p class="team-folder__desc">Создаём самые классные постеры<br />для фильмов и сериалов собственного производства</p>
+                  <div class="team-folder__lines"></div>
+                </div>
+              </div>
+              <template class="team-folder__detail">
+                <div class="team-modal__card team-modal__card--text">
+                  <span class="team-modal__dot"></span>
+                  <div class="team-modal__text">
+                    <p>Команда дизайна контента занимается созданием самых классных постеров для фильмов и сериалов собственного производства.</p>
+                    <p>За каждой картинкой стоят сотни часов работы, множество итераций и согласований. Всё для того, чтобы получить лучший из возможных результатов.</p>
+                    <p>Практически для каждого тайтла готовим: 20 оригинальных кейвижалов, сотни ресайзов, тайтл тритмент, характер постеры и тд.</p>
+                  </div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 394.67"><img src="/images/team/detail/content-team-poster01.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 394.67"><img src="/images/team/detail/content-team-poster02.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--stack" style="--w: 391">
+                  <div class="team-modal__poster" style="--h: 311.02"><img src="/images/team/detail/content-team-poster03.jpg" alt="" /></div>
+                  <div class="team-modal__note">
+                    <span class="team-modal__dot"></span>
+                    <p class="team-modal__text">Для каждого нашего тайтла мы делаем тайтл тритмент. То есть название в подходящей стилистике</p>
+                  </div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 542.67"><img src="/images/team/detail/content-team-poster04.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 1051.79"><img src="/images/team/detail/content-team-poster06.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 384.8"><img src="/images/team/detail/content-team-poster09.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--stack" style="--w: 362.06">
+                  <div class="team-modal__poster" style="--h: 288"><img src="/images/team/detail/content-team-poster08.jpg" alt="" /></div>
+                  <div class="team-modal__poster" style="--h: 288"><img src="/images/team/detail/content-team-poster07.jpg" alt="" /></div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 394.67"><img src="/images/team/detail/content-team-poster10.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 394.67"><img src="/images/team/detail/content-team-poster05.jpg" alt="" /></div>
+              </template>
+            </article>
+
+            <!-- (03) Бренд -->
+            <article
+              class="team-folder"
+              style="--folder: #c98caa"
+              data-stack-x="452" data-stack-y="677" data-stack-rot="0"
+              data-park-x="452" data-park-y="964"
+              data-enter-y="1300" data-enter-rot="7"
+              data-detail-name="Команда бренд-дизайна"
+              role="button" tabindex="-1" aria-label="Команда бренда — открыть"
+            >
+              <div class="team-folder__tilt">
+                <div class="team-folder__back"></div>
+                <p class="team-folder__tab">бренд</p>
+                <div class="team-folder__sheets">
+                  <span class="team-folder__sheet team-folder__sheet--back"></span>
+                  <span class="team-folder__sheet team-folder__sheet--front"></span>
+                </div>
+                <div class="team-folder__front">
+                  <p class="team-folder__num">(03)</p>
+                  <p class="team-folder__name">бренд</p>
+                  <p class="team-folder__desc">Формируем бренд-айдентику и оформляем оригинальные креативы повсеместно</p>
+                  <div class="team-folder__lines"></div>
+                </div>
+              </div>
+              <template class="team-folder__detail">
+                <div class="team-modal__card team-modal__card--text">
+                  <span class="team-modal__dot"></span>
+                  <div class="team-modal__text">
+                    <p>Формируем бренд-айдентику и оформляем оригинальные креативы повсеместно.</p>
+                  </div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 418.71"><img src="/images/team/detail/brand-team-poster01.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 273.46"><img src="/images/team/detail/brand-team-poster02.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 1049.9"><img src="/images/team/detail/brand-team-poster03.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--stack" style="--w: 362.06">
+                  <div class="team-modal__poster" style="--h: 288"><img src="/images/team/detail/brand-team-poster04.jpg" alt="" /></div>
+                  <div class="team-modal__poster" style="--h: 288"><img src="/images/team/detail/brand-team-poster05.jpg" alt="" /></div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 525"><img src="/images/team/detail/brand-team-poster06.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 521"><img src="/images/team/detail/brand-team-poster07.jpg" alt="" /></div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 992.25"><video src="/video/team/brand-team-poster08.mp4" muted playsinline loop preload="metadata"></video></div>
+                <div class="team-modal__card team-modal__card--stack" style="--w: 360">
+                  <div class="team-modal__poster" style="--h: 216"><img src="/images/team/detail/brand-team-poster09.jpg" alt="" /></div>
+                  <div class="team-modal__poster" style="--h: 360"><img src="/images/team/detail/brand-team-poster10.jpg" alt="" /></div>
+                </div>
+                <div class="team-modal__card team-modal__card--poster" style="--w: 1137.57"><img src="/images/team/detail/brand-team-poster11.jpg" alt="" /></div>
+              </template>
+            </article>
+
+            <!-- Стикеры: по три на команду, подъезжают снизу по очереди -->
+            <span class="team__sticker" data-folder="0" data-order="1" data-x="72.4" data-y="318.32" data-w="288" data-h="222" data-rot="-9.54"><img src="/images/team/team-sticker-3.png" alt="" /></span>
+            <span class="team__sticker" data-folder="0" data-order="2" data-x="1097.43" data-y="346.84" data-w="243" data-h="221" data-rot="5.99"><img src="/images/team/team-sticker-2.png" alt="" /></span>
+            <span class="team__sticker" data-folder="0" data-order="3" data-x="246" data-y="585" data-w="336" data-h="144"><img src="/images/team/team-sticker-4.png" alt="" /></span>
+
+            <span class="team__sticker" data-folder="1" data-order="1" data-x="34" data-y="101" data-w="332.77" data-h="464"><img src="/images/team/team-sticker-6.png" alt="" /></span>
+            <span class="team__sticker" data-folder="1" data-order="2" data-x="1080.53" data-y="171.53" data-w="277.65" data-h="234.2" data-rot="14.23"><img src="/images/team/team-sticker-7.png" alt="" /></span>
+            <span class="team__sticker" data-folder="1" data-order="3" data-x="127.34" data-y="451.97" data-w="234.77" data-h="141.75" data-rot="-15"><img src="/images/team/team-sticker-8.png" alt="" /></span>
+
+            <span class="team__sticker" data-folder="2" data-order="1" data-x="1106.07" data-y="231.19" data-w="261" data-h="165" data-rot="17.95"><img src="/images/team/team-sticker-10.png" alt="" /></span>
+            <span class="team__sticker" data-folder="2" data-order="2" data-x="108" data-y="449" data-w="344" data-h="222"><img src="/images/team/team-sticker-11.png" alt="" /></span>
+            <span class="team__sticker" data-folder="2" data-order="3" data-x="978" data-y="428" data-w="356" data-h="201"><img src="/images/team/team-sticker-12.png" alt="" /></span>
+
+            <!-- Четвёртый экран: «А ещё у нас есть» (макет Team step 16,
+                 node 217:1385). Пока третья папка доезжает вверх, снизу
+                 выходят три фото, затем по очереди приклеиваются четыре
+                 жёлтых стикера. Координаты — те же, что у остальных:
+                 левый верхний угол без поворота, размер и угол в data-*. -->
+            <span class="team-photo" data-order="1" data-x="243.22" data-y="322.73" data-w="248" data-h="292" data-rot="-8.5"><span class="team-photo__frame"><img src="/images/team/team-others-photo-1.png" alt="" /></span></span>
+            <span class="team-photo" data-order="2" data-x="644.12" data-y="341.96" data-w="248" data-h="290" data-rot="8.07"><span class="team-photo__frame"><img src="/images/team/team-others-photo-2.png" alt="" /></span></span>
+            <span class="team-photo" data-order="3" data-x="975" data-y="270" data-w="248" data-h="292" data-rot="0"><span class="team-photo__frame"><img src="/images/team/team-others-photo-3.png" alt="" /></span></span>
+
+            <button class="team-note" type="button" tabindex="-1" data-order="1" data-x="133.23" data-y="308.28" data-w="180" data-h="180.9" data-rot="-4.79" aria-label="Менеджеры"><span class="team-note__stick"><span class="team-note__paper"><img src="/images/team/team-others-sticker-1.png" alt="" /></span></span></button>
+            <button class="team-note" type="button" tabindex="-1" data-order="2" data-x="526.01" data-y="242.71" data-w="180" data-h="182" data-rot="15.47" aria-label="Продюсеры"><span class="team-note__stick"><span class="team-note__paper"><img src="/images/team/team-others-sticker-4.png" alt="" /></span></span></button>
+            <button class="team-note" type="button" tabindex="-1" data-order="3" data-x="421.04" data-y="517.0" data-w="180" data-h="182" data-rot="1.94" aria-label="Копирайтеры"><span class="team-note__stick"><span class="team-note__paper"><img src="/images/team/team-others-sticker-2.png" alt="" /></span></span></button>
+            <button class="team-note" type="button" tabindex="-1" data-order="4" data-x="887.57" data-y="486.47" data-w="180" data-h="182" data-rot="-5.68" aria-label="Моушен"><span class="team-note__stick"><span class="team-note__paper"><img src="/images/team/team-others-sticker-3.png" alt="" /></span></span></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Awards: подпись, список наград и иконка проявляются из блюра волной,
+           как остальные H2. Список собирается из массива AWARDS в начале
+           src/awards.js — там же меняются названия, статусы и картинки.
+           При наведении на награду остальные гаснут, а за курсором плывёт
+           картинка проекта (40 %). Блок информационный, кликов нет. -->
+      <section class="awards" id="awards" aria-labelledby="awards-title">
+        <div class="awards__preview" aria-hidden="true">
+          <!-- Два слоя: картинки сменяются кроссфейдом (src/awards.js) -->
+          <img alt="" />
+          <img alt="" />
+        </div>
+        <div class="awards__inner">
+          <h2 id="awards-title" class="awards__title">Награды</h2>
+          <div class="awards__list" ></div>
+          <div class="awards__icon" aria-hidden="true">
+            <img src="/images/awards/awards-icon.svg" alt="" width="118" height="56" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Articles: белая плашка со скруглением и внутренним свечением,
+           внутри 3D-колода квадратных карточек веером (референс Studio Deck
+           Carousel). Карточки и попап собирает src/articles.js из массива
+           ARTICLES — там же названия, описания, кнопки и ссылки.
+           Картинки: /images/articles/article-N-cover.jpg (колода)
+           и article-N-image.jpg (попап). -->
+      <section class="articles" id="articles" aria-labelledby="articles-title" tabindex="-1">
+        <div class="articles__block">
+          <h2 id="articles-title" class="articles__title">
+            Делимся знаниями<br />и заряжаем комьюнити
+          </h2>
+
+          <div class="articles__deck" aria-label="Карусель статей"></div>
+
+          <p class="articles__name" aria-live="polite"></p>
+
+          <div class="articles__nav">
+            <button class="articles__nav-btn" type="button" data-prev>‹ туда</button>
+            <span aria-hidden="true">•</span>
+            <button class="articles__nav-btn" type="button" data-next>сюда ›</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Grid: библиотека иллюстраций. Чёрная секция, H2 проявляется
+           из блюра, как остальные (data-words, src/grid.js). Сетка картинок
+           и видео в пропорциях макета 1404 (src/grid.css), видео играют
+           без звука и контролов, ничего не кликабельно. Внизу плашка-кнопка
+           на ivi design lab: по ховеру светлеет, по нажатию темнеет.
+           Картинки: /images/grid/, видео: /video/grid-image-N.mp4
+           (grid-image-8.mp4 ещё не выгружено — ячейка ждёт файл). -->
+      <section class="grid" id="grid" aria-labelledby="grid-title">
+        <div class="grid__inner">
+          <h2 id="grid-title" class="grid__title" data-words>
+            Библиотека иллюстраций, созданных на нашем заводе
+          </h2>
+
+          <div class="grid__images">
+            <div class="grid__row grid__row--1" aria-hidden="true">
+              <div class="grid__item grid__item--1">
+                <video src="/video/grid-image-1.mp4" autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
+              </div>
+              <div class="grid__item grid__item--2">
+                <video src="/video/grid-image-2.mp4" autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
+              </div>
+            </div>
+
+            <div class="grid__row grid__row--2" aria-hidden="true">
+              <div class="grid__item grid__item--3">
+                <img src="/images/grid/grid-image-3.png" alt="" loading="lazy" />
+              </div>
+              <div class="grid__col grid__col--2">
+                <div class="grid__item grid__item--4">
+                  <img src="/images/grid/grid-image-4.jpg" alt="" loading="lazy" />
+                </div>
+                <div class="grid__row">
+                  <div class="grid__item grid__item--5">
+                    <video src="/video/grid-image-5.mp4" autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
+                  </div>
+                  <div class="grid__item grid__item--6">
+                    <img src="/images/grid/grid-image-6.png" alt="" loading="lazy" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid__row grid__row--3" aria-hidden="true">
+              <div class="grid__col grid__col--3">
+                <div class="grid__item grid__item--7">
+                  <img src="/images/grid/grid-image-7.png" alt="" loading="lazy" />
+                </div>
+                <div class="grid__item grid__item--8">
+                  <video src="/video/grid-image-8.mp4" autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
+                </div>
+              </div>
+              <div class="grid__item grid__item--9">
+                <img src="/images/grid/grid-image-9.jpg" alt="" loading="lazy" />
+              </div>
+            </div>
+
+            <a class="grid__button" href="https://ivi-design-lab.vercel.app/" target="_blank" rel="noopener">
+              <p class="grid__button-text">Смотри все наши<br />прикольные картиночки</p>
+              <img class="grid__button-image" src="/images/grid/grid-button-image.png" alt="" width="168" height="146" />
+              <p class="grid__button-text grid__button-text--muted">Пока не поздно</p>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Vacancies: «Присоединяйся к лучшей команде». Чёрная секция, по
+           центру H2 (проявляется из блюра, как остальные — data-words),
+           подзаголовок и акцентная кнопка; волна проявления идёт сквозь
+           них подряд. Позади текста — слой .vacancies__trail: за курсором
+           спавнятся фотографии из /images/vacancies/ (src/vacancies.js),
+           они ниже текста по z-index. Кнопка открывает попап с формой
+           резюме (.resume-modal внизу страницы). -->
+      <section class="vacancies" id="vacancies" aria-labelledby="vacancies-title">
+        <div class="vacancies__trail" aria-hidden="true"></div>
+        <div class="vacancies__content">
+          <div class="vacancies__text">
+            <h2 id="vacancies-title" class="vacancies__title" data-words>
+              Присоединяйся<br />к лучшей команде
+            </h2>
+            <p class="vacancies__subtitle">Нам не хватает только тебя. Ничего не бойся, мы милашки</p>
+          </div>
+          <div class="vacancies__actions">
+            <button class="vacancies__button" type="button" data-resume-open>Отправить резюме</button>
+            <a class="vacancies__button vacancies__button--ghost" href="https://corp.ivi.ru/" target="_blank" rel="noopener">Все вакансии</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer: чёрная секция, внутри светлая плашка (скругление 200,
+         внутреннее свечение). Текст и ссылки лежат в .footer__text поверх
+         физики (z-index выше). Снизу плашки — канвас .footer__physics:
+         при появлении футера сверху осыпаются логотипы из /images/footer/,
+         падают по Matter.js, их можно таскать и подбрасывать
+         (src/footer.js). -->
+    <footer class="footer" id="footer">
+      <div class="footer__block">
+        <canvas class="footer__physics" aria-hidden="true"></canvas>
+        <div class="footer__glow" aria-hidden="true"></div>
+
+        <div class="footer__text">
+          <div class="footer__line1">
+            <p class="footer__name">Дизайн команда Иви</p>
+            <a class="footer__top" href="#top">
+              <!-- Иконка roundArrowRight из макета (79:3158), заливка currentColor -->
+              <svg class="footer__top-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8ZM3.7832 8.6376C3.39826 9.0326 3.40693 9.66462 3.80273 10.0487C4.19863 10.4326 4.83181 10.424 5.2168 10.0292L8.00098 7.17374L10.7832 10.0292C11.1682 10.4239 11.8014 10.4326 12.1973 10.0487C12.593 9.66464 12.6017 9.03261 12.2168 8.6376L8.86035 5.19327C8.38919 4.70999 7.61082 4.70998 7.13965 5.19327L3.7832 8.6376Z" fill="currentColor" />
+              </svg>
+              <span>Наверх</span>
+            </a>
+          </div>
+
+          <div class="footer__line2-block">
+            <hr class="footer__divider" />
+            <div class="footer__line2">
+              <a class="footer__made footer__link" href="https://www.red-dot.org/project/good-no-matter-how-you-look-at-it-showreel-of-the-new-font-92869" target="_blank" rel="noopener"><span class="footer__link-label" data-text="Red Dot Winner 2026">Red Dot Winner 2026</span></a>
+              <nav class="footer__links footer__links--1" aria-label="Разделы сайта">
+                <a class="footer__link" href="#showreels"><span class="footer__link-label" data-text="Шоурилы">Шоурилы</span></a>
+                <a class="footer__link" href="#teams"><span class="footer__link-label" data-text="Команды">Команды</span></a>
+                <a class="footer__link" href="#awards"><span class="footer__link-label" data-text="Награды">Награды</span></a>
+                <a class="footer__link" href="#articles"><span class="footer__link-label" data-text="Статьи">Статьи</span></a>
+              </nav>
+              <nav class="footer__links footer__links--2" aria-label="Вакансии">
+                <a class="footer__link" href="https://corp.ivi.ru/" target="_blank" rel="noopener"><span class="footer__link-label" data-text="Все вакансии">Все вакансии</span></a>
+                <button class="footer__link" type="button" data-resume-open><span class="footer__link-label" data-text="Отправить резюме">Отправить резюме</span></button>
+                <a class="footer__link" href="https://hh.ru/employer/136929?tab=DESCRIPTION" target="_blank" rel="noopener"><span class="footer__link-label" data-text="Хэдхантер">Хэдхантер</span></a>
+              </nav>
+              <nav class="footer__links footer__links--3" aria-label="Внешние ссылки">
+                <a class="footer__link" href="https://ivi-design-lab.vercel.app/" target="_blank" rel="noopener"><span class="footer__link-label" data-text="ivi design lab">ivi design lab</span></a>
+                <a class="footer__link" href="https://ru.linkedin.com/company/iviru" target="_blank" rel="noopener"><span class="footer__link-label" data-text="Линкедин">Линкедин</span></a>
+                <a class="footer__link" href="https://kr.pinterest.com/ivi_design_team/" target="_blank" rel="noopener"><span class="footer__link-label" data-text="Пинтерест">Пинтерест</span></a>
+                <a class="footer__link" href="https://www.behance.net/eeeveee" target="_blank" rel="noopener"><span class="footer__link-label" data-text="Беханс">Беханс</span></a>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Попап с плеером Vimeo. Пустой, пока не кликнули по карточке. -->
+    <div class="video-modal" hidden aria-hidden="true">
+      <div class="video-modal__overlay" data-close></div>
+      <!-- Крестик вне диалога: у диалога на время анимации стоит transform,
+           а под трансформированным предком fixed считается от него и прыгает -->
+      <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+      <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="video-modal-title">
+        <div class="video-modal__stage">
+          <div class="video-modal__glow" aria-hidden="true"></div>
+          <div class="video-modal__frame"></div>
+        </div>
+        <p id="video-modal-title" class="video-modal__title"></p>
+      </div>
+    </div>
+
+    <!-- Попап статьи: те же оверлей, блюр и анимация, что у попапа шоурилов
+         (классы .video-modal), внутри карточка 496 × 526 (src/articles.css).
+         Контент подставляет src/articles.js. -->
+    <div class="video-modal article-modal" hidden aria-hidden="true">
+      <div class="video-modal__overlay" data-close></div>
+      <!-- Крестик вне диалога: у диалога на время анимации стоит transform,
+           а под трансформированным предком fixed считается от него и прыгает -->
+      <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+      <!-- Карточки слайдера собирает src/articles.js из массива ARTICLES:
+           соседние видно по краям, список закольцован. -->
+      <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="article-modal-title">
+        <div class="article-modal__viewport">
+          <div class="article-modal__track"></div>
+        </div>
+      </div>
+      <div class="article-modal__nav">
+        <button class="article-modal__arrow" type="button" data-dir="-1">&lsaquo; туда</button>
+        <span class="article-modal__bullet" aria-hidden="true">&bull;</span>
+        <button class="article-modal__arrow" type="button" data-dir="1">сюда &rsaquo;</button>
+      </div>
+    </div>
+
+    <!-- Попап команды: те же оверлей, блюр и анимация, что у попапов
+         шоурилов и статей (классы .video-modal), внутри горизонтальный
+         слайдер карточек (src/team.css). Карточки приходят из <template>
+         внутри самой папки в секции «Команды» — текст и картинки правятся
+         там же, рядом с командой. -->
+    <div class="video-modal team-modal" hidden aria-hidden="true">
+      <div class="video-modal__overlay" data-close></div>
+      <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+      <!-- Подпись и навигация вынесены из диалога по той же причине, что и
+           крестик: у диалога на время анимации стоит transform, и позиции
+           внутри него считались бы от него, а не от окна. Подпись идёт по
+           одной линии с крестиком, навигация — по центру нижнего отступа. -->
+      <p id="team-modal-title" class="team-modal__name"></p>
+      <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="team-modal-title">
+        <div class="team-modal__viewport">
+          <div class="team-modal__track"></div>
+        </div>
+      </div>
+      <div class="team-modal__nav">
+        <button class="team-modal__arrow" type="button" data-dir="-1">&lsaquo; туда</button>
+        <span class="team-modal__bullet" aria-hidden="true">&bull;</span>
+        <button class="team-modal__arrow" type="button" data-dir="1">сюда &rsaquo;</button>
+      </div>
+    </div>
+
+    <!-- Попап «Отправить резюме»: те же оверлей, блюр и анимация, что у
+         попапов шоурилов и статей (классы .video-modal), внутри белая
+         карточка с формой (src/vacancies.css). Пока без бэкенда:
+         после отправки карточка показывает «спасибо» (src/vacancies.js). -->
+    <div class="video-modal resume-modal" hidden aria-hidden="true">
+      <div class="video-modal__overlay" data-close></div>
+      <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+      <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="resume-modal-title">
+        <div class="resume-modal__stage">
+          <div class="video-modal__glow" aria-hidden="true"></div>
+          <form class="resume-modal__card" novalidate>
+            <div class="resume-modal__head">
+              <h3 id="resume-modal-title" class="resume-modal__title">Отправить резюме</h3>
+              <p class="resume-modal__desc">Расскажи о себе — мы ответим в течение пары дней</p>
+            </div>
+
+            <div class="resume-modal__fields">
+              <div class="resume-modal__row">
+                <label class="resume-modal__field">
+                  <span class="resume-modal__label">Имя</span>
+                  <input class="resume-modal__input" type="text" name="firstName" autocomplete="given-name" required />
+                </label>
+                <label class="resume-modal__field">
+                  <span class="resume-modal__label">Фамилия</span>
+                  <input class="resume-modal__input" type="text" name="lastName" autocomplete="family-name" required />
+                </label>
+              </div>
+              <label class="resume-modal__field">
+                <span class="resume-modal__label">Телеграм или почта</span>
+                <input class="resume-modal__input" type="text" name="contact" placeholder="@username или mail@ivi.ru" autocomplete="email" required />
+              </label>
+              <label class="resume-modal__field">
+                <span class="resume-modal__label">Ссылка на резюме или портфолио</span>
+                <input class="resume-modal__input" type="url" name="link" placeholder="https://" />
+              </label>
+              <div class="resume-modal__field">
+                <span class="resume-modal__label">Или файл</span>
+                <label class="resume-modal__file">
+                  <input class="resume-modal__file-input" type="file" name="file" accept=".pdf,.doc,.docx,.pages,.rtf,.txt" />
+                  <span class="resume-modal__file-btn">Прикрепить</span>
+                  <span class="resume-modal__file-name">PDF, DOC — до 10 МБ</span>
+                </label>
+              </div>
+              <p class="resume-modal__error" role="alert" hidden></p>
+            </div>
+
+            <button class="resume-modal__submit" type="submit">Отправить</button>
+          </form>
+
+          <div class="resume-modal__done" hidden>
+            <p class="resume-modal__done-title">Спасибо!</p>
+            <p class="resume-modal__desc">Резюме у нас. Напишем тебе, как только посмотрим</p>
+            <button class="resume-modal__submit" type="button" data-close>Отлично</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
