@@ -240,10 +240,21 @@
   transition: background 0.35s ease-out, -webkit-backdrop-filter 0.35s ease-out, backdrop-filter 0.35s ease-out;
 }
 
+/* Подложка не чёрная, а тёмно-серая и чуть прозрачнее: сквозь неё
+   пробивается размытая страница, и попап читается как стекло, а не
+   как дырка в экране. Сверху добавлено пятно посветлее по центру —
+   оно даёт ощущение глубины, будто свет падает на плоскость. */
 .video-modal--open .video-modal__overlay {
-  background: rgba(0, 0, 0, 0.8);
-  -webkit-backdrop-filter: blur(40px);
-  backdrop-filter: blur(40px);
+  background:
+    radial-gradient(
+      120% 90% at 50% 45%,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.02) 45%,
+      transparent 75%
+    ),
+    rgba(18, 18, 22, 0.74);
+  -webkit-backdrop-filter: blur(48px);
+  backdrop-filter: blur(48px);
 }
 
 .video-modal__close {
