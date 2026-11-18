@@ -1,4 +1,14 @@
-/* ----- уведомления в хиро (Figma 334:6192) -----
+/* Радиус размытия пишем в переменную, чтобы его можно было плавно
+   нарастить. Обычная переменная не умеет анимироваться — @property
+   объясняет браузеру, что внутри длина, и он её доводит. Где @property
+   не поддерживается, стекло просто включается сразу. */
+@property --glass {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* ----- уведомления в хиро (Figma 334:6192, эпловская схема) -----
    Стопка плашек в левом нижнем углу. Все плашки лежат в одной точке,
    друг на друге; --depth (ставит hero-notes.js) говорит, какая по
    счёту: от него считаются подъём, уменьшение и затемнение. */
@@ -36,11 +46,12 @@
   width: 100%;
   height: 97px;
   padding: 16px 24px 16px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 32px;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
+  /* Задним плашкам — просто тёмная заливка. Их видно полосками по 11 и
+     22 пикселя, и то, что сквозь них не размыто, на глаз не читается,
+     зато браузер не снимает подложку трижды за кадр. */
+  background: rgba(26, 26, 30, 0.66);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
   color: var(--color-white);
   text-decoration: none;
@@ -50,7 +61,40 @@
   transform-origin: 50% 0;
   transform: translateX(var(--slide)) translateY(calc(var(--depth) * -11px)) scale(calc(1 - var(--depth) * 0.11));
   opacity: var(--fade);
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease-out;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease-out,
+    background-color 0.45s ease-out, --glass 0.45s ease-out;
+}
+
+/* Верхняя плашка — настоящее стекло. Размытие нарастает от нуля, пока
+   плашка выезжает вперёд и подрастает, поэтому подмены не видно. */
+.hero-note.is-top {
+  --glass: 25px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(var(--glass));
+  -webkit-backdrop-filter: blur(var(--glass));
+}
+
+/* Светлый блик по верхнему краю — вместо двух слоёв с режимами
+   наложения из эпловского компонента. На тёмном фоне выглядит так же,
+   а лишнего прохода композиции не требует. */
+.hero-note::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.03) 36%,
+    transparent 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease-out;
+}
+
+.hero-note.is-top::before {
+  opacity: 1;
 }
 
 /* Пока тянут — плашка идёт ровно за пальцем, без доводки */
@@ -73,6 +117,22 @@
 
 .hero-note:not(.is-top) {
   pointer-events: none;
+}
+
+/* У задних плашек содержимое спрятано: видно только их края, и чужая
+   иконка, просвечивающая сквозь верхнюю, мусорила бы. Когда плашка
+   выходит вперёд, содержимое проявляется вместе со стеклом. */
+.hero-note__icon,
+.hero-note__text {
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+}
+
+.hero-note.is-top .hero-note__icon,
+.hero-note.is-top .hero-note__text,
+.hero-note.is-gone .hero-note__icon,
+.hero-note.is-gone .hero-note__text {
+  opacity: 1;
 }
 
 .hero-note__icon {
