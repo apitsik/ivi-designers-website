@@ -64,8 +64,14 @@ const PATH = (() => {
   return d.join(' ');
 })();
 
-const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-const easeIn = (t) => t * t;
+// Для головы: короткий мягкий разгон идолгое, плавное торможение.
+// Более крутой изинг давал мёртвую паузу в начале — кисть будто
+// примерялась, прежде чем поехать.
+const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+// Для хвоста: трогается почти незаметно, разгоняется и так же мягко
+// приходит — последний кусок розового не срывается с экрана рывком
+const easeTail = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -125,10 +131,13 @@ export function initPreloaderStroke(old) {
     root.classList.add('is-open');
   });
 
+  // Кисть не возникает из ниоткуда: первые кадры она набирает плотность
+  requestAnimationFrame(() => root.classList.add('is-drawing'));
+
   return run(TOTAL_MS, (t) => t, (t) => {
     const head = easeInOut(Math.min(1, t / HEAD_END));
     const started = Math.max(0, (t - TAIL_FROM) / (1 - TAIL_FROM));
-    const tail = easeIn(started);
+    const tail = easeTail(started);
     paint(len * (head - tail), len * head);
   }).then(() => {
     root.remove();
