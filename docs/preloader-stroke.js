@@ -10,9 +10,16 @@
  * Движение в два прохода, как в референсе:
  *   1. голова бежит по пути от начала до конца, кисть толстеет;
  *   2. хвост бежит от начала до конца, кисть истончается и уходит за край.
- * Проходы чуть нахлёстываются. На стыке экран закрыт сплошной заливкой:
- * в этот момент гаснет чёрная подложка (никто не видит) и, если сайт ещё
- * не догрузился, всё стоит и ждёт его, но не дольше HOLD_MAX_MS.
+ * Проходы чуть нахлёстываются. На стыке экран закрыт сплошной заливкой.
+ * В этот момент:
+ *   - гаснет чёрная подложка (никто не видит);
+ *   - мы сообщаем сайту событием preloader-covered, что можно запускаться:
+ *     создавать логотип, стикеры, плеер и всё остальное. Это тяжёлая
+ *     работа, главный поток на ней встаёт на сотни миллисекунд, и лучше,
+ *     чтобы это случилось, пока на экране ничего не движется;
+ *   - мазок ждёт ответа app-ready и загрузки картинок, но не дольше
+ *     HOLD_MAX_MS. Так сайт под мазком уже целиком готов, и после него
+ *     ничего не «доезжает».
  *
  * Почему теперь плавно (раньше дёргалось):
  *  - Путь без изломов. Каждый заход — дуга, разворот — полуокружность,
@@ -89,7 +96,7 @@
   // экран, на котором ничего не происходит, — это читается как «замерло».
   const TAIL_AT_MS = 1000;
   const WIDTH_FROM = 0.25; // с этой доли первого прохода кисть начинает толстеть
-  const HOLD_MAX_MS = 1200; // сколько максимум держим сплошную заливку, пока грузится сайт
+  const HOLD_MAX_MS = 2500; // сколько максимум держим сплошную заливку, пока сайт запускается и грузится
   const MAX_FRAME_MS = 48; // кадр длиннее считаем зависанием и не перескакиваем
 
   // Толщина кисти, в процентах от квадрата макета. Толстая кисть закрывает
@@ -186,9 +193,9 @@
   // пропускаем целиком, а засчитываем как короткий: кисть продолжит с того
   // же места, а не перескочит вперёд.
   //
-  // На отметке TAIL_AT_MS часы встают, пока сайт не догрузится (но не
-  // дольше HOLD_MAX_MS): экран в этот момент закрыт сплошной заливкой.
-  // Когда можно, подложка гаснет и часы идут дальше.
+  // На отметке TAIL_AT_MS часы встают, пока сайт не запустится и не
+  // догрузится (но не дольше HOLD_MAX_MS): экран в этот момент закрыт
+  // сплошной заливкой. Когда можно, подложка гаснет и часы идут дальше.
   function play(step, ready, onOpen) {
     return new Promise((resolve) => {
       const total = TAIL_AT_MS + TAIL_MS;
@@ -203,7 +210,7 @@
             elapsed = TAIL_AT_MS;
             if (!holding) {
               holding = true;
-              Promise.race([ready, wait(HOLD_MAX_MS)]).then(() => {
+              Promise.race([ready(), wait(HOLD_MAX_MS)]).then(() => {
                 released = true;
                 onOpen();
               });
@@ -239,11 +246,25 @@
     return Promise.all(tasks);
   }
 
-  // Сигнал основному коду сайта: экран свободен, можно запускаться
+  // Экран закрыт сплошной заливкой: просим основной код сайта запуститься и
+  // ждём его ответа (app-ready), а потом картинок, которые он создал.
+  // Слушатель ставим до сигнала, чтобы не пропустить ответ.
+  const whenSiteReady = () => {
+    const app = new Promise((r) => window.addEventListener('app-ready', r, { once: true }));
+    // Флаг для основного кода, который мог загрузиться позже сигнала
+    window.__preloaderState = 'covered';
+    window.dispatchEvent(new Event('preloader-covered'));
+    return app.then(waitForAssets);
+  };
+
+  // Сигнал основному коду сайта: мазок ушёл. Заодно снимаем блокировку
+  // прокрутки, которую ставили на время прелоадера.
   let told = false;
   const done = () => {
+    document.documentElement.classList.remove('is-preloading');
     if (told) return;
     told = true;
+    window.__preloaderState = 'done';
     window.dispatchEvent(new Event('preloader-done'));
   };
 
@@ -260,6 +281,8 @@
               stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
       </svg>`;
     document.body.append(root);
+    // На время прелоадера прокрутка заморожена (правило в index.html)
+    document.documentElement.classList.add('is-preloading');
 
     const path = root.querySelector('.preloader-stroke__path');
     const len = path.getTotalLength();
@@ -274,11 +297,9 @@
     };
     paint(0, 0, WIDTH_THIN);
 
-    const assetsReady = waitForAssets();
-
-    // Без анимаций просто ждём загрузку и уходим
+    // Без анимаций просто ждём запуск сайта и загрузку и уходим
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return Promise.race([assetsReady, wait(HOLD_MAX_MS * 2)]).then(() => {
+      return Promise.race([whenSiteReady(), wait(HOLD_MAX_MS)]).then(() => {
         root.remove();
         done();
       });
@@ -295,7 +316,7 @@
         const width = WIDTH_THIN + FAT * grow * (1 - ease(tail));
         paint(len * ease(tail), len * ease(head), width);
       },
-      assetsReady,
+      whenSiteReady,
       // Экран закрыт сплошной заливкой — подложку можно гасить
       () => root.classList.add('is-open'),
     ).then(() => {
