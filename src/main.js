@@ -1,10 +1,4 @@
-// Какой прелоадер показывать: 'stroke' — мазок кистью,
-// 'logo' — прежний перебор кадров логотипа. Оба варианта лежат рядом,
-// переключается одной этой строкой.
-const PRELOADER = 'stroke';
-
 import { initPreloader } from './preloader.js';
-import { initPreloaderStroke } from './preloader-stroke.js';
 import { initSmoothScroll } from './smooth-scroll.js';
 import { initCursorScrub } from './cursor-scrub.js';
 import { initNavLogo } from './nav-logo.js';
@@ -51,6 +45,6 @@ initVideoModal(document.querySelector('.video-modal:not(.article-modal)'), docum
 
 // Прелоадер запускаем последним: к этому моменту все модули уже создали
 // свои <img>, и он дождётся их загрузки, прежде чем открыть сайт.
-const preloaderEl = document.querySelector('.preloader');
-if (PRELOADER === 'stroke') initPreloaderStroke(preloaderEl);
-else initPreloader(preloaderEl);
+// Мазок запускает себя сам из своего тега в index.html — здесь только
+// прежний прелоадер с логотипом (window.PRELOADER задан в index.html)
+if (window.PRELOADER !== 'stroke') initPreloader(document.querySelector('.preloader'));

@@ -16,8 +16,8 @@
       .preloader { position: fixed; inset: 0; z-index: 100; background: #000; }
       html.is-preloading { overflow: hidden; }
     </style>
-    <script type="module" crossorigin src="./assets/index-D6IMwkQx.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BNxMbnoT.css">
+    <script type="module" crossorigin src="./assets/index-BpDlrFGL.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BlOchxcM.css">
   </head>
   <body>
     <!-- Прелоадер: кадры логотипа подставляются из assets/logos/ в src/preloader.js -->
@@ -687,6 +687,16 @@
         </div>
       </div>
     </div>
+
+    <!-- Какой прелоадер показывать: 'stroke' — мазок кистью,
+
+         'logo' — прежний перебор кадров логотипа. -->
+
+    <script>window.PRELOADER = 'stroke';</script>
+    <!-- Обычным тегом, не через сборку: файл крошечный и выполняется
+         сразу, поэтому кисть трогается с первых миллисекунд, а не после
+         загрузки основного кода сайта. -->
+    <script src="./preloader-stroke.js"></script>
 
   </body>
 </html>

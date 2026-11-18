@@ -42,6 +42,7 @@ src/smooth-scroll.js  Lenis; экспортирует инстанс lenis дл�
 src/<section>.js + .css   по модулю на секцию (см. ниже)
 assets/logos/       6 кадров логотипа навбара (logo-01.svg … logo-06.png); подхватываются через import.meta.glob
 public/             статика как есть: images/, stickers/, video/, music/, cursors/, фавиконы
+public/preloader-stroke.js  прелоадер-мазок: намеренно вне сборки, подключён обычным тегом в index.html, чтобы выполниться сразу; стили внутри файла строкой
 public/fonts/       IVI Sans Base — в .gitignore (лицензия), кладутся вручную; без них системный шрифт
 scripts/compress-media.js   сжатие PNG (палитра imagequant) и JPG (mozjpeg q82), имена и форматы не меняет
 deploy/nginx.conf   прод-конфиг: https, gzip, кэш по папкам, заголовки; инструкция в шапке
@@ -51,7 +52,8 @@ deploy/nginx.conf   прод-конфиг: https, gzip, кэш по папкам
 
 | Секция | Модуль | Суть |
 |---|---|---|
-| прелоадер | `preloader.js` | чёрный экран, перебор кадров лого с разгоном/торможением, старт и финиш на logo-01, уезд вверх; ждёт hero-видео, шрифты и картинки без `lazy` |
+| прелоадер | `public/preloader-stroke.js` (по умолчанию) или `preloader.js` | какой показывать — `window.PRELOADER` в `index.html`: `'stroke'` мазок кистью, `'logo'` перебор лого |
+| прелоадер (лого) | `preloader.js` | чёрный экран, перебор кадров лого с разгоном/торможением, старт и финиш на logo-01, уезд вверх; ждёт hero-видео, шрифты и картинки без `lazy` |
 | nav | `nav-logo.js` | лого в шапке, по ховеру покадровая анимация из `assets/logos` |
 | hero | `cursor-scrub.js`, `hero-stickers.js`, `hero-player.js` | видео скрабится курсором по горизонтали; тап клеит стикеры; мини-плеер с плейлистом из `public/music/playlist.json` |
 | showreels | `showreels.js`, `video-modal.js` | плашка наезжает на hero, параллакс карточек, попап с Vimeo по `data-vimeo` |
