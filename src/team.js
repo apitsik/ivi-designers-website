@@ -609,6 +609,8 @@ function initPhotos(photos, stage, reduced) {
 // карточек: содержимое лежит в <template> внутри самой папки, поэтому
 // текст и картинки правятся в index.html рядом с командой.
 function initDetail(modal) {
+  // Секция нужна, чтобы притушить сцену под открытым попапом
+  const section = document.querySelector('.team');
   const dialog = modal.querySelector('.video-modal__dialog');
   const name = modal.querySelector('.team-modal__name');
   const viewport = modal.querySelector('.team-modal__viewport');
@@ -693,6 +695,9 @@ function initDetail(modal) {
     folder.classList.add('is-open');
 
     name.textContent = folder.dataset.detailName || '';
+    // Сцена уходит в тень: иначе раскрытая папка и стикеры читаются
+    // сквозь подложку, а в остальных попапах за ней ничего не разобрать
+    section?.classList.add('is-detail');
 
     // Список склеен трижды — так лента не упирается в край
     const base = tpl.content.cloneNode(true);
@@ -753,6 +758,7 @@ function initDetail(modal) {
     modal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('video-modal-open');
     lenis?.start();
+    section?.classList.remove('is-detail');
     cancelAnimationFrame(raf);
     raf = 0;
     vel = 0;
