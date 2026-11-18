@@ -26,7 +26,9 @@ import './grid.css';
 import './vacancies.css';
 import './footer.css';
 
-document.documentElement.classList.add('is-preloading');
+// С прелоадером-мазком прокрутку замораживает и размораживает он сам
+// (public/preloader-stroke.js); здесь только прежний прелоадер с логотипом
+if (window.PRELOADER !== 'stroke') document.documentElement.classList.add('is-preloading');
 initSmoothScroll();
 initCursorScrub(document.querySelector('.hero__video'));
 initNavLogo(document.querySelector('.nav__logo'));
