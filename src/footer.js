@@ -52,9 +52,22 @@ export function initFooter(footer) {
   const images = IMAGES.map((src) => {
     const img = new Image();
     img.decoding = 'async';
-    img.src = src;
+    img.dataset.src = src;
     return img;
   });
+
+  // Файлы качаем только когда футер подъезжает к экрану, а не при старте сайта
+  const loadImages = new IntersectionObserver(
+    (entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      images.forEach((img) => {
+        img.src = img.dataset.src;
+      });
+      loadImages.disconnect();
+    },
+    { rootMargin: '100% 0px' },
+  );
+  loadImages.observe(block);
 
   // ----- размеры и стенки -----
 

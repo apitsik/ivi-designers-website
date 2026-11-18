@@ -89,10 +89,19 @@ export function initAwards(section) {
   }
 
   // Подгружаем картинки заранее, чтобы при первом наведении не было пустоты
-  AWARDS.forEach((a) => {
-    const img = new Image();
-    img.src = a.image;
-  });
+  // (но не при старте сайта, а когда секция подъезжает к экрану)
+  const warm = new IntersectionObserver(
+    (entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      AWARDS.forEach((a) => {
+        const img = new Image();
+        img.src = a.image;
+      });
+      warm.disconnect();
+    },
+    { rootMargin: '100% 0px' },
+  );
+  warm.observe(section);
 
   observeReveal(section);
 

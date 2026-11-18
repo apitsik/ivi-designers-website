@@ -233,8 +233,13 @@
   // модуль не тянул за собой ничего тяжёлого.
   function waitForAssets() {
     const tasks = [];
+    // Ждём только картинки первого экрана: всё, что ниже, догрузится уже под
+    // открытой страницей и не должно держать розовую заливку.
+    const vh = window.innerHeight;
     document.querySelectorAll('img[src]:not([loading="lazy"])').forEach((img) => {
       if (img.complete) return;
+      const r = img.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > vh || r.width === 0) return;
       tasks.push(
         new Promise((r) => {
           img.addEventListener('load', r, { once: true });

@@ -37,11 +37,15 @@ export function initHeroStickers(hero) {
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   const images = new Map(); // n → HTMLImageElement (прогретые)
-  SET.forEach(({ n }) => {
-    const img = new Image();
-    img.src = SRC(n);
-    images.set(n, img);
-  });
+  // Создаём сразу (курсор берёт их из карты), а файлы качаем чуть позже —
+  // чтобы не мешать загрузке первого экрана.
+  const warmStickers = () =>
+    images.forEach((img, n) => {
+      if (!img.src) img.src = SRC(n);
+    });
+  SET.forEach(({ n }) => images.set(n, new Image()));
+  setTimeout(warmStickers, 2500);
+  hero.addEventListener('pointerenter', warmStickers, { once: true });
 
   let next = 0; // индекс следующего стикера из набора
   let peeling = false;
