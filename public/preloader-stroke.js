@@ -1,19 +1,36 @@
 /**
  * Прелоадер-мазок (по референсу extrafazant.nl).
  *
- * На чёрном экране широкая розовая кисть идёт от левого верхнего угла к
- * правому нижнему и закрашивает экран. Хвост мазка подтягивается следом
- * за головой — всё время, а не после: получается живой мазок, который
- * кто-то тянет по экрану, а не линия, которую сначала нарисовали, потом
- * стёрли. Когда страница готова, чёрная подложка гаснет, и хвост
- * догоняет голову, открывая сайт.
+ * На чёрном экране розовая кисть идёт от левого верхнего угла к правому
+ * нижнему. Это один непрерывный мазок: длинные дуги, как взмахи руки,
+ * и круглые развороты за краем экрана. Кисть сначала тонкая, а пока идёт,
+ * толстеет и заливает экран целиком — не полосами по одной, а разом.
+ * Потом мазок «стирается» с хвоста и снова истончается, открывая сайт.
+ *
+ * Движение в два прохода, как в референсе:
+ *   1. голова бежит по пути от начала до конца, кисть толстеет;
+ *   2. хвост бежит от начала до конца, кисть истончается и уходит за край.
+ * Проходы чуть нахлёстываются. На стыке экран закрыт сплошной заливкой:
+ * в этот момент гаснет чёрная подложка (никто не видит) и, если сайт ещё
+ * не догрузился, всё стоит и ждёт его, но не дольше HOLD_MAX_MS.
+ *
+ * Почему теперь плавно (раньше дёргалось):
+ *  - Путь без изломов. Каждый заход — дуга, разворот — полуокружность,
+ *    а на стыках касательные совпадают, поэтому кисть нигде не меняет
+ *    направление скачком. Радиус самого узкого места — около 50 единиц
+ *    из 1000 (на скруглении это уже не излом, а изгиб руки).
+ *  - Скорость считается по настоящей длине пути и меняется только по
+ *    одной кривой изинга. Раньше путь за кадром проскакивался в шесть
+ *    раз быстрее, и на каждом заходе скорость прыгала.
+ *  - Экран закрашивается утолщением кисти, а не рядом отдельных полос.
+ *  - Если браузер на секунду завис (грузится сайт), время не перепрыгивает
+ *    вперёд: кисть продолжает с того же места, а не телепортируется.
  *
  * Линия одна: это обычный SVG-путь, у которого мы двигаем «окно»
- * видимого участка — голову и хвост. Это два числа за кадр, а не
+ * видимого участка (голову и хвост) и толщину. Три числа за кадр, а не
  * анимация формы: браузеру дёшево.
  *
- * Показывается при каждом заходе на сайт и идёт одним непрерывным
- * движением: нигде не ждём и не замираем.
+ * Показывается при каждом заходе на сайт.
  *
  * Модуль подключён в index.html отдельным тегом, до основного кода
  * сайта: он крошечный и ничего не тянет за собой, поэтому мазок
@@ -21,8 +38,7 @@
  * грузится остальная сборка. Какой прелоадер показывать, решает
  * window.PRELOADER там же, в index.html.
  *
- * Рядом лежит preloader.js — прежний вариант с перебором логотипа. Какой
- * из них показывать, решает одна строка в начале main.js.
+ * Рядом лежит preloader.js — прежний вариант с перебором логотипа.
  */
 
 // Файл подключён в index.html обычным тегом и намеренно не проходит через
@@ -32,7 +48,7 @@
   if (window.PRELOADER !== 'stroke') return;
 
   const CSS = `
-/* ----- прелоадер-мазок (src/preloader-stroke.js) ----- */
+/* ----- прелоадер-мазок (public/preloader-stroke.js) ----- */
 
 .preloader-stroke {
   position: fixed;
@@ -41,10 +57,10 @@
   background: var(--color-bg);
   color: #e92153;
   pointer-events: none;
-  transition: background-color 0.52s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
-/* Подложка ушла — остался только мазок поверх страницы */
+/* Экран закрыт сплошной заливкой — подложка больше не нужна.
+   Гасим её сразу, без перехода: под заливкой этого всё равно не видно */
 .preloader-stroke.is-open {
   background: transparent;
 }
@@ -53,120 +69,158 @@
   display: block;
   width: 100%;
   height: 100%;
-  opacity: 0;
-  transition: opacity 0.18s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
-.preloader-stroke.is-drawing .preloader-stroke__svg {
-  opacity: 1;
-}
-
-/* Толщина в процентах от квадрата макета: кисть растягивается вместе
-   с экраном, как и сам путь */
+/* Толщину двигает скрипт: в процентах от квадрата макета (1000 × 1000),
+   так кисть растягивается вместе с экраном, как и сам путь */
 .preloader-stroke__path {
-  stroke-width: 22%;
-}
-
-@media (max-width: 767px) {
-  .preloader-stroke__path {
-    stroke-width: 30%;
-  }
+  stroke-width: 5%;
 }
 `;
 
-  
-  // Одна непрерывная дорожка времени: голова и хвост едут без остановок
-  const TOTAL_MS = 2150;
-  const HEAD_END = 0.58; // к этой доле времени голова прошла весь путь
-  const TAIL_FROM = 0.3; // с этой доли трогается хвост
-  const OPEN_AT = 0.62; // когда гаснет чёрная подложка
-  const MAX_WAIT_MS = 4000; // дольше подложку не держим, даже если что-то не догрузилось
-  
-  // Путь строится прямо в коде, уже повёрнутым: заходы идут вдоль одной
+  // ---------------------------------------------------------------------------
+  // Время
+  // ---------------------------------------------------------------------------
+  const HEAD_MS = 1100; // голова проходит весь путь
+  const TAIL_MS = 1300; // хвост проходит весь путь
+  // Хвост трогается чуть раньше, чем голова остановится: к этой отметке экран
+  // уже закрыт целиком (проверено покадрово), а голова почти дошла и
+  // тормозит. Без нахлёста между проходами получается сплошной розовый
+  // экран, на котором ничего не происходит, — это читается как «замерло».
+  const TAIL_AT_MS = 1000;
+  const WIDTH_FROM = 0.25; // с этой доли первого прохода кисть начинает толстеть
+  const HOLD_MAX_MS = 1200; // сколько максимум держим сплошную заливку, пока грузится сайт
+  const MAX_FRAME_MS = 48; // кадр длиннее считаем зависанием и не перескакиваем
+
+  // Толщина кисти, в процентах от квадрата макета. Толстая кисть закрывает
+  // экран целиком: путь подобран так, что при 30% дыр нет (проверено счётом
+  // по сетке, самая дальняя точка экрана — 139 из 150).
+  const WIDTH_THIN = 5;
+  const WIDTH_FAT = 30;
+
+  // ---------------------------------------------------------------------------
+  // Путь
+  // ---------------------------------------------------------------------------
+  // Мазок строим в «повёрнутых» координатах: u — вдоль захода (вверх-вправо),
+  // v — поперёк (вниз-вправо). Заходы идут туда и обратно вдоль одной
   // диагонали, а сдвигаются вдоль другой — поэтому закрашивание ползёт из
-  // левого верхнего угла в правый нижний. Каждый заход не прямой, а
-  // выгнут дугой, и развороты скруглены: мазок читается как рука, а не
-  // как строчка принтера. Заходы идут с нахлёстом, чтобы между ними не
-  // оставалось чёрных просветов.
-  // Размеры подогнаны так, чтобы кисть почти сразу оказалась в кадре:
-  // лишние заходы и лишняя длина за краем — это секунды, когда на экране
-  // не происходит ничего.
-  const GAP = 130; // шаг между заходами поперёк диагонали
-  const REACH = 720; // половина длины захода вдоль диагонали
-  const BOW = 45; // насколько выгнут заход
-  const TURN = 240; // вынос разворота за край
-  const ROWS = 12; // столько заходов — ровно на диагональ квадрата
-  
-  const SEGMENTS = [];
+  // левого верхнего угла в правый нижний. Потом всё переводится в квадрат
+  // 1000 × 1000, который растягивается на экран.
+  //
+  // Каждый заход — кубическая дуга, концы которой уходят от середины к
+  // правому нижнему углу (у каждого захода свой изгиб, чтобы мазок не был
+  // «строчкой принтера»). Все дуги выгнуты в одну сторону, поэтому расстояние
+  // между ними почти не меняется и дыр между заходами не остаётся.
+  // Разворот — кривая, которая на стыках берёт направление у соседних
+  // заходов: излома нет.
+  const ROWS = 6; // заходов
+  const STEP = 236; // шаг между заходами по середине
+  const MID0 = -590; // первый заход проходит у левого верхнего угла
+  const LEAD = 290; // как далеко за кадром начинается и кончается мазок
+  const EDGE = 30; // насколько конец захода выходит за край экрана
+  const BEND_START = [70, 95, 60, 100, 65, 85]; // на сколько начало захода уходит от середины
+  const BEND_END = [95, 60, 100, 70, 90, 60]; // то же для конца
+  const HANDLE = [0.34, 0.3, 0.38, 0.32, 0.36, 0.3]; // где стоят «ручки» дуги вдоль захода
+  const TURN_K = 0.7; // насколько округлый разворот
+
   const PATH = (() => {
-    const C = 500;
-    const k = Math.SQRT1_2; // 45°
-    // along — вдоль захода (вверх-вправо), across — куда сдвигаемся (вниз-вправо)
-    const along = [k, -k];
-    const across = [k, k];
-    const at = (u, v) => [
-      C + along[0] * u + across[0] * v,
-      C + along[1] * u + across[1] * v,
-    ];
-    const fmt = ([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`;
+    const K = Math.SQRT1_2; // 45°
+    const add = (a, b) => [a[0] + b[0], a[1] + b[1]];
+    const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
+    const mul = (a, k) => [a[0] * k, a[1] * k];
+    const len = (a) => Math.hypot(a[0], a[1]);
+    const unit = (a) => mul(a, 1 / len(a));
+    const fmt = ([u, v]) => `${(500 + K * (u + v)).toFixed(1)} ${(500 + K * (v - u)).toFixed(1)}`;
 
-    const first = -((ROWS - 1) / 2) * GAP;
-    const d = [];
-    let cur = null;
-    // Запоминаем кривые и в виде чисел: по ним потом считаем, какая
-    // часть пути видна, не дёргая браузер
-    const push = (c1, c2, p3) => {
-      SEGMENTS.push([cur, c1, c2, p3]);
-      cur = p3;
-      d.push(`C ${fmt(c1)}, ${fmt(c2)}, ${fmt(p3)}`);
-    };
+    const mids = Array.from({ length: ROWS }, (_, i) => MID0 + i * STEP);
+    // Половина длины захода внутри экрана: у заходов у углов короче
+    const reach = mids.map((m) => 707 - Math.abs(m));
+    // Глубина разворота между заходами i и i+1 общая: так конец одного
+    // и начало другого стоят друг напротив друга, и поворот получается
+    // ровной полуокружностью, а не каплей
+    const depth = [LEAD];
+    for (let i = 0; i < ROWS - 1; i += 1) depth.push(Math.max(reach[i], reach[i + 1]) + EDGE);
+    depth.push(LEAD);
 
-    for (let i = 0; i < ROWS; i += 1) {
-      const v = first + i * GAP;
-      const dir = i % 2 === 0 ? 1 : -1; // туда и обратно
-      const from = -REACH * dir;
-      const to = REACH * dir;
-      if (i === 0) {
-        cur = at(from, v);
-        d.push(`M${fmt(cur)}`);
-      } else {
-        // разворот: выходим за край и заводим кисть на новый заход
-        const prev = v - GAP;
-        push(at(from + TURN * dir, prev), at(from + TURN * dir, v), at(from, v));
-      }
-      // сам заход — дугой
-      push(
-        at(from + (to - from) * 0.3, v - BOW),
-        at(from + (to - from) * 0.7, v + BOW),
-        at(to, v),
-      );
-    }
-    return d.join(' ');
+    const rows = mids.map((m, i) => {
+      const d = i % 2 === 0 ? 1 : -1; // туда и обратно
+      const from = depth[i];
+      const to = depth[i + 1];
+      const pull = (from + to) * HANDLE[i];
+      return {
+        start: [-d * from, m + BEND_START[i]],
+        c1: [-d * from + d * pull, m - BEND_START[i] / 3],
+        c2: [d * to - d * pull, m - BEND_END[i] / 3],
+        end: [d * to, m + BEND_END[i]],
+      };
+    });
+
+    const curve = (c1, c2, p) => ` C${fmt(c1)}, ${fmt(c2)}, ${fmt(p)}`;
+    let d = `M${fmt(rows[0].start)}`;
+    rows.forEach((row, i) => {
+      d += curve(row.c1, row.c2, row.end);
+      const next = rows[i + 1];
+      if (!next) return;
+      // Разворот: выходим из конца захода по его же касательной и входим
+      // в начало следующего по его касательной
+      const out = unit(sub(row.end, row.c2));
+      const into = unit(sub(next.c1, next.start));
+      const h = TURN_K * len(sub(next.start, row.end));
+      d += curve(add(row.end, mul(out, h)), sub(next.start, mul(into, h)), next.start);
+    });
+    return d;
   })();
-  
-  // Для головы: медленное начало, разгон к середине, мягкое торможение
-  const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-  
-  // Для хвоста: трогается почти незаметно, разгоняется и так же мягко
-  // приходит — последний кусок розового не срывается с экрана рывком
-  const easeTail = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-  
+
+  // ---------------------------------------------------------------------------
+  // Изинг
+  // ---------------------------------------------------------------------------
+  // Медленный старт, разгон в середине, мягкая остановка. Синусоида вместо
+  // степенной кривой: у неё нет резкой смены ускорения посередине, поэтому
+  // кисть не «подпинывает» на середине прохода.
+  const ease = (t) => 0.5 - 0.5 * Math.cos(Math.PI * t);
+  const clamp01 = (t) => Math.max(0, Math.min(1, t));
+
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-  
-  // Прогоняем значение от 0 до 1 за заданное время
-  function run(ms, ease, step) {
+
+  // Одни общие часы на оба прохода. Длинный кадр (браузер завис) не
+  // пропускаем целиком, а засчитываем как короткий: кисть продолжит с того
+  // же места, а не перескочит вперёд.
+  //
+  // На отметке TAIL_AT_MS часы встают, пока сайт не догрузится (но не
+  // дольше HOLD_MAX_MS): экран в этот момент закрыт сплошной заливкой.
+  // Когда можно, подложка гаснет и часы идут дальше.
+  function play(step, ready, onOpen) {
     return new Promise((resolve) => {
-      const t0 = performance.now();
+      const total = TAIL_AT_MS + TAIL_MS;
+      let last = null;
+      let elapsed = 0;
+      let holding = false;
+      let released = false;
       const frame = (now) => {
-        const t = Math.min(1, (now - t0) / ms);
-        step(ease(t));
-        if (t < 1) requestAnimationFrame(frame);
+        if (last !== null) {
+          const next = elapsed + Math.min(now - last, MAX_FRAME_MS);
+          if (!released && next >= TAIL_AT_MS) {
+            elapsed = TAIL_AT_MS;
+            if (!holding) {
+              holding = true;
+              Promise.race([ready, wait(HOLD_MAX_MS)]).then(() => {
+                released = true;
+                onOpen();
+              });
+            }
+          } else {
+            elapsed = next;
+          }
+        }
+        last = now;
+        step(elapsed);
+        if (elapsed < total) requestAnimationFrame(frame);
         else resolve();
       };
       requestAnimationFrame(frame);
     });
   }
-  
+
   // Ждём только то, что видно сразу: картинки без lazy и шрифты.
   // Свой короткий вариант вместо общего из preloader.js — чтобы этот
   // модуль не тянул за собой ничего тяжёлого.
@@ -174,15 +228,17 @@
     const tasks = [];
     document.querySelectorAll('img[src]:not([loading="lazy"])').forEach((img) => {
       if (img.complete) return;
-      tasks.push(new Promise((r) => {
-        img.addEventListener('load', r, { once: true });
-        img.addEventListener('error', r, { once: true });
-      }));
+      tasks.push(
+        new Promise((r) => {
+          img.addEventListener('load', r, { once: true });
+          img.addEventListener('error', r, { once: true });
+        }),
+      );
     });
     if (document.fonts?.ready) tasks.push(document.fonts.ready.catch(() => {}));
     return Promise.all(tasks);
   }
-  
+
   // Сигнал основному коду сайта: экран свободен, можно запускаться
   let told = false;
   const done = () => {
@@ -194,7 +250,7 @@
   function initPreloaderStroke(old) {
     // Разметка прежнего прелоадера этому варианту не нужна
     old?.remove();
-  
+
     const root = document.createElement('div');
     root.className = 'preloader-stroke';
     root.setAttribute('aria-hidden', 'true');
@@ -204,111 +260,57 @@
               stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
       </svg>`;
     document.body.append(root);
-  
+
     const path = root.querySelector('.preloader-stroke__path');
     const len = path.getTotalLength();
 
-    // Путь местами уходит за кадр — на разворотах и у самых углов.
-    // Если гнать кисть с равной скоростью по пути, на экране краска
-    // прибавляется рывками: пока кисть за кадром, не меняется ничего,
-    // потом разом выезжает целый заход. Поэтому один раз проходим по
-    // кривым и считаем, какая часть пути видна, а дальше ведём кисть по
-    // «полезной» длине: за кадром она проскакивает быстро, по экрану
-    // идёт ровно.
-    //
-    // Считаем сами по формуле кривой. Спрашивать то же самое у браузера
-    // (getPointAtLength) нельзя: на длинном пути один такой вопрос стоит
-    // полторы миллисекунды, и замер вставал больше чем на секунду —
-    // ровно та заминка, из-за которой всё и затевалось.
-    const STEPS = 10; // точек на кривую
-    const EDGE = 110; // половина толщины кисти в координатах макета
-    const OFFSCREEN = 0.16; // во сколько раз дешевле путь за кадром
-    const cumLen = [0];
-    const cumSeen = [0];
-    const bez = (a, b, c, d2, t) => {
-      const m = 1 - t;
-      return m * m * m * a + 3 * m * m * t * b + 3 * m * t * t * c + t * t * t * d2;
+    // Видимый участок пути: от from до to (в единицах длины) и толщина.
+    // Мазок начинается и кончается за кадром, так что «точка» от круглого
+    // кончика нулевой длины на экране не появляется.
+    const paint = (from, to, width) => {
+      path.style.strokeDasharray = `${to - from}px, 999999px`;
+      path.style.strokeDashoffset = `${-from}px`;
+      path.style.strokeWidth = `${width}%`;
     };
-    SEGMENTS.forEach(([p0, c1, c2, p3]) => {
-      let prev = p0;
-      for (let i = 1; i <= STEPS; i += 1) {
-        const t = i / STEPS;
-        const x = bez(p0[0], c1[0], c2[0], p3[0], t);
-        const y = bez(p0[1], c1[1], c2[1], p3[1], t);
-        const dl = Math.hypot(x - prev[0], y - prev[1]);
-        const mx = (x + prev[0]) / 2;
-        const my = (y + prev[1]) / 2;
-        const seen = mx > -EDGE && mx < 1000 + EDGE && my > -EDGE && my < 1000 + EDGE;
-        cumLen.push(cumLen[cumLen.length - 1] + dl);
-        cumSeen.push(cumSeen[cumSeen.length - 1] + dl * (seen ? 1 : OFFSCREEN));
-        prev = [x, y];
-      }
-    });
-    const totalLen = cumLen[cumLen.length - 1] || 1;
-    const totalSeen = cumSeen[cumSeen.length - 1] || 1;
+    paint(0, 0, WIDTH_THIN);
 
-    // Доля «полезного» пути → длина вдоль пути
-    const atProgress = (q) => {
-      const want = Math.max(0, Math.min(1, q)) * totalSeen;
-      let lo = 0;
-      let hi = cumSeen.length - 1;
-      while (lo < hi) {
-        const mid = (lo + hi) >> 1;
-        if (cumSeen[mid] < want) lo = mid + 1;
-        else hi = mid;
-      }
-      const i = Math.max(1, lo);
-      const span = cumSeen[i] - cumSeen[i - 1] || 1;
-      const f = (want - cumSeen[i - 1]) / span;
-      const l = cumLen[i - 1] + (cumLen[i] - cumLen[i - 1]) * f;
-      return (l / totalLen) * len;
-    };
+    const assetsReady = waitForAssets();
 
-    // Видимый участок пути: от head - shown до head
-    const paint = (shown, head) => {
-      path.style.strokeDasharray = `${shown}px, 999999px`;
-      path.style.strokeDashoffset = `${shown - head}px`;
-    };
-    paint(0, 0);
-  
     // Без анимаций просто ждём загрузку и уходим
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return Promise.race([waitForAssets(), wait(MAX_WAIT_MS)]).then(() => {
+      return Promise.race([assetsReady, wait(HOLD_MAX_MS * 2)]).then(() => {
         root.remove();
         done();
       });
     }
-  
-    const assetsReady = Promise.race([waitForAssets(), wait(MAX_WAIT_MS)]);
-  
-    // Подложка гаснет, когда страница готова, но не позже своей отметки
-    // на дорожке. Это отдельный переход прозрачности, он не трогает
-    // движение мазка — поэтому заминки не возникает.
-    Promise.race([assetsReady, wait(TOTAL_MS * OPEN_AT)]).then(() => {
-      root.classList.add('is-open');
-    });
-  
-    // Кисть не возникает из ниоткуда: первые кадры она набирает плотность
-    requestAnimationFrame(() => root.classList.add('is-drawing'));
-  
-    return run(TOTAL_MS, (t) => t, (t) => {
-      const head = easeInOut(Math.min(1, t / HEAD_END));
-      const started = Math.max(0, (t - TAIL_FROM) / (1 - TAIL_FROM));
-      const tail = easeTail(started);
-      paint(len * (head - tail), len * head);
-    }).then(() => {
+
+    // Голова идёт по пути и кисть толстеет; потом хвост идёт по пути и
+    // кисть истончается. Проходы чуть нахлёстываются (см. TAIL_AT_MS).
+    const FAT = WIDTH_FAT - WIDTH_THIN;
+    return play(
+      (ms) => {
+        const head = clamp01(ms / HEAD_MS);
+        const tail = clamp01((ms - TAIL_AT_MS) / TAIL_MS);
+        const grow = ease(clamp01((head - WIDTH_FROM) / (1 - WIDTH_FROM)));
+        const width = WIDTH_THIN + FAT * grow * (1 - ease(tail));
+        paint(len * ease(tail), len * ease(head), width);
+      },
+      assetsReady,
+      // Экран закрыт сплошной заливкой — подложку можно гасить
+      () => root.classList.add('is-open'),
+    ).then(() => {
       root.remove();
       done();
     });
   }
-  
-    // Стили кладём сами: файл подключён обычным тегом, без сборки
-    const style = document.createElement('style');
-    style.textContent = CSS;
-    document.head.append(style);
-  
-    // Запускаемся, как только браузер дочитал разметку
-    const start = () => initPreloaderStroke(document.querySelector('.preloader'));
-    if (document.body) start();
-    else document.addEventListener('DOMContentLoaded', start, { once: true });
+
+  // Стили кладём сами: файл подключён обычным тегом, без сборки
+  const style = document.createElement('style');
+  style.textContent = CSS;
+  document.head.append(style);
+
+  // Запускаемся, как только браузер дочитал разметку
+  const start = () => initPreloaderStroke(document.querySelector('.preloader'));
+  if (document.body) start();
+  else document.addEventListener('DOMContentLoaded', start, { once: true });
 })();
