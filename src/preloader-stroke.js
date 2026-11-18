@@ -12,6 +12,9 @@
  * видимого участка — голову и хвост. Это два числа за кадр, а не
  * анимация формы: браузеру дёшево.
  *
+ * Показывается при каждом заходе на сайт и идёт одним непрерывным
+ * движением: нигде не ждём и не замираем.
+ *
  * Рядом лежит preloader.js — прежний вариант с перебором логотипа. Какой
  * из них показывать, решает одна строка в начале main.js.
  */
@@ -19,36 +22,47 @@
 import './preloader-stroke.css';
 import { waitForAssets } from './preloader.js';
 
-const DRAW_MS = 1150; // голова проходит путь целиком
-const TAIL_FROM = 0.45; // с какой доли первой части трогается хвост
-const TAIL_LAG = 0.26; // сколько пути он успевает съесть к её концу
-const HOLD_MS = 100; // короткая пауза на закрашенном экране
-const FADE_MS = 380; // гаснет чёрная подложка
-const WIPE_MS = 850; // хвост догоняет голову
-const MAX_WAIT_MS = 5000; // страховка: дольше не ждём, даже если что-то не догрузилось
-
-// Метка в памяти браузера: один раз показали — больше не показываем
-const SEEN_KEY = 'ivi-design-preloader-seen';
+// Одна непрерывная дорожка времени: голова и хвост едут без остановок
+const TOTAL_MS = 2100;
+const HEAD_END = 0.52; // к этой доле времени голова прошла весь путь
+const TAIL_FROM = 0.26; // с этой доли трогается хвост
+const OPEN_AT = 0.55; // когда гаснет чёрная подложка
+const MAX_WAIT_MS = 4000; // дольше подложку не держим, даже если что-то не догрузилось
 
 // Путь нарисован в квадрате 1000 × 1000 и растягивается на любой экран.
 // Начинается и заканчивается за кадром, чтобы не было видно, как кисть
 // появляется из ниоткуда.
 // Путь нарисован в квадрате 1000 × 1000 и растягивается на любой экран.
-// Идёт из-за левого верхнего угла в правый нижний широкими округлыми
-// заходами — так человек закрашивает лист: туда-обратно, со
-// скруглёнными разворотами, постепенно спускаясь. Заходы идут с
-// нахлёстом, чтобы между ними не оставалось чёрных полос.
-const PATH =
-  'M-240 80 C 120 30, 580 30, 900 80 ' +
-  'C 1180 125, 1180 245, 900 290 ' +
-  'C 580 340, 120 340, 60 290 ' +
-  'C -180 245, -180 455, 60 500 ' +
-  'C 120 550, 580 550, 900 500 ' +
-  'C 1180 455, 1180 665, 900 710 ' +
-  'C 580 760, 120 760, 60 710 ' +
-  'C -180 665, -180 875, 60 920 ' +
-  'C 120 970, 580 970, 900 920 ' +
-  'C 1120 885, 1240 1000, 1320 1160';
+// Заходы идут туда-обратно со скруглёнными разворотами, с нахлёстом,
+// чтобы между ними не оставалось чёрных полос. Всю ленту потом
+// поворачивают (ROTATE), поэтому закрашивание идёт по диагонали из
+// левого верхнего угла в правый нижний. Путь нарочно шире и выше
+// квадрата: после поворота его края должны оставаться за кадром.
+const ROTATE = 34; // наклон ленты, градусы
+
+const ROWS = [-240, -40, 160, 360, 560, 760, 960, 1160];
+const LEFT = -240;
+const RIGHT = 1240;
+
+// Собираем змейку: прямой заход, скруглённый разворот, обратный заход
+const PATH = (() => {
+  const d = [`M${LEFT} ${ROWS[0]}`];
+  ROWS.forEach((y, i) => {
+    const toRight = i % 2 === 0;
+    const from = toRight ? LEFT : RIGHT;
+    const to = toRight ? RIGHT : LEFT;
+    if (i > 0) {
+      // разворот: уходим за край и возвращаемся на новую строку
+      const edge = from + (toRight ? -170 : 170);
+      const out = from + (toRight ? 250 : -250);
+      d.push(`C ${out} ${ROWS[i - 1]}, ${out} ${y}, ${edge} ${y}`);
+    }
+    const a = from + (to - from) * 0.33;
+    const b = from + (to - from) * 0.67;
+    d.push(`C ${a} ${y - 28}, ${b} ${y + 28}, ${to} ${y}`);
+  });
+  return d.join(' ');
+})();
 
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const easeIn = (t) => t * t;
@@ -69,36 +83,19 @@ function run(ms, ease, step) {
   });
 }
 
-function alreadySeen() {
-  try {
-    return localStorage.getItem(SEEN_KEY) === '1';
-  } catch {
-    return false;
-  }
-}
-
-function remember() {
-  try {
-    localStorage.setItem(SEEN_KEY, '1');
-  } catch {
-    /* не страшно */
-  }
-}
-
 export function initPreloaderStroke(old) {
   // Разметка прежнего прелоадера этому варианту не нужна
   old?.remove();
-
-  if (alreadySeen()) return Promise.resolve();
-  remember();
 
   const root = document.createElement('div');
   root.className = 'preloader-stroke';
   root.setAttribute('aria-hidden', 'true');
   root.innerHTML = `
     <svg class="preloader-stroke__svg" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
-      <path class="preloader-stroke__path" d="${PATH}" fill="none"
-            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+      <g transform="rotate(${ROTATE} 500 500)">
+        <path class="preloader-stroke__path" d="${PATH}" fill="none"
+              stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
     </svg>`;
   document.body.append(root);
 
@@ -121,27 +118,19 @@ export function initPreloaderStroke(old) {
 
   const assetsReady = Promise.race([waitForAssets(document), wait(MAX_WAIT_MS)]);
 
-  return (async () => {
-    // Голова идёт по всему пути. Хвост трогается с середины и идёт
-    // следом — мазок тянется, но экран успевает закраситься целиком
-    await run(DRAW_MS, easeInOut, (t) => {
-      const head = len * t;
-      const started = Math.max(0, (t - TAIL_FROM) / (1 - TAIL_FROM));
-      const tail = len * TAIL_LAG * started * started;
-      paint(head - tail, head);
-    });
-    await assetsReady;
-    await wait(HOLD_MS);
-
-    // Подложка гаснет — страница уже видна сквозь просветы мазка
+  // Подложка гаснет, когда страница готова, но не позже своей отметки
+  // на дорожке. Это отдельный переход прозрачности, он не трогает
+  // движение мазка — поэтому заминки не возникает.
+  Promise.race([assetsReady, wait(TOTAL_MS * OPEN_AT)]).then(() => {
     root.classList.add('is-open');
+  });
 
-    // Хвост догоняет голову: мазок подтягивается к концу пути
-    await run(WIPE_MS, easeIn, (t) => {
-      const tail = len * (TAIL_LAG + (1 - TAIL_LAG) * t);
-      paint(len - tail, len);
-    });
-
+  return run(TOTAL_MS, (t) => t, (t) => {
+    const head = easeInOut(Math.min(1, t / HEAD_END));
+    const started = Math.max(0, (t - TAIL_FROM) / (1 - TAIL_FROM));
+    const tail = easeIn(started);
+    paint(len * (head - tail), len * head);
+  }).then(() => {
     root.remove();
-  })();
+  });
 }
