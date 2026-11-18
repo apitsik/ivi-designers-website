@@ -1,0 +1,50 @@
+import { initPreloader } from './preloader.js';
+import { initSmoothScroll } from './smooth-scroll.js';
+import { initCursorScrub } from './cursor-scrub.js';
+import { initNavLogo } from './nav-logo.js';
+import { initHeroStickers } from './hero-stickers.js';
+import { initHeroSpotlight } from './hero-spotlight.js';
+import { initHeroNotes } from './hero-notes.js';
+import { initShowreels } from './showreels.js';
+import { initVideoModal } from './video-modal.js';
+import { initExtraText } from './extra-text.js';
+import { initTeam } from './team.js';
+import { initAwards } from './awards.js';
+import { initArticles } from './articles.js';
+import { initGrid } from './grid.js';
+import { initVacancies } from './vacancies.js';
+import { initFooter } from './footer.js';
+import './hero-stickers.css';
+import './hero-spotlight.css';
+import './hero-notes.css';
+import './showreels.css';
+import './extra-text.css';
+import './team.css';
+import './awards.css';
+import './articles.css';
+import './grid.css';
+import './vacancies.css';
+import './footer.css';
+
+document.documentElement.classList.add('is-preloading');
+initSmoothScroll();
+initCursorScrub(document.querySelector('.hero__video'));
+initNavLogo(document.querySelector('.nav__logo'));
+initHeroStickers(document.querySelector('.hero'));
+initHeroSpotlight(document.querySelector('.hero'));
+initHeroNotes(document.querySelector('.hero'));
+initShowreels(document.querySelector('.showreels'));
+initExtraText(document.querySelector('.extra-text'));
+initTeam(document.querySelector('.team'), document.querySelector('.team-modal'));
+initAwards(document.querySelector('.awards'));
+initArticles(document.querySelector('.articles'), document.querySelector('.article-modal'));
+initGrid(document.querySelector('.grid'));
+initVacancies(document.querySelector('.vacancies'), document.querySelector('.resume-modal'));
+initFooter(document.querySelector('.footer'));
+initVideoModal(document.querySelector('.video-modal:not(.article-modal)'), document.querySelectorAll('.showreel[data-vimeo]'));
+
+// Прелоадер запускаем последним: к этому моменту все модули уже создали
+// свои <img>, и он дождётся их загрузки, прежде чем открыть сайт.
+// Мазок запускает себя сам из своего тега в index.html — здесь только
+// прежний прелоадер с логотипом (window.PRELOADER задан в index.html)
+if (window.PRELOADER !== 'stroke') initPreloader(document.querySelector('.preloader'));

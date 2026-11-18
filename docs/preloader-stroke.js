@@ -171,6 +171,14 @@
     return Promise.all(tasks);
   }
   
+  // Сигнал основному коду сайта: экран свободен, можно запускаться
+  let told = false;
+  const done = () => {
+    if (told) return;
+    told = true;
+    window.dispatchEvent(new Event('preloader-done'));
+  };
+
   function initPreloaderStroke(old) {
     // Разметка прежнего прелоадера этому варианту не нужна
     old?.remove();
@@ -199,6 +207,7 @@
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       return Promise.race([waitForAssets(), wait(MAX_WAIT_MS)]).then(() => {
         root.remove();
+        done();
       });
     }
   
@@ -221,6 +230,7 @@
       paint(len * (head - tail), len * head);
     }).then(() => {
       root.remove();
+      done();
     });
   }
   
