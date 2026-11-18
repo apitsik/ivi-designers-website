@@ -24,11 +24,11 @@
 /* Толщина в процентах от квадрата макета: кисть растягивается вместе
    с экраном, как и сам путь */
 .preloader-stroke__path {
-  stroke-width: 9%;
+  stroke-width: 25%;
 }
 
 @media (max-width: 767px) {
   .preloader-stroke__path {
-    stroke-width: 11%;
+    stroke-width: 34%;
   }
 }
