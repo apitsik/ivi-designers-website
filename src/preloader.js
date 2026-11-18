@@ -29,7 +29,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 // Ждём только то, что видно сразу после прелоадера: <img> без lazy,
 // hero-видео до состояния «можно играть без буферизации», шрифты.
 // Ленивые картинки ниже по странице греем в кэш фоном, не задерживая выход.
-function waitForAssets(root) {
+export function waitForAssets(root) {
   const tasks = [];
 
   const seen = new Set();

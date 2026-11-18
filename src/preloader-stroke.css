@@ -1,0 +1,34 @@
+/* ----- прелоадер-мазок (src/preloader-stroke.js) ----- */
+
+.preloader-stroke {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--color-bg);
+  color: #e92153;
+  pointer-events: none;
+  transition: background-color 0.42s ease-out;
+}
+
+/* Подложка ушла — остался только мазок поверх страницы */
+.preloader-stroke.is-open {
+  background: transparent;
+}
+
+.preloader-stroke__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Толщина в процентах от квадрата макета: кисть растягивается вместе
+   с экраном, как и сам путь */
+.preloader-stroke__path {
+  stroke-width: 9%;
+}
+
+@media (max-width: 767px) {
+  .preloader-stroke__path {
+    stroke-width: 11%;
+  }
+}
