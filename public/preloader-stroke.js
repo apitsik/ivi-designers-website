@@ -64,12 +64,12 @@
 /* Толщина в процентах от квадрата макета: кисть растягивается вместе
    с экраном, как и сам путь */
 .preloader-stroke__path {
-  stroke-width: 32%;
+  stroke-width: 22%;
 }
 
 @media (max-width: 767px) {
   .preloader-stroke__path {
-    stroke-width: 42%;
+    stroke-width: 30%;
   }
 }
 `;
@@ -91,12 +91,13 @@
   // Размеры подогнаны так, чтобы кисть почти сразу оказалась в кадре:
   // лишние заходы и лишняя длина за краем — это секунды, когда на экране
   // не происходит ничего.
-  const GAP = 193; // шаг между заходами поперёк диагонали
+  const GAP = 130; // шаг между заходами поперёк диагонали
   const REACH = 720; // половина длины захода вдоль диагонали
-  const BOW = 130; // насколько выгнут заход
+  const BOW = 45; // насколько выгнут заход
   const TURN = 240; // вынос разворота за край
-  const ROWS = 8; // столько заходов — ровно на диагональ квадрата
+  const ROWS = 12; // столько заходов — ровно на диагональ квадрата
   
+  const SEGMENTS = [];
   const PATH = (() => {
     const C = 500;
     const k = Math.SQRT1_2; // 45°
@@ -108,25 +109,36 @@
       C + along[1] * u + across[1] * v,
     ];
     const fmt = ([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`;
-  
+
     const first = -((ROWS - 1) / 2) * GAP;
     const d = [];
+    let cur = null;
+    // Запоминаем кривые и в виде чисел: по ним потом считаем, какая
+    // часть пути видна, не дёргая браузер
+    const push = (c1, c2, p3) => {
+      SEGMENTS.push([cur, c1, c2, p3]);
+      cur = p3;
+      d.push(`C ${fmt(c1)}, ${fmt(c2)}, ${fmt(p3)}`);
+    };
+
     for (let i = 0; i < ROWS; i += 1) {
       const v = first + i * GAP;
       const dir = i % 2 === 0 ? 1 : -1; // туда и обратно
       const from = -REACH * dir;
       const to = REACH * dir;
-      if (i === 0) d.push(`M${fmt(at(from, v))}`);
-      else {
+      if (i === 0) {
+        cur = at(from, v);
+        d.push(`M${fmt(cur)}`);
+      } else {
         // разворот: выходим за край и заводим кисть на новый заход
         const prev = v - GAP;
-        d.push(
-          `C ${fmt(at(from + TURN * dir, prev))}, ${fmt(at(from + TURN * dir, v))}, ${fmt(at(from, v))}`,
-        );
+        push(at(from + TURN * dir, prev), at(from + TURN * dir, v), at(from, v));
       }
       // сам заход — дугой
-      d.push(
-        `C ${fmt(at(from + (to - from) * 0.3, v - BOW))}, ${fmt(at(from + (to - from) * 0.7, v + BOW))}, ${fmt(at(to, v))}`,
+      push(
+        at(from + (to - from) * 0.3, v - BOW),
+        at(from + (to - from) * 0.7, v + BOW),
+        at(to, v),
       );
     }
     return d.join(' ');
@@ -195,7 +207,63 @@
   
     const path = root.querySelector('.preloader-stroke__path');
     const len = path.getTotalLength();
-  
+
+    // Путь местами уходит за кадр — на разворотах и у самых углов.
+    // Если гнать кисть с равной скоростью по пути, на экране краска
+    // прибавляется рывками: пока кисть за кадром, не меняется ничего,
+    // потом разом выезжает целый заход. Поэтому один раз проходим по
+    // кривым и считаем, какая часть пути видна, а дальше ведём кисть по
+    // «полезной» длине: за кадром она проскакивает быстро, по экрану
+    // идёт ровно.
+    //
+    // Считаем сами по формуле кривой. Спрашивать то же самое у браузера
+    // (getPointAtLength) нельзя: на длинном пути один такой вопрос стоит
+    // полторы миллисекунды, и замер вставал больше чем на секунду —
+    // ровно та заминка, из-за которой всё и затевалось.
+    const STEPS = 10; // точек на кривую
+    const EDGE = 110; // половина толщины кисти в координатах макета
+    const OFFSCREEN = 0.16; // во сколько раз дешевле путь за кадром
+    const cumLen = [0];
+    const cumSeen = [0];
+    const bez = (a, b, c, d2, t) => {
+      const m = 1 - t;
+      return m * m * m * a + 3 * m * m * t * b + 3 * m * t * t * c + t * t * t * d2;
+    };
+    SEGMENTS.forEach(([p0, c1, c2, p3]) => {
+      let prev = p0;
+      for (let i = 1; i <= STEPS; i += 1) {
+        const t = i / STEPS;
+        const x = bez(p0[0], c1[0], c2[0], p3[0], t);
+        const y = bez(p0[1], c1[1], c2[1], p3[1], t);
+        const dl = Math.hypot(x - prev[0], y - prev[1]);
+        const mx = (x + prev[0]) / 2;
+        const my = (y + prev[1]) / 2;
+        const seen = mx > -EDGE && mx < 1000 + EDGE && my > -EDGE && my < 1000 + EDGE;
+        cumLen.push(cumLen[cumLen.length - 1] + dl);
+        cumSeen.push(cumSeen[cumSeen.length - 1] + dl * (seen ? 1 : OFFSCREEN));
+        prev = [x, y];
+      }
+    });
+    const totalLen = cumLen[cumLen.length - 1] || 1;
+    const totalSeen = cumSeen[cumSeen.length - 1] || 1;
+
+    // Доля «полезного» пути → длина вдоль пути
+    const atProgress = (q) => {
+      const want = Math.max(0, Math.min(1, q)) * totalSeen;
+      let lo = 0;
+      let hi = cumSeen.length - 1;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (cumSeen[mid] < want) lo = mid + 1;
+        else hi = mid;
+      }
+      const i = Math.max(1, lo);
+      const span = cumSeen[i] - cumSeen[i - 1] || 1;
+      const f = (want - cumSeen[i - 1]) / span;
+      const l = cumLen[i - 1] + (cumLen[i] - cumLen[i - 1]) * f;
+      return (l / totalLen) * len;
+    };
+
     // Видимый участок пути: от head - shown до head
     const paint = (shown, head) => {
       path.style.strokeDasharray = `${shown}px, 999999px`;

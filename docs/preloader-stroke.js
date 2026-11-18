@@ -64,12 +64,12 @@
 /* Толщина в процентах от квадрата макета: кисть растягивается вместе
    с экраном, как и сам путь */
 .preloader-stroke__path {
-  stroke-width: 32%;
+  stroke-width: 18%;
 }
 
 @media (max-width: 767px) {
   .preloader-stroke__path {
-    stroke-width: 42%;
+    stroke-width: 24%;
   }
 }
 `;
@@ -91,11 +91,11 @@
   // Размеры подогнаны так, чтобы кисть почти сразу оказалась в кадре:
   // лишние заходы и лишняя длина за краем — это секунды, когда на экране
   // не происходит ничего.
-  const GAP = 193; // шаг между заходами поперёк диагонали
+  const GAP = 96; // шаг между заходами поперёк диагонали
   const REACH = 720; // половина длины захода вдоль диагонали
-  const BOW = 130; // насколько выгнут заход
+  const BOW = 50; // насколько выгнут заход
   const TURN = 240; // вынос разворота за край
-  const ROWS = 8; // столько заходов — ровно на диагональ квадрата
+  const ROWS = 16; // столько заходов — ровно на диагональ квадрата
   
   const PATH = (() => {
     const C = 500;
@@ -191,17 +191,53 @@
         <path class="preloader-stroke__path" d="${PATH}" fill="none"
               stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
       </svg>`;
-    document.body.append(root);
+    T('вставка оверлея', ()=>document.body.append(root));
   
     const path = root.querySelector('.preloader-stroke__path');
-    const len = path.getTotalLength();
+    const len = T('длина пути', ()=>path.getTotalLength());
+
+    // Путь местами уходит за кадр — на разворотах и у самых углов.
+    // Если гнать кисть с равной скоростью по пути, на экране краска
+    // прибавляется рывками: пока кисть за кадром, не меняется ничего,
+    // потом разом выезжает целый заход. Поэтому один раз считаем, какая
+    // часть пути видна, и дальше ведём кисть по «полезной» длине: за
+    // кадром она проскакивает быстро, по экрану идёт ровно.
+    const SAMPLES = 700;
+    const EDGE = 90; // половина толщины кисти в координатах макета
+    const OFFSCREEN = 0.16; // во сколько раз дешевле путь за кадром
+    const useful = [0];
+    for (let i = 1; i <= SAMPLES; i += 1) {
+      const a = path.getPointAtLength((len * (i - 1)) / SAMPLES);
+      const b = path.getPointAtLength((len * i) / SAMPLES);
+      const x = (a.x + b.x) / 2;
+      const y = (a.y + b.y) / 2;
+      const seen = x > -EDGE && x < 1000 + EDGE && y > -EDGE && y < 1000 + EDGE;
+      useful.push(useful[i - 1] + (seen ? 1 : OFFSCREEN));
+    }
+    const total = useful[SAMPLES];
+    // Доля «полезного» пути → длина вдоль пути
+    const atProgress = (p) => {
+      const want = Math.max(0, Math.min(1, p)) * total;
+      let lo = 0;
+      let hi = SAMPLES;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (useful[mid] < want) lo = mid + 1;
+        else hi = mid;
+      }
+      const i = Math.max(1, lo);
+      const span = useful[i] - useful[i - 1] || 1;
+      const frac = (want - useful[i - 1]) / span;
+      return ((i - 1 + frac) / SAMPLES) * len;
+    };
   
     // Видимый участок пути: от head - shown до head
     const paint = (shown, head) => {
       path.style.strokeDasharray = `${shown}px, 999999px`;
       path.style.strokeDashoffset = `${shown - head}px`;
     };
-    paint(0, 0);
+    T('первый paint', ()=>paint(0, 0));
+    T('прочтение layout', ()=>root.getBoundingClientRect().width);
   
     // Без анимаций просто ждём загрузку и уходим
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -235,9 +271,10 @@
   }
   
     // Стили кладём сами: файл подключён обычным тегом, без сборки
-    const style = document.createElement('style');
+    const T=(n,f)=>{const a=performance.now();const r=f();console.log('ШАГ',n,Math.round(performance.now()-a));return r;};
+  const style = document.createElement('style');
     style.textContent = CSS;
-    document.head.append(style);
+    T('стили', ()=>document.head.append(style));
   
     // Запускаемся, как только браузер дочитал разметку
     const start = () => initPreloaderStroke(document.querySelector('.preloader'));
