@@ -421,40 +421,44 @@ body.video-modal-open {
 
   .showreels__grid {
     margin-top: 48px;
-    aspect-ratio: 392 / 2010;
+    aspect-ratio: 392 / 1890;
   }
 
   .showreel--1 { left: 3.83%;  top: 0;      width: 92.35%; }
-  .showreel--2 { left: 3.06%;  top: 11.84%; width: 81.63%; }
-  .showreel--3 { left: 35.71%; top: 22.39%; width: 61.22%; }
-  .showreel--4 { left: 33.16%; top: 51.24%; width: 63.78%; }
-  .showreel--5 { left: 2.55%;  top: 62.19%; width: 73.98%; border-radius: 600px; }
-  .showreel--6 { left: 23.47%; top: 75.62%; width: 76.53%; }
-  .showreel--7 { left: 0;      top: 89.55%; width: 100%; }
+  .showreel--2 { left: 3.06%;  top: 12.59%; width: 81.63%; }
+  .showreel--3 { left: 35.71%; top: 23.81%; width: 61.22%; }
+  .showreel--4 { left: 33.16%; top: 48.68%; width: 63.78%; }
+  .showreel--5 { left: 2.55%;  top: 60.32%; width: 73.98%; border-radius: 600px; }
+  .showreel--6 { left: 23.47%; top: 74.6%;  width: 76.53%; }
+  .showreel--7 { left: 0;      top: 89.42%; width: 100%; }
 
-  /* Промо: почти на всю ширину, поля меньше, чтобы 44-й шрифт помещался */
+  /* Промо: на десктопе оно примерно вровень с соседними карточками,
+     так же и здесь. Всё внутри (поля, шрифт, стикер) уменьшается
+     пропорционально ширине: --u — «один пиксель» макета 514 × 600. */
   .showreel-promo {
-    left: 2.04%;
-    top: 32.34%;
-    width: 95.92%;
+    --u: calc(100cqw / 514);
+    left: 17%;
+    top: 31.75%;
+    width: 66%;
     height: auto;
     aspect-ratio: 514 / 600;
-    padding: 32px 16px;
+    padding: calc(49 * var(--u)) calc(69 * var(--u));
+    gap: calc(8 * var(--u));
+    container-type: inline-size;
+  }
+
+  .showreel-promo__text {
+    font-size: calc(48 * var(--u));
   }
 
   .showreel-promo__text--muted {
-    width: auto;
-    align-self: stretch;
+    width: calc(402 * var(--u));
+    align-self: center;
   }
 
   .showreel-promo__sticker {
-    width: 140px;
-    height: 140px;
-  }
-
-  /* Текст в промо-карточках: 44 / 1.1; на самых узких экранах уменьшается */
-  .showreel-promo__text {
-    font-size: clamp(32px, 11.2vw, 44px);
+    width: calc(168 * var(--u));
+    height: calc(168 * var(--u));
   }
 
   .video-modal {
