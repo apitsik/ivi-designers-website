@@ -1,5 +1,5 @@
 /**
- * Уведомления в хиро (Figma 334:6192, hero step 1).
+ * Уведомления в хиро (Figma 334:6192, hero step 1; тексты — 18:105).
  *
  * Стопка плашек в левом нижнем углу, как уведомления в macOS: верхняя
  * видна целиком, под ней выглядывают края следующих. Клик по плашке
@@ -7,51 +7,56 @@
  * верхнем углу появляется крестик. Плашку можно смахнуть в сторону
  * мышью или пальцем — уехала, следующая встала на её место.
  *
- * Содержимое ведём руками: добавить уведомление — дописать объект в
- * начало массива NOTES ниже. Первое в массиве лежит сверху стопки.
+ * Содержимое ведём ТОЛЬКО руками и ниоткуда не подтягиваем: новая
+ * статья или награда сама плашкой не станет. Когда решаем, что событие
+ * должно стать виджетом, — дописываем объект в начало массива NOTES.
+ * Первое в массиве лежит сверху стопки.
  *
- *   title  — крупная строка
- *   text   — строка помельче под ней
- *   url    — куда ведёт клик (новая вкладка)
- *   icon   — картинка в белом квадрате слева, путь без ведущего слэша
+ *   title    — крупная строка
+ *   text     — строка помельче под ней
+ *   url      — куда ведёт клик (новая вкладка)
+ *   showreel — вместо ссылки: селектор карточки шоурила на этой же
+ *              странице, клик открывает её видео в модалке
+ *   icon     — картинка слева, путь без ведущего слэша
+ *              (файлы лежат в public/images/widgets/)
  */
 
 const NOTES = [
   {
-    title: 'Red Dot Award',
-    text: 'Brands & Communication Design 2026',
+    title: 'Новая ленточка на бехансе',
+    text: 'За кейс «Motion Identity»',
+    url: 'https://www.behance.net/gallery/257734309/Motion-Identity-streaming-ivi',
+    icon: 'images/widgets/widget-image1.jpg',
+  },
+  {
+    title: '2 победы на Red Dot 2026',
+    text: 'За шрифт и шоурил',
     url: 'https://www.red-dot.org/project/good-no-matter-how-you-look-at-it-showreel-of-the-new-font-92869',
-    icon: 'stickers/reddot-ball.png',
+    icon: 'images/widgets/widget-image2.jpg',
   },
   {
-    title: 'Как устроена дизайн-система в Иви',
-    text: 'Новое выступление',
-    url: 'https://www.youtube.com/watch?v=vuOjiTxWvXY',
-    icon: 'images/articles/article-11-cover.jpg',
+    title: 'Вакансия бренд-дизайнера',
+    text: 'Виу-виу. Мы ищем тебя, отзовись',
+    url: 'https://corp.ivi.ru/vacancy/starshij-kommunikaczionnyj-dizajner/',
+    icon: 'images/widgets/widget-image3.jpg',
   },
   {
-    title: 'Muse Design Awards',
-    text: 'Золото за ivi Sans Display',
-    url: 'https://museaward.com/winner-info.php?id=229054',
-    icon: 'images/awards/awards-image10.png',
+    title: 'Рассказали про визуал',
+    text: 'Как визуальные UX/UI-решения вызывают нужные ощущения',
+    url: 'https://vkvideo.ru/video-230171290_456239023?back_url=&list=03421556fd49e76ba8&preview=&screen=&source=&webcast=',
+    icon: 'images/widgets/widget-image4.jpg',
   },
   {
-    title: 'Как визуальные UX/UI-решения вызывают ощущения',
-    text: 'Новая статья',
-    url: 'https://vkvideo.ru/video-230171290_456239023',
-    icon: 'images/articles/article-1-cover.jpg',
+    title: 'Написали про исследование нашего шрифта',
+    text: 'Новая статья на Хабре',
+    url: 'https://habr.com/ru/companies/ivi/articles/780000/',
+    icon: 'images/widgets/widget-image5.jpg',
   },
   {
-    title: 'Медиабренд',
-    text: 'Золото за лучший дизайн логотипа',
-    url: 'https://t.me/mediabrandmoscow/3554',
-    icon: 'images/awards/awards-image8.png',
-  },
-  {
-    title: 'Игорь Рыжов и Митя Осадчук',
-    text: 'Подкаст МамкинДизайнер',
-    url: 'https://www.youtube.com/watch?v=RrlyzNXaVHw',
-    icon: 'images/articles/article-2-cover.jpg',
+    title: 'Запилили шоурил',
+    text: 'Сделали всё сами, инхаус',
+    showreel: '.showreel--2',
+    icon: 'images/widgets/widget-image6.jpg',
   },
 ];
 
@@ -160,9 +165,21 @@ export function initHeroNotes(hero) {
 function build(note, remove) {
   const el = document.createElement('a');
   el.className = 'hero-note';
-  el.href = note.url;
-  el.target = '_blank';
-  el.rel = 'noopener';
+  if (note.url) {
+    el.href = note.url;
+    el.target = '_blank';
+    el.rel = 'noopener';
+  } else {
+    // Без внешней ссылки: плашка открывает шоурил на этой же странице
+    el.href = '#';
+    el.setAttribute('role', 'button');
+    el.addEventListener('click', (e) => {
+      // Смахивали, а не кликали — перехватчик в root уже погасил клик
+      if (e.defaultPrevented) return;
+      e.preventDefault();
+      document.querySelector(note.showreel)?.click();
+    });
+  }
   // Иначе браузер начинает тащить саму ссылку и обрывает наш жест
   el.draggable = false;
   el.addEventListener('dragstart', (e) => e.preventDefault());
@@ -173,7 +190,9 @@ function build(note, remove) {
     const img = document.createElement('img');
     img.src = note.icon;
     img.alt = '';
-    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.width = 64;
+    img.height = 64;
     icon.append(img);
   }
 

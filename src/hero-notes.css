@@ -18,10 +18,10 @@
   left: 32px;
   bottom: 32px;
   z-index: 3;
-  width: 368px;
+  width: 348px;
   max-width: calc(100% - 32px);
   /* Место под сами плашки плюс выглядывающие края задних */
-  height: 125px;
+  height: 124px;
   display: flex;
   align-items: flex-end;
 }
@@ -41,18 +41,23 @@
   bottom: 0;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   box-sizing: border-box;
   width: 100%;
-  height: 97px;
+  height: 96px;
   padding: 16px 24px 16px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  /* Обводка есть у всех, но у задних она прозрачна: четкая рамка
+     каждой плашки читалась как «лесенка» из контуров. */
+  border: 1px solid transparent;
   border-radius: 32px;
-  /* Задним плашкам — просто тёмная заливка. Их видно полосками по 11 и
-     22 пикселя, и то, что сквозь них не размыто, на глаз не читается,
-     зато браузер не снимает подложку трижды за кадр. */
-  background: rgba(26, 26, 30, 0.66);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  /* Задние плашки — без размытия и без теней. Видно только узкую
+     полоску сверху (11 и 22 px), поэтому делаем её того же светлого
+     стеклянного тона, что и верхняя плашка, и чем глубже — тем
+     прозрачнее. Заливка сверху светлее и к низу гаснет, так что края
+     не режут глаз, а сквозь верхнюю плашку (она размывает всё, что
+     под ней) задние сливаются с ней в одно стекло. Стоит это ровно
+     одну заливку на плашку. */
+  background-color: rgba(255, 255, 255, 0);
   color: var(--color-white);
   text-decoration: none;
   touch-action: pan-y;
@@ -62,16 +67,39 @@
   transform: translateX(var(--slide)) translateY(calc(var(--depth) * -11px)) scale(calc(1 - var(--depth) * 0.11));
   opacity: var(--fade);
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease-out,
-    background-color 0.45s ease-out, --glass 0.45s ease-out;
+    background-color 0.45s ease-out, border-color 0.45s ease-out, --glass 0.45s ease-out;
 }
 
 /* Верхняя плашка — настоящее стекло. Размытие нарастает от нуля, пока
    плашка выезжает вперёд и подрастает, поэтому подмены не видно. */
 .hero-note.is-top {
   --glass: 25px;
-  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(var(--glass));
   -webkit-backdrop-filter: blur(var(--glass));
+}
+
+/* Тон задних плашек — отдельным слоем, чтобы он плавно гас, когда плашка
+   выходит вперёд и становится настоящим стеклом (градиент между
+   состояниями сам не анимируется). */
+.hero-note::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, calc(0.2 - var(--depth) * 0.06)) 0,
+    rgba(255, 255, 255, calc(0.07 - var(--depth) * 0.02)) 28px,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  transition: opacity 0.45s ease-out;
+}
+
+.hero-note.is-top::after {
+  opacity: 0;
 }
 
 /* Светлый блик по верхнему краю — вместо двух слоёв с режимами
@@ -140,10 +168,10 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 65px;
-  height: 65px;
+  width: 64px;
+  height: 64px;
   border-radius: 20px;
-  background: var(--color-white);
+  background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
 
@@ -158,24 +186,31 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  max-height: 64px;
+  overflow: hidden;
 }
 
 .hero-note__title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   line-height: 1.2;
-  white-space: nowrap;
+  /* Длинные заголовки уходят во вторую строку, дальше — многоточие */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .hero-note__desc {
   font-size: 14px;
-  line-height: 1.2;
+  line-height: 1.25;
   color: var(--color-white-72);
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* Крестик в стиле macOS: висит на углу и появляется по наведению */
@@ -233,6 +268,16 @@
     gap: 12px;
     padding: 12px 16px 12px 12px;
     border-radius: 26px;
+  }
+
+  .hero-note__title {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  .hero-note__desc {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
   }
 
   .hero-note__icon {
