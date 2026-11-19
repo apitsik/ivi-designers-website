@@ -11,6 +11,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/IVI_Sans_Base_Regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/IVI_Sans_Base_Medium.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/images/hero-background.jpg" as="image" />
     <link rel="stylesheet" href="/src/styles.css" />
     <!-- Критичный стиль прелоадера: чёрный экран с первого кадра, до загрузки CSS -->
     <style>
@@ -62,16 +63,15 @@
 
           <button class="hero__hint" type="button" aria-pressed="false">
             <span class="hero__hint-roll">
-              <span>[ тапай, чтобы добавить вайб ]</span>
+              <span>[ добавить вайб ]</span>
               <span>[ удалить вайб ]</span>
             </span>
           </button>
 
           <div class="hero__text">
-            <h1 id="hero-title" class="hero__title">Команда дизайна</h1>
+            <h1 id="hero-title" class="hero__title">Дизайнеры</h1>
             <p class="hero__subtitle">
-              Дизайн в Иви всегда про людей. И создаётся<br />
-              такими же людьми
+              Рассказываем, кто двигает пиксели в одном из самых известных стриминговых сервисов
             </p>
           </div>
         </div>
@@ -118,15 +118,9 @@
             <!-- Промо-карточка 514 × 600 (Figma 31:25): скругления, градиент и шум
                  зашиты в фон-PNG, поэтому border-radius не используется -->
             <div class="showreel-promo" data-speed="0.04" aria-hidden="true">
-              <p class="showreel-promo__text">
-                <span class="showreel-promo__line">Просто</span>
-                <span class="showreel-promo__line">скроллишь?</span>
-              </p>
+              <p class="showreel-promo__text">Просто скроллишь?</p>
               <img class="showreel-promo__sticker" src="/images/showreels/showreel-promo-image.png" alt="" width="168" height="168" loading="lazy" decoding="async" />
-              <p class="showreel-promo__text showreel-promo__text--muted">
-                <span class="showreel-promo__line">Лучше жмякни</span>
-                <span class="showreel-promo__line">и посмотри шоурил</span>
-              </p>
+              <p class="showreel-promo__text showreel-promo__text--muted">Лучше жмякни и посмотри шоурил</p>
             </div>
 
             <button class="showreel showreel--4" type="button" data-vimeo="904434513" data-title="Showreel 2023" data-ratio="16/9" data-speed="-0.1">
@@ -253,7 +247,7 @@
                 <div class="team-folder__front">
                   <p class="team-folder__num">(02)</p>
                   <p class="team-folder__name">контент</p>
-                  <p class="team-folder__desc">Рисуем постеры, на которые хочется кликнуть</p>
+                  <p class="team-folder__desc" style="--desc-top: 199px">Рисуем постеры, на которые хочется кликнуть</p>
                   <div class="team-folder__lines"></div>
                 </div>
               </div>
@@ -394,8 +388,8 @@
            и article-N-image.jpg (попап). -->
       <section class="articles" id="articles" aria-labelledby="articles-title" tabindex="-1">
         <div class="articles__block">
-          <h2 id="articles-title" class="articles__title">
-            Делимся знаниями<br />и заряжаем комьюнити
+          <h2 id="articles-title" class="articles__title" data-words>
+            Качаем комьюнити знаниями и опытом
           </h2>
 
           <div class="articles__deck" aria-label="Карусель статей"></div>
@@ -530,7 +524,7 @@
                 <a class="footer__link" href="#showreels"><span class="footer__link-label" data-text="Шоурилы">Шоурилы</span></a>
                 <a class="footer__link" href="#teams"><span class="footer__link-label" data-text="Команды">Команды</span></a>
                 <a class="footer__link" href="#awards"><span class="footer__link-label" data-text="Награды">Награды</span></a>
-                <a class="footer__link" href="#articles"><span class="footer__link-label" data-text="Статьи">Статьи</span></a>
+                <a class="footer__link" href="#articles"><span class="footer__link-label" data-text="Знания">Знания</span></a>
               </nav>
               <nav class="footer__links footer__links--2" aria-label="Вакансии">
                 <a class="footer__link" href="https://corp.ivi.ru/" target="_blank" rel="noopener"><span class="footer__link-label" data-text="Все вакансии">Все вакансии</span></a>

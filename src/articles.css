@@ -72,6 +72,49 @@
   text-align: center;
 }
 
+/* ----- проявление заголовка из блюра (как у остальных H2) ----- */
+
+.articles__title .word {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(10px);
+  will-change: opacity, filter, transform;
+}
+
+.articles.is-visible .articles__title .word {
+  animation: word-reveal 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation-delay: calc(var(--word-index) * 0.18s);
+}
+
+/* Пока колода выезжает, карточки не кликаются */
+.articles__deck.is-intro {
+  pointer-events: none;
+}
+
+/* Подпись и стрелки проявляются после колоды. В keyframes только «от»:
+   конец берётся из обычных стилей, поэтому переключение подписи работает */
+@keyframes articles-rise {
+  from {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateY(10px);
+  }
+}
+
+.articles:not(.is-visible) .articles__name,
+.articles:not(.is-visible) .articles__nav {
+  opacity: 0;
+}
+
+.articles.is-visible .articles__name {
+  animation: articles-rise 0.9s cubic-bezier(0.25, 1, 0.5, 1) 1.5s backwards;
+}
+
+.articles.is-visible .articles__nav {
+  animation: articles-rise 0.9s cubic-bezier(0.25, 1, 0.5, 1) 1.7s backwards;
+}
+
 /* ----- колода ----- */
 
 /* Сцена шире плашки (1492 в макете): крайние карточки уходят под
@@ -380,6 +423,18 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .articles__title .word {
+    animation: none !important;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  .articles.is-visible .articles__name,
+  .articles.is-visible .articles__nav {
+    animation: none;
+  }
+
   .article-card__img,
   .articles__name,
   .article-modal__link {

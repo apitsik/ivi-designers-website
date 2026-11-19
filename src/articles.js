@@ -12,6 +12,7 @@
 // @gdeprostotamangelovsto
 
 import { lenis } from './smooth-scroll.js';
+import { splitWords } from './reveal.js';
 
 // kind — подпись над заголовком в попапе («Статья», «Подкаст», «Выступление»)
 const ARTICLES = [
@@ -146,6 +147,29 @@ export function initArticles(section, modal) {
     return d;
   };
 
+  // ----- выход колоды -----
+  // Когда блок въезжает в экран, карточки лежат стопкой в центре, чуть
+  // ниже и повёрнутые, а потом веером разъезжаются в стороны — сначала
+  // центральная, за ней остальные волной. introAt — момент старта (мс),
+  // null — колода ещё не показана (карточки скрыты).
+  const INTRO_DELAY = 350; // ждём, пока начнёт проявляться заголовок
+  const INTRO_STEP = 85; // задержка на каждый шаг от центра
+  const INTRO_MS = 900; // длительность одной карточки
+  const easeOutBack = (t) => {
+    const c1 = 1.5;
+    const c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  };
+  let introAt = REDUCED.matches ? -Infinity : null;
+  let introRaf = 0;
+
+  // Прогресс выхода карточки: 0 — в стопке, 1 — на своём месте
+  const introOf = (ad) => {
+    if (introAt === null) return 0;
+    const t = (performance.now() - introAt - INTRO_DELAY - Math.min(ad, 6) * INTRO_STEP) / INTRO_MS;
+    return Math.min(1, Math.max(0, t));
+  };
+
   const render = () => {
     const size = cards[0].offsetWidth || 200;
     const flat = REDUCED.matches;
@@ -153,18 +177,23 @@ export function initArticles(section, modal) {
       const d = offsetOf(i, pos);
       const ad = Math.abs(d);
       const s = Math.sign(d);
+      const ip = introOf(ad);
+      const ie = easeOutBack(ip);
       // Веер: соседи центра развёрнуты на ROT_Y (хорошо видны),
       // дальние разворачиваются к зрителю ещё сильнее — по 4° на шаг
       const rot = flat ? 0 : -s * Math.max(30, ROT_Y - Math.max(0, ad - 1) * 4) * Math.min(1, ad * 1.6);
-      const x = d * STEP_X * size;
+      const x = d * STEP_X * size * ie;
       const z = flat ? 0 : -Math.min(ad, 1) * DEPTH * size * 0.35 - ad * size * 0.06;
-      const sc = Math.max(0.8, 1 - ad * SCALE_STEP);
-      card.style.transform = `translate3d(${x.toFixed(1)}px, 0, ${z.toFixed(1)}px) rotateY(${rot.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+      const sc = Math.max(0.8, 1 - ad * SCALE_STEP) * (0.55 + 0.45 * Math.min(1, ie));
+      // В стопке карточка ниже и повёрнута в плоскости экрана, при выходе выпрямляется
+      const lift = (1 - ie) * size * 0.35;
+      const tilt = (1 - ie) * (s || 1) * 14;
+      card.style.transform = `translate3d(${x.toFixed(1)}px, ${lift.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${rot.toFixed(2)}deg) rotateZ(${tilt.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
       // На краю колоды карточка перескакивает с одной стороны на другую
       // (сдвиг d меняет знак на ±N/2). Чтобы скачок не был виден, карточка
       // растворяется, не доезжая до края шага на EDGE_FADE, и так же
       // проявляется с другой стороны.
-      const fade = Math.min(1, Math.max(0, (N / 2 - ad) / EDGE_FADE));
+      const fade = Math.min(1, Math.max(0, (N / 2 - ad) / EDGE_FADE)) * Math.min(1, ip * 3);
       card.style.opacity = fade.toFixed(3);
       card.style.visibility = fade > 0 ? '' : 'hidden';
       card.style.zIndex = String(100 - Math.round(ad * 10));
@@ -303,6 +332,43 @@ export function initArticles(section, modal) {
   window.addEventListener('resize', render);
   name.textContent = ARTICLES[0].title;
   render();
+
+  const introLoop = () => {
+    introRaf = 0;
+    render();
+    const done = introAt !== null && performance.now() - introAt > INTRO_DELAY + 6 * INTRO_STEP + INTRO_MS;
+    if (!done) introRaf = requestAnimationFrame(introLoop);
+    else deck.classList.remove('is-intro');
+  };
+
+  // Блок въехал в экран — заголовок и надписи проявляются (CSS по .is-visible),
+  // колода разъезжается. Ушёл — всё сбрасывается и сыграет заново.
+  const titleEl = section.querySelector('[data-words]');
+  if (titleEl) splitWords(titleEl);
+
+  if (introAt === null) deck.classList.add('is-intro');
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          section.classList.add('is-visible');
+          if (introAt === null) {
+            introAt = performance.now();
+            if (!introRaf) introRaf = requestAnimationFrame(introLoop);
+          }
+        } else {
+          section.classList.remove('is-visible');
+          if (!REDUCED.matches) {
+            introAt = null;
+            deck.classList.add('is-intro');
+            render();
+          }
+        }
+      });
+    },
+    { rootMargin: '0px 0px -30% 0px', threshold: 0 },
+  );
+  io.observe(section);
 
   // ----- попап статьи -----
   // Попап статьи — слайдер: в центре выбранная статья, по бокам видны

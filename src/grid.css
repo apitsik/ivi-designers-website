@@ -123,7 +123,7 @@
 
 .grid__item--2 {
   width: 69.302%; /* 973 / 1404 */
-  aspect-ratio: 973 / 357;
+  aspect-ratio: 973 / 400; /* высота 400 при ширине макета */
   border-radius: 500px;
 }
 
@@ -209,12 +209,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* Макет (357:2063): текст — картинка 168 × 96 — текст через 16 px;
-     раньше зазоры давали прозрачные поля в самой картинке */
-  gap: 16px;
+  /* Макет (357:2082): текст — картинка 168 × 96 — текст через 24 px */
+  gap: 24px;
   width: 100%;
   min-height: clamp(280px, 34.3vw, 481px);
-  padding: 48px 24px;
+  padding: 48px 70px;
   border-radius: 999px;
   background: var(--bg);
   color: var(--color-white);

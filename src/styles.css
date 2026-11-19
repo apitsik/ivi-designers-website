@@ -383,6 +383,8 @@ h1 {
 
 .hero__subtitle {
   position: relative;
+  max-width: 440px; /* две строки, как в макете */
+  margin-inline: auto;
   font-size: var(--p2-size);
   font-weight: 400;
   line-height: var(--p2-line);

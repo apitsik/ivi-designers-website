@@ -171,7 +171,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
   padding: 49px 69px;
   background: url('/images/showreels/showreel-promo-background.png') center / 100% 100% no-repeat;
@@ -183,10 +183,10 @@
 
 .showreel-promo__text {
   margin: 0;
-  font-size: 44px;
+  align-self: stretch;
+  font-size: 48px;
   line-height: 1.1;
   letter-spacing: -0.03em;
-  white-space: nowrap;
 }
 
 /* Каждая строка — отдельный блок, чтобы «шоуриллы» не уезжало на свою строку */
@@ -195,6 +195,11 @@
 }
 
 .showreel-promo__text--muted {
+  /* в макете нижний текст шире рамки (402px при полях 69px) */
+  align-self: center;
+  flex-shrink: 0;
+  width: 402px;
+  max-width: none;
   color: var(--color-white-32);
 }
 
@@ -439,7 +444,7 @@ body.video-modal-open {
   }
 
   .showreel-promo__text {
-    font-size: clamp(28px, 8vw, 44px);
+    font-size: clamp(28px, 8vw, 48px);
   }
 
   .video-modal {

@@ -85,6 +85,7 @@
 /* Заголовок четвёртого экрана стоит на месте первого и проявляется,
    когда уехала третья папка. --swap ставит team.js. */
 .team__title--others {
+  top: 15.63%; /* 130 / 832 — в макете step 16 заголовок выше, чем у первого */
   opacity: var(--swap, 0);
   filter: none;
 }
@@ -342,14 +343,14 @@
 }
 
 .team-folder__num {
-  top: 83px; /* 168 − 85 */
+  top: 92px; /* 177 − 85 */
   font-size: 16px;
   line-height: 1;
   letter-spacing: -0.32px;
 }
 
 .team-folder__name {
-  top: 104px; /* 189 − 85 */
+  top: 113px; /* 198 − 85 */
   font-size: 80px;
   font-weight: 500;
   line-height: 0.92;
@@ -358,7 +359,7 @@
 }
 
 .team-folder__desc {
-  top: 197px; /* 282 − 85 */
+  top: var(--desc-top, 205px); /* 290 − 85; у «контента» 284 − 85 */
   width: 429px;
   font-size: 16px;
   line-height: 1.3;
