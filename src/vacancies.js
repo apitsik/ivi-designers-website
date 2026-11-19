@@ -49,12 +49,11 @@ const EVICT_MS = 160; // быстрый уход самой старой при 
 
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-export function initVacancies(section, modal) {
+export function initVacancies(section) {
   if (!section) return;
 
   initReveal(section);
   initTrail(section);
-  initResumeModal(modal, document.querySelectorAll('[data-resume-open]'));
 }
 
 // ----- проявление: слова H2, затем подзаголовок и кнопка -----
@@ -229,121 +228,4 @@ function shuffle(arr) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
-}
-
-// ----- попап с формой резюме -----
-
-// Повторяет src/video-modal.js: hidden → display → класс --open через два
-// кадра, закрытие по крестику, Esc, оверлею и клику по пустому месту диалога.
-function initResumeModal(modal, openers) {
-  if (!modal) return;
-
-  const dialog = modal.querySelector('.video-modal__dialog');
-  const closeBtn = modal.querySelector('.video-modal__close');
-  const form = modal.querySelector('.resume-modal__card');
-  const done = modal.querySelector('.resume-modal__done');
-  const error = modal.querySelector('.resume-modal__error');
-  const fileInput = modal.querySelector('.resume-modal__file-input');
-  const fileName = modal.querySelector('.resume-modal__file-name');
-  const fileHint = fileName ? fileName.textContent : '';
-  let opener = null;
-  let hideTimer = 0;
-
-  const showError = (text) => {
-    error.textContent = text;
-    error.hidden = !text;
-  };
-
-  const resetForm = () => {
-    form.reset();
-    form.hidden = false;
-    done.hidden = true;
-    showError('');
-    form.querySelectorAll('.is-invalid').forEach((el) => el.classList.remove('is-invalid'));
-    if (fileName) {
-      fileName.textContent = fileHint;
-      fileName.classList.remove('is-set');
-    }
-  };
-
-  const open = (btn) => {
-    opener = btn;
-    clearTimeout(hideTimer);
-    resetForm();
-    modal.hidden = false;
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('video-modal-open');
-    lenis?.stop();
-    requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add('video-modal--open')));
-    const first = form.querySelector('input');
-    (first || closeBtn).focus({ preventScroll: true });
-  };
-
-  const close = () => {
-    if (modal.hidden) return;
-    modal.classList.remove('video-modal--open');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('video-modal-open');
-    lenis?.start();
-    hideTimer = setTimeout(() => {
-      modal.hidden = true;
-    }, 350);
-    if (opener) opener.focus({ preventScroll: true });
-    opener = null;
-  };
-
-  openers.forEach((btn) => btn.addEventListener('click', () => open(btn)));
-  modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
-  dialog.addEventListener('click', (e) => {
-    if (e.target === dialog) close();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') close();
-  });
-
-  if (fileInput && fileName) {
-    fileInput.addEventListener('change', () => {
-      const file = fileInput.files && fileInput.files[0];
-      fileName.textContent = file ? file.name : fileHint;
-      fileName.classList.toggle('is-set', Boolean(file));
-    });
-  }
-
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const data = new FormData(form);
-    const first = String(data.get('firstName') || '').trim();
-    const last = String(data.get('lastName') || '').trim();
-    const contact = String(data.get('contact') || '').trim();
-    const link = String(data.get('link') || '').trim();
-    const file = fileInput && fileInput.files && fileInput.files[0];
-
-    form.querySelectorAll('.is-invalid').forEach((el) => el.classList.remove('is-invalid'));
-    const invalid = [];
-    if (!first) invalid.push('firstName');
-    if (!last) invalid.push('lastName');
-    if (!contact) invalid.push('contact');
-    invalid.forEach((name) => form.elements[name].classList.add('is-invalid'));
-
-    if (invalid.length) {
-      showError('Заполни имя, фамилию и как с тобой связаться');
-      form.elements[invalid[0]].focus();
-      return;
-    }
-    if (!link && !file) {
-      showError('Прикрепи резюме или оставь ссылку');
-      form.elements.link.focus();
-      return;
-    }
-    if (file && file.size > 10 * 1024 * 1024) {
-      showError('Файл больше 10 МБ — лучше ссылкой');
-      return;
-    }
-
-    // TODO: отправка на бэкенд. Пока показываем «спасибо».
-    showError('');
-    form.hidden = true;
-    done.hidden = false;
-    done.querySelector('button')?.focus({ preventScroll: true });
-  });
 }

@@ -41,7 +41,7 @@ initTeam(document.querySelector('.team'), document.querySelector('.team-modal'))
 initAwards(document.querySelector('.awards'));
 initArticles(document.querySelector('.articles'), document.querySelector('.article-modal'));
 initGrid(document.querySelector('.grid'));
-initVacancies(document.querySelector('.vacancies'), document.querySelector('.resume-modal'));
+initVacancies(document.querySelector('.vacancies'));
 initFooter(document.querySelector('.footer'));
 initVideoModal(document.querySelector('.video-modal:not(.article-modal)'), document.querySelectorAll('.showreel[data-vimeo]'));
 
