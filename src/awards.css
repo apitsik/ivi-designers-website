@@ -226,8 +226,33 @@
 }
 
 @media (max-width: 720px) {
+  /* Телефон: названия и статусы мельче, чтобы награды шли плотными
+     строками, а не вертикальным списком; иконка в 1.5 раза меньше */
+  .awards {
+    padding-inline: 20px;
+  }
+
+  .awards__inner {
+    width: 100%;
+  }
+
   .awards__list {
-    gap: 4px 16px;
+    gap: 6px 14px;
+  }
+
+  .award__name {
+    font-size: 22px;
+  }
+
+  .award__status {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  .awards__icon,
+  .awards__icon img {
+    width: 79px;
+    height: 37px;
   }
 
   .award {

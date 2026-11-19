@@ -63,6 +63,24 @@ const EXIT_Y = -520;
 // Откуда стикер выезжает: ниже своего места на столько пикселей макета
 const STICKER_RISE = 620;
 
+// Телефон: кадр шире экрана (см. team.css), стикеры подтягиваются к
+// центру, а фото и стикеры четвёртого экрана крупнее и раскладываются
+// по всей высоте экрана (доли ширины и высоты экрана, левый верхний угол)
+const MOBILE = window.matchMedia('(max-width: 720px)');
+const MOBILE_STICKER_PULL = 0.7;
+const MOBILE_OTHERS_BOOST = 1.5;
+const MOBILE_PHOTOS = [
+  [0.05, 0.27],
+  [0.45, 0.4],
+  [0.12, 0.62],
+];
+const MOBILE_NOTES = [
+  [0.58, 0.255],
+  [0.04, 0.52],
+  [0.62, 0.7],
+  [0.3, 0.84],
+];
+
 // Запас за краем сцены в пикселях макета: на него папка уезжает сверх
 // самого края, чтобы не выглядывала тень
 const MARGIN = 60;
@@ -115,7 +133,15 @@ export function initTeam(section, modal) {
     node.style.width = `${parseFloat(d.w)}px`;
     node.style.height = `${parseFloat(d.h)}px`;
     node.style.setProperty('--x', `${parseFloat(d.x)}px`);
-    return { node, y: parseFloat(d.y), order: parseInt(d.order, 10) || 1 };
+    return {
+      node,
+      x: parseFloat(d.x),
+      x0: parseFloat(d.x),
+      y: parseFloat(d.y),
+      y0: parseFloat(d.y),
+      w: parseFloat(d.w),
+      order: parseInt(d.order, 10) || 1,
+    };
   };
 
   const items = folders.map((el, i) => {
@@ -173,6 +199,52 @@ export function initTeam(section, modal) {
     scene.style.setProperty('--u', u);
     const band = stage ? (stage.clientHeight - scene.clientHeight) / 2 : 0;
     outset = MARGIN + (u > 0 ? Math.max(0, band / u) : 0);
+    layoutMobile(u);
+  };
+
+  // Телефон: свои позиции стикеров и фото. Считаем от текущего масштаба,
+  // поэтому вызывается из resize. На десктопе возвращаем исходные.
+  const layoutMobile = (u) => {
+    const mobile = MOBILE.matches;
+    const sceneW = scene.clientWidth;
+    const sceneLeft = (window.innerWidth - sceneW) / 2;
+
+    // Стикеры папок: тянем к центру кадра и не даём уйти за край экрана
+    items.forEach(({ stickers }) => {
+      stickers.forEach((s) => {
+        let x = s.x0;
+        if (mobile && u > 0) {
+          const cx = DESIGN_W / 2 + (s.x0 + s.w / 2 - DESIGN_W / 2) * MOBILE_STICKER_PULL;
+          x = cx - s.w / 2;
+          const min = (6 - sceneLeft) / u;
+          const max = (window.innerWidth - 6 - sceneLeft) / u - s.w;
+          x = Math.min(Math.max(x, min), Math.max(min, max));
+        }
+        s.x = x;
+        s.node.style.setProperty('--x', `${x.toFixed(2)}px`);
+      });
+    });
+
+    // Фото и стикеры четвёртого экрана
+    const place = (list, table) => {
+      list.forEach((o, k) => {
+        if (mobile && u > 0 && table[k]) {
+          const s = u * MOBILE_OTHERS_BOOST;
+          const stageH = stage ? stage.clientHeight : window.innerHeight;
+          const top = (stageH - scene.clientHeight) / 2;
+          o.x = (table[k][0] * window.innerWidth - sceneLeft) / s;
+          o.y = (table[k][1] * stageH - top) / s;
+          o.node.style.setProperty('--boost', MOBILE_OTHERS_BOOST);
+        } else {
+          o.x = o.x0;
+          o.y = o.y0;
+          o.node.style.removeProperty('--boost');
+        }
+        o.node.style.setProperty('--x', `${o.x.toFixed(2)}px`);
+      });
+    };
+    place(photos, MOBILE_PHOTOS);
+    place(notes, MOBILE_NOTES);
   };
 
   // ----- попап и интерактив -----
@@ -230,6 +302,11 @@ export function initTeam(section, modal) {
     const swap = ease(range(p, SWAP_FROM, SWAP_TO));
     scene?.style.setProperty('--swap', swap.toFixed(4));
     titleOthers?.setAttribute('aria-hidden', swap > 0.5 ? 'false' : 'true');
+
+    // Телефон: полупрозрачные соседние папки сверху и снизу («дальше
+    // есть ещё»). Появляются вместе с первой папкой, уходят к четвёртому экрану.
+    const ghost = ease(range(p, PREVIEW_END, PREVIEW_END + ARRIVE * SPAN)) * (1 - ease(range(p, OTHERS_START - 0.05, OTHERS_START + 0.01)));
+    scene?.style.setProperty('--ghost', ghost.toFixed(4));
 
     items.forEach((item, i) => placeFolder(item, i, p));
     placeOthers(p);

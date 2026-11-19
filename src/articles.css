@@ -474,6 +474,16 @@
     padding: 0 8px;
   }
 
+  /* «‹ туда • сюда ›» того же размера, что подпись под карточками */
+  .articles__nav {
+    font-size: 16px;
+  }
+
+  /* Заголовок не липнет к краям плашки */
+  .articles__title {
+    padding-inline: 24px;
+  }
+
   .article-modal__card {
     min-height: auto;
     border-radius: 40px;

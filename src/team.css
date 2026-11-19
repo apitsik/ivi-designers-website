@@ -138,6 +138,11 @@
    на котором лежат номер, название, описание и полоски. На ховере
    передний сгиб отклоняется в 3D, поэтому текст на нём наклоняется
    и слегка искажается вместе с ним — как у настоящей папки. */
+/* Соседние папки-призраки: только на телефоне, см. блок «телефон» */
+.team__ghost {
+  display: none;
+}
+
 .team-folder {
   /* --folder — цвет папки, стоит в index.html; задняя часть на тон темнее */
   --folder-back: color-mix(in srgb, var(--folder) 86%, #000000);
@@ -627,7 +632,8 @@
   left: 0;
   top: 0;
   transform-origin: 0 0;
-  transform: scale(var(--u, 1)) translate(var(--x, 0px), var(--y, 0px));
+  /* --boost: на телефоне фото и стикеры крупнее (team.js) */
+  transform: scale(calc(var(--u, 1) * var(--boost, 1))) translate(var(--x, 0px), var(--y, 0px));
   opacity: var(--o, 0);
   pointer-events: none;
   will-change: transform, opacity;
@@ -865,9 +871,11 @@
 
 @media (max-width: 720px) {
   /* Кадр шире экрана, чтобы папка не стала крошечной: центр сцены
-     остаётся в центре, края кадра уходят за экран */
+     остаётся в центре, края кадра уходят за экран. flex: none нужен,
+     иначе сцена в flex-контейнере сжимается до ширины экрана. */
   .team__scene {
-    width: 190vw;
+    flex: none;
+    width: 172vw;
     max-width: none;
   }
 
@@ -875,9 +883,73 @@
     padding: 0 16px;
   }
 
+  /* Надзаголовок «Не дизайнерами едиными» — вверху экрана под шапкой,
+     а фото и стикеры занимают всю остальную высоту */
+  .team__title--others {
+    top: calc((100svh - 100%) / -2 + 112px);
+  }
+
+  /* Соседние папки: те же пропорции, цвет папки, ~28 % прозрачности.
+     Лежат под настоящими (раньше них в разметке), поэтому, когда папка
+     едет, она просто проезжает поверх. */
+  .team__ghost {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 600px;
+    height: 390px;
+    border-radius: 56px;
+    background: #a69898;
+    transform-origin: 0 0;
+    transform: scale(var(--u, 1)) translate(var(--x, 0px), var(--y, 0px));
+    opacity: calc(var(--ghost, 0) * 0.28);
+    pointer-events: none;
+  }
+
+  .team__ghost::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -28px;
+    width: 180px;
+    height: 56px;
+    border-radius: 28px 28px 0 0;
+    background: inherit;
+  }
+
+  .team__ghost--prev {
+    --x: 420px;
+    --y: -60px;
+  }
+
+  .team__ghost--next {
+    --x: 420px;
+    --y: 590px;
+  }
+
   .team-modal {
     --pad: 88px;
     --side: 16px;
     padding: var(--pad) var(--side);
+  }
+
+  /* Подпись в одну строку и на одной линии с крестиком (он стоит на
+     16 px от верха, высота 48, центр на 40) */
+  .team-modal__name {
+    top: 40px;
+    max-width: calc(100% - 144px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Отступы между картинками в ленте вдвое меньше */
+  .team-modal__track {
+    gap: 12px;
+  }
+
+  .team-modal__card--stack {
+    gap: 8px;
   }
 }
