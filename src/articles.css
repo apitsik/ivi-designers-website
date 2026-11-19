@@ -286,6 +286,12 @@
   cursor: var(--cursor-hand);
 }
 
+/* Поля у попапа шоурилов 96 сверху и 48 снизу (место под крестик); для
+   ленты статей карточка должна стоять ровно по центру экрана */
+.video-modal.article-modal {
+  padding-block: 48px;
+}
+
 /* Диалог статьи шире обычного: лента уезжает за края экрана */
 .article-modal .video-modal__dialog {
   max-width: none;

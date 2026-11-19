@@ -35,4 +35,20 @@ export function initGrid(section) {
   );
 
   videos.forEach((video) => io.observe(video));
+
+  // Файлы начинаем качать заранее — за пару экранов до блока, а не когда
+  // ролик уже в кадре. Пока он не догрузился, виден постер (первый кадр).
+  const warm = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        warm.unobserve(entry.target);
+        entry.target.preload = 'auto';
+        // load() сбрасывает воспроизведение, поэтому только пока ролик не запускали
+        if (entry.target.paused && entry.target.readyState === 0) entry.target.load();
+      });
+    },
+    { rootMargin: '200% 0px', threshold: 0 },
+  );
+  videos.forEach((video) => warm.observe(video));
 }
