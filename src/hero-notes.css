@@ -94,6 +94,19 @@
   mask-image: linear-gradient(to bottom, #000 0, #000 16px, transparent 44px);
 }
 
+/* Третья плашка — тёмная «тень глубины» без собственной линии: верхний
+   край у неё размыт маской, чтобы не было второго контура. Граница со
+   второй плашкой читается по линии второй, а не по краю третьей. */
+.hero-note.is-third {
+  background-color: rgb(22, 20, 26);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 10px, #000 16px, transparent 44px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 10px, #000 16px, transparent 44px);
+}
+
+.hero-note.is-third::after {
+  opacity: 0;
+}
+
 /* Тон задних плашек — отдельным слоем, чтобы он плавно гас, когда плашка
    выходит вперёд и становится настоящим стеклом (градиент между
    состояниями сам не анимируется). */
