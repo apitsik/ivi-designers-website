@@ -96,7 +96,7 @@
   // экран, на котором ничего не происходит, — это читается как «замерло».
   const TAIL_AT_MS = 1000;
   const WIDTH_FROM = 0.25; // с этой доли первого прохода кисть начинает толстеть
-  const HOLD_MAX_MS = 2500; // сколько максимум держим сплошную заливку, пока сайт запускается и грузится
+  const HOLD_MAX_MS = 4000; // сколько максимум держим сплошную заливку, пока сайт запускается и грузится
   const MAX_FRAME_MS = 48; // кадр длиннее считаем зависанием и не перескакиваем
 
   // Толщина кисти, в процентах от квадрата макета. Толстая кисть закрывает
@@ -236,17 +236,49 @@
     // Ждём только картинки первого экрана: всё, что ниже, догрузится уже под
     // открытой страницей и не должно держать розовую заливку.
     const vh = window.innerHeight;
+    // Логотип в шапке и плашки-виджеты ждём всегда, даже если они чуть
+    // за краем экрана: иначе они выезжают уже на открытой странице.
+    const always = '.nav__logo-img, .hero-notes img';
     document.querySelectorAll('img[src]:not([loading="lazy"])').forEach((img) => {
-      if (img.complete) return;
-      const r = img.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > vh || r.width === 0) return;
+      if (!img.matches(always)) {
+        const r = img.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > vh || r.width === 0) return;
+      }
+      if (img.complete && img.naturalWidth > 0) {
+        // Файл уже в памяти, но декодирование (decoding=async) могло не кончиться
+        tasks.push(img.decode ? img.decode().catch(() => {}) : Promise.resolve());
+        return;
+      }
       tasks.push(
         new Promise((r) => {
           img.addEventListener('load', r, { once: true });
           img.addEventListener('error', r, { once: true });
-        }),
+        }).then(() => (img.decode ? img.decode().catch(() => {}) : null)),
       );
     });
+    // Фон хиро — CSS-картинка, у неё нет события load. Грузим её сами.
+    const bg = document.querySelector('.hero__background');
+    const m = bg && /url\(["']?([^"')]+)["']?\)/.exec(getComputedStyle(bg).backgroundImage);
+    if (m) {
+      tasks.push(
+        new Promise((r) => {
+          const pre = new Image();
+          pre.onload = pre.onerror = r;
+          pre.src = m[1];
+          if (pre.complete) r();
+        }),
+      );
+    }
+    // Видео хиро: ждём хотя бы первый кадр, иначе на его месте пустота
+    const video = document.querySelector('.hero__video');
+    if (video && video.readyState < 2) {
+      tasks.push(
+        new Promise((r) => {
+          video.addEventListener('loadeddata', r, { once: true });
+          video.addEventListener('error', r, { once: true });
+        }),
+      );
+    }
     if (document.fonts?.ready) tasks.push(document.fonts.ready.catch(() => {}));
     return Promise.all(tasks);
   }
