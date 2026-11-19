@@ -89,11 +89,14 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
+  /* Верхний край каждой задней плашки растворяется в нуль: чёткой
+     линии, по которой одна плашка читается поверх другой, нет — остаётся
+     мягкое свечение, как от размытого стекла. */
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, calc(0.2 - var(--depth) * 0.06)) 0,
-    rgba(255, 255, 255, calc(0.07 - var(--depth) * 0.02)) 28px,
-    rgba(255, 255, 255, 0.02) 100%
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, calc(0.13 - var(--depth) * 0.035)) 16px,
+    rgba(255, 255, 255, calc(0.06 - var(--depth) * 0.015)) 100%
   );
   transition: opacity 0.45s ease-out;
 }
