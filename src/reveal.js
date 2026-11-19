@@ -2,6 +2,8 @@
 // в зону видимости. Используется заголовком шоурилов и блоком Extra Text,
 // чтобы эффект был строго одинаковым.
 
+// Неразрывный пробел (U+00A0) словом-разделителем не считается: слова,
+// склеенные им, остаются в одном span и не расходятся по строкам.
 // Разбивает текст на слова-span с индексом для задержки анимации.
 // startIndex сдвигает нумерацию, если перед текстом уже есть элементы
 // с тем же эффектом (например, иконка) — волна идёт сквозь них подряд.
@@ -11,11 +13,11 @@ export function splitWords(el, startIndex = 0) {
   const tokens = [];
   el.childNodes.forEach((node) => {
     if (node.nodeType === Node.TEXT_NODE) {
-      node.textContent.trim().split(/\s+/).filter(Boolean).forEach((w) => tokens.push(w));
+      node.textContent.trim().split(/[ \t\n\r]+/).filter(Boolean).forEach((w) => tokens.push(w));
     } else if (node.nodeName === 'BR') {
       tokens.push(null);
     } else {
-      node.textContent.trim().split(/\s+/).filter(Boolean).forEach((w) => tokens.push(w));
+      node.textContent.trim().split(/[ \t\n\r]+/).filter(Boolean).forEach((w) => tokens.push(w));
     }
   });
 

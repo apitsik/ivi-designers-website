@@ -86,8 +86,8 @@ const NOTE_LEN = 0.04;
 // На сколько стикер отогнут от стены, пока не приклеился
 const NOTE_TILT = 78;
 // Дальше всё уходит вверх параллаксом
-const OTHERS_OUT = OTHERS_START + 0.3;
-const OTHERS_OUT_DIST = 420;
+const OTHERS_OUT = OTHERS_START + 0.25; // последний стикер встаёт к ~0.88, уход начинается сразу за ним
+const OTHERS_OUT_DIST = 980; // к концу сцены фото и стикеры должны полностью уйти за верхний край
 
 export function initTeam(section, modal) {
   if (!section) return;
@@ -295,7 +295,9 @@ export function initTeam(section, modal) {
   // Четвёртый экран: фото выезжают снизу, стикеры приклеиваются, потом
   // всё уходит вверх с разной скоростью
   const placeOthers = (p) => {
-    const out = ease(range(p, OTHERS_OUT, 1));
+    // Без сглаживания на конце: иначе параллакс замирал прямо перед тем,
+    // как сцена отпускает экран, и фото зависали поверх заголовка
+    const out = range(p, OTHERS_OUT, 1);
 
     photos.forEach(({ node, y, frame }, k) => {
       const from = PHOTO_START + k * PHOTO_GAP;

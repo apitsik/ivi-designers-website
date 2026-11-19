@@ -64,7 +64,7 @@
   opacity: calc(1 - var(--title-fade, 0) * 0.9);
   filter: blur(calc(var(--title-fade, 0) * 20px));
   will-change: opacity, filter;
-  max-width: 930px;
+  max-width: 1240px;
   margin: 0;
   font-size: var(--h1-size);
   font-weight: 500;
