@@ -80,31 +80,26 @@
   -webkit-backdrop-filter: blur(var(--glass));
 }
 
-/* Вторая плашка — плотная заливка вместо размытия: стоит ровно одну
-   закраску, а третью за ней не просвечивает, так что контур третьей
-   не читается сквозь вторую. */
+/* Две верхние плашки — настоящее стекло с размытием, третья — плотная
+   заливка без размытия (её видно лишь узкой полоской, снимать подложку
+   ещё раз ради неё дорого). */
 .hero-note.is-second {
-  background-color: rgb(34, 31, 37);
+  border-color: rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(var(--glass));
+  -webkit-backdrop-filter: blur(var(--glass));
+  --glass: 25px;
 }
 
-/* Снизу задняя плашка гаснет: видна только верхняя полоска, а то, что
+/* Снизу задние плашки гаснут: видна только верхняя полоска, а то, что
    лежит под верхним стеклом, не должно проступать прямоугольником. */
 .hero-note:not(.is-top) {
   -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 16px, transparent 44px);
   mask-image: linear-gradient(to bottom, #000 0, #000 16px, transparent 44px);
 }
 
-/* Третья плашка — тёмная «тень глубины» без собственной линии: верхний
-   край у неё размыт маской, чтобы не было второго контура. Граница со
-   второй плашкой читается по линии второй, а не по краю третьей. */
 .hero-note.is-third {
-  background-color: rgb(22, 20, 26);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 10px, #000 16px, transparent 44px);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 10px, #000 16px, transparent 44px);
-}
-
-.hero-note.is-third::after {
-  opacity: 0;
+  background-color: rgb(30, 28, 34);
 }
 
 /* Тон задних плашек — отдельным слоем, чтобы он плавно гас, когда плашка
