@@ -232,5 +232,11 @@
 
   .award {
     gap: 6px;
+    /* Длинное название («Workspace Digital Award») не должно вылезать
+       за экран: переносим по словам */
+    max-width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    white-space: normal;
   }
 }

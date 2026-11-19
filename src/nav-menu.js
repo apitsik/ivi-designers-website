@@ -7,7 +7,7 @@
 
 import { lenis } from './smooth-scroll.js';
 
-const MOBILE = window.matchMedia('(max-width: 720px)');
+const MOBILE = window.matchMedia('(max-width: 900px)');
 
 export function initNavMenu(burger, menu) {
   if (!burger || !menu) return;
