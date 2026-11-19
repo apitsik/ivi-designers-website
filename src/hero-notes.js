@@ -96,6 +96,7 @@ export function initHeroNotes(hero) {
       el.style.setProperty('--depth', i);
       el.style.zIndex = String(order.length - i);
       el.classList.toggle('is-top', i === 0);
+      el.classList.toggle('is-second', i === 1);
       el.classList.toggle('is-deep', i >= DEPTH);
       // Кликается и фокусируется только верхняя
       el.tabIndex = i === 0 ? 0 : -1;
