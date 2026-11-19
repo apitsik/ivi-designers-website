@@ -287,7 +287,9 @@ h1 {
   position: absolute;
   right: 32px;
   bottom: 24px;
-  z-index: 2;
+  /* Выше подсветки под курсором (.hero__spotlight, z-index 3):
+     точки и свечение не должны ложиться на стикер */
+  z-index: 4;
   display: block;
   width: 220px;
   line-height: 0;
@@ -339,13 +341,13 @@ h1 {
   mask: url('/stickers/reddot-award.png') center / 100% 100% no-repeat;
   background-image: linear-gradient(
     105deg,
-    transparent 38%,
-    rgba(255, 205, 240, 0.4) 42%,
-    rgba(200, 220, 255, 0.5) 46.5%,
-    rgba(205, 255, 235, 0.45) 50.5%,
-    rgba(255, 246, 205, 0.5) 54.5%,
-    rgba(255, 210, 225, 0.4) 58%,
-    transparent 62%
+    transparent 36%,
+    rgba(255, 170, 225, 0.75) 41%,
+    rgba(150, 200, 255, 0.85) 46%,
+    rgba(150, 255, 215, 0.8) 50.5%,
+    rgba(255, 240, 160, 0.85) 55%,
+    rgba(255, 160, 185, 0.75) 59%,
+    transparent 64%
   );
   background-size: 300% 100%;
   background-position: 100% 0;

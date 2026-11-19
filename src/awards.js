@@ -176,7 +176,18 @@ export function initAwards(section) {
     });
   });
 
+  let lastPointer = null;
   section.addEventListener('pointermove', (e) => {
+    lastPointer = { clientX: e.clientX, clientY: e.clientY };
     if (active) move(e);
   });
+  // Содержимое залипает, а секция продолжает ехать: без этого превью
+  // уезжало бы вместе с ней и отрывалось от курсора, пока мышь стоит
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (active && lastPointer) move(lastPointer);
+    },
+    { passive: true },
+  );
 }

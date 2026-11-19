@@ -116,15 +116,20 @@ function initTrail(section) {
     const rot = (Math.random() * 2 - 1) * ROTATE_MAX;
     const scale = 1 + (Math.random() * 2 - 1) * SIZE_JITTER;
     shot.style.setProperty('--size-scale', scale.toFixed(3));
-    shot.style.left = `${x}px`;
-    shot.style.top = `${y}px`;
-
     const img = document.createElement('img');
     img.alt = '';
     img.draggable = false;
     img.src = nextSrc();
     shot.append(img);
     layer.append(shot);
+
+    // Карточка целиком остаётся внутри секции по вертикали. Сверху и снизу
+    // за краем её закрывали соседние блоки (grid и футер) и резали по
+    // прямой линии. Запас — поворот (до ~1.2 × стороны), поп 1.05 и доезд.
+    const half = shot.offsetWidth * 0.64 + DRIFT;
+    const top = Math.min(Math.max(y, half), Math.max(half, layer.clientHeight - half));
+    shot.style.left = `${x}px`;
+    shot.style.top = `${top}px`;
 
     // Доезд по направлению движения курсора: карточка «догоняет» точку
     const dx = dirX * DRIFT;

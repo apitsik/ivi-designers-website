@@ -175,6 +175,37 @@
   opacity: 0.24;
 }
 
+/* ----- залипание: блок на секунду задерживается на экране -----
+   Награды легко проскочить быстрым скроллом, поэтому на больших экранах
+   содержимое прилипает к верху окна, пока секция проезжает ещё
+   --awards-hold. Работает только там, где всё содержимое помещается в
+   экран (на телефоне список выше экрана — там обычный скролл).
+   overflow: clip вместо hidden: hidden делает секцию «скроллящимся
+   контейнером» и ломает sticky, а clip обрезает так же. */
+@media (min-width: 900px) and (min-height: 640px) {
+  .awards {
+    --awards-hold: 45svh;
+    padding-block: 0;
+    overflow: clip;
+  }
+
+  /* Невидимая «дорожка»: пока она проезжает, содержимое стоит на месте */
+  .awards::after {
+    content: '';
+    display: block;
+    height: var(--awards-hold);
+  }
+
+  .awards__inner {
+    position: sticky;
+    top: 0;
+    box-sizing: border-box;
+    min-height: 100vh;
+    min-height: 100svh;
+    justify-content: center;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .awards {
     transition: none;
