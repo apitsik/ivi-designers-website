@@ -127,7 +127,11 @@ export function initHeroNotes(hero) {
     if (drag.locked === null) {
       if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
       drag.locked = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-      if (drag.locked === 'x') drag.el.classList.add('is-dragging');
+      if (drag.locked === 'x') {
+        drag.el.classList.add('is-dragging');
+        // Пока верхнюю тянут, под ней должна быть видна настоящая вторая
+        root.classList.add('is-swiping');
+      }
     }
     if (drag.locked !== 'x') return;
     drag.dx = dx;
@@ -139,6 +143,7 @@ export function initHeroNotes(hero) {
     if (!drag) return;
     const { el, note, dx } = drag;
     drag = null;
+    root.classList.remove('is-swiping');
     el.classList.remove('is-dragging');
     el.style.removeProperty('--slide');
     el.style.removeProperty('--fade');

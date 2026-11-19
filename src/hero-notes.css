@@ -2,6 +2,12 @@
    нарастить. Обычная переменная не умеет анимироваться — @property
    объясняет браузеру, что внутри длина, и он её доводит. Где @property
    не поддерживается, стекло просто включается сразу. */
+@property --mask-end {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 44px;
+}
+
 @property --glass {
   syntax: '<length>';
   inherits: false;
@@ -85,12 +91,28 @@
    не должно проступать прямоугольником. */
 .hero-note.is-second {
   --glass: 25px;
-  border-color: rgba(255, 255, 255, 0.08);
-  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.06);
+  /* Темнее верхней: верхняя (0.08) самая светлая, дальше — темнее */
+  background-color: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(var(--glass));
   -webkit-backdrop-filter: blur(var(--glass));
-  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 16px, transparent 44px);
-  mask-image: linear-gradient(to bottom, #000 0, #000 16px, transparent 44px);
+  --mask-end: 44px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(var(--mask-end) - 28px), transparent var(--mask-end));
+  mask-image: linear-gradient(to bottom, #000 0, #000 calc(var(--mask-end) - 28px), transparent var(--mask-end));
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease-out,
+    background-color 0.45s ease-out, border-color 0.45s ease-out, --glass 0.45s ease-out,
+    --mask-end 0.3s ease-out;
+}
+
+/* Верхнюю тянут или она уезжает: вторая под ней показывается целиком,
+   вместе с иконкой и текстом, а не «градиентной плашкой». */
+.hero-notes.is-swiping .hero-note.is-second {
+  --mask-end: 140px;
+}
+
+.hero-notes.is-swiping .hero-note.is-second .hero-note__icon,
+.hero-notes.is-swiping .hero-note.is-second .hero-note__text {
+  opacity: 1;
 }
 
 /* Тон задних плашек — отдельным слоем, чтобы он плавно гас, когда плашка
@@ -104,8 +126,8 @@
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, calc(0.2 - var(--depth) * 0.06)) 0,
-    rgba(255, 255, 255, calc(0.07 - var(--depth) * 0.02)) 28px,
+    rgba(255, 255, 255, calc(0.15 - var(--depth) * 0.05)) 0,
+    rgba(255, 255, 255, calc(0.05 - var(--depth) * 0.02)) 28px,
     rgba(255, 255, 255, 0.02) 100%
   );
   transition: opacity 0.45s ease-out;
