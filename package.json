@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build --outDir docs --base ./",
     "preview": "vite preview",
-    "media:compress": "node scripts/compress-media.js public && node scripts/compress-media.js assets/logos"
+    "media:compress": "node scripts/compress-media.cjs public && node scripts/compress-media.cjs assets/logos"
   },
   "devDependencies": {
     "vite": "^6.0.0",

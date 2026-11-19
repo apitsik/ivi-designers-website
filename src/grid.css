@@ -209,6 +209,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  /* Макет (357:2063): текст — картинка 168 × 96 — текст через 16 px;
+     раньше зазоры давали прозрачные поля в самой картинке */
+  gap: 16px;
   width: 100%;
   min-height: clamp(280px, 34.3vw, 481px);
   padding: 48px 24px;
@@ -272,9 +275,8 @@
   display: block;
   width: clamp(96px, 11.7vw, 168px);
   height: auto;
-  aspect-ratio: 168 / 146;
+  aspect-ratio: 168 / 96;
   object-fit: contain;
-  object-position: bottom;
   pointer-events: none;
 }
 

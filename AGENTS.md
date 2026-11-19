@@ -44,7 +44,7 @@ assets/logos/       6 кадров логотипа навбара (logo-01.svg 
 public/             статика как есть: images/, stickers/, video/, music/, cursors/, фавиконы
 public/preloader-stroke.js  прелоадер-мазок: намеренно вне сборки, подключён обычным тегом в index.html, чтобы выполниться сразу; стили внутри файла строкой
 public/fonts/       IVI Sans Base — в .gitignore (лицензия), кладутся вручную; без них системный шрифт
-scripts/compress-media.js   сжатие PNG (палитра imagequant) и JPG (mozjpeg q82), имена и форматы не меняет
+scripts/compress-media.cjs   сжатие PNG (палитра imagequant) и JPG (mozjpeg q82), имена и форматы не меняет
 docs/               готовая сборка (`npm run build` кладёт её сюда, а не в dist/) — оттуда сайт отдаёт GitHub Pages; руками не править, после правок пересобирать
 deploy/nginx.conf   прод-конфиг: https, gzip, кэш по папкам, заголовки; инструкция в шапке
 ```
@@ -83,7 +83,7 @@ deploy/nginx.conf   прод-конфиг: https, gzip, кэш по папкам
 
 - Новые картинки класть в `public/images/<секция>/` или `public/stickers/` с теми же схемами имён, что рядом, и перед коммитом прогонять `npm run media:compress`. Скрипт перезаписывает файл только если он стал меньше на 3 %+, иконки пропускает.
 - PNG держать для стикеров и всего с прозрачностью, JPG — для фото. WebP/AVIF и `srcset` сейчас не используются.
-- Видео жать ffmpeg-ом вручную, рецепт в конце `scripts/compress-media.js` (H.264, crf 24–27, без аудио, ≤30 fps, ширина ≤1280 для сетки).
+- Видео жать ffmpeg-ом вручную, рецепт в конце `scripts/compress-media.cjs` (H.264, crf 24–27, без аудио, ≤30 fps, ширина ≤1280 для сетки).
 - Не коммитить исходники из `Assets/`, `assets/` (кроме `assets/logos/`) и `public/fonts/` — они в `.gitignore`.
 
 ## Деплой
