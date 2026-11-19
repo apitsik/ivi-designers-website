@@ -256,4 +256,8 @@
     font-size: 16px;
   }
 
+  .vacancies__title {
+    letter-spacing: var(--h1-tracking);
+  }
+
 }
