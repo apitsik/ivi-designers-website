@@ -39,11 +39,16 @@ export function initNavLogo(link) {
 
   link.addEventListener('click', (e) => {
     e.preventDefault();
+    // После клика ссылка остаётся в фокусе, и анимация крутилась бы, пока
+    // не щёлкнешь куда-то ещё. Гасим её и снимаем фокус.
+    stop();
+    link.blur();
     window.scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' });
   });
 
   const start = () => {
-    if (timer) return;
+    // Если пользователь просил меньше движения — кадры не крутим.
+    if (timer || reduce.matches) return;
     timer = window.setInterval(() => {
       index = (index + 1) % frames.length;
       img.src = frames[index];
@@ -57,14 +62,15 @@ export function initNavLogo(link) {
     img.src = frames[0];
   };
 
-  link.addEventListener('pointerenter', start);
+  // С пальца ховера нет: касание не должно запускать анимацию, которая
+  // потом не остановится, пока не коснёшься другого места
+  link.addEventListener('pointerenter', (e) => {
+    if (e.pointerType !== 'touch') start();
+  });
   link.addEventListener('pointerleave', stop);
-  link.addEventListener('focus', start);
+  // Фокус от мыши (после клика) не считаем — только с клавиатуры
+  link.addEventListener('focus', () => {
+    if (link.matches(':focus-visible')) start();
+  });
   link.addEventListener('blur', stop);
-
-  // Если пользователь просил меньше движения — кадры не крутим.
-  if (reduce.matches) {
-    link.removeEventListener('pointerenter', start);
-    link.removeEventListener('focus', start);
-  }
 }
