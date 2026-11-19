@@ -48,4 +48,8 @@ walk(root);
 // Видео (ffmpeg): без звука, H.264, faststart, 60fps → 30fps, широкие ролики сетки → 1280px.
 //   ffmpeg -i in.mp4 -an -c:v libx264 -preset slow -crf 27 -pix_fmt yuv420p -movflags +faststart \
 //          -vf "scale=1280:-2,fps=30" out.mp4
-//   hero-ivi.mp4 — то же, но -crf 24 и без scale.
+//   hero-ivi.mp4 — то же, но -crf 20 и без scale, плюс ключевой кадр каждые 3 кадра:
+//   ролик перематывается курсором (src/cursor-scrub.js), а при одном ключевом кадре
+//   на весь ролик каждая перемотка заново декодирует всё с начала и тормозит.
+//     ffmpeg -i in.mp4 -an -c:v libx264 -preset slow -crf 20 -g 3 -keyint_min 3 -bf 0 \
+//            -pix_fmt yuv420p -movflags +faststart hero-ivi.mp4
