@@ -202,18 +202,15 @@ h1 {
 }
 
 @media (max-width: 720px) {
+  /* Макет мобильной версии (382:3280): слева пусто, по центру логотип 48,
+     справа кнопка меню. Ссылки уезжают в попап (src/nav-menu.js). */
   .nav {
-    height: 72px;
-    padding: 12px 16px;
-  }
-
-  .nav__group {
-    gap: 12px;
-    font-size: 14px;
+    height: 80px;
+    padding: 16px 24px;
   }
 
   .nav__item {
-    --row: 17px;
+    display: none;
   }
 
   .nav__logo,
@@ -412,12 +409,30 @@ h1 {
 }
 
 @media (max-width: 720px) {
-  .hero {
-    padding: 120px 16px;
+  /* Фон под телефон: вертикальная картинка, подстраивается под окно */
+  .hero__background {
+    background-image: url('/images/hero-background-mobile.jpg');
+    background-position: center;
+    background-size: cover;
   }
 
+  /* Макет 382:3280: блок текста стоит чуть выше центра окна */
+  .hero {
+    padding: 70px 16px 137px;
+  }
+
+  /* В макете подпись → заголовок 46 (22 + 24), без лишних полей */
   .hero__text {
-    gap: min(200px, 40vw);
+    gap: 140px;
+    padding: 0;
+  }
+
+  .hero__video {
+    top: 50%;
+  }
+
+  .hero__title {
+    font-size: 48px;
   }
 
   .hero__hint,
@@ -425,14 +440,13 @@ h1 {
     font-size: 16px;
   }
 
-  .hero__award {
-    right: 16px;
-    bottom: 16px;
-    width: 148px;
+  .hero__subtitle {
+    max-width: 332px;
   }
 
-  .hero__award-ball {
-    left: -37px;
-    width: 64px;
+  /* Наклейка Red Dot на телефоне не помещается — вместо неё плашка-виджет
+     про награду (src/hero-notes.js, флаг award) */
+  .hero__award {
+    display: none;
   }
 }

@@ -1,0 +1,197 @@
+/* ----- меню на телефоне (src/nav-menu.js) -----
+   Оверлей, крестик и появление диалога повторяют попапы шоурилов и
+   статей (.video-modal в showreels.css): тёмное стекло с блюром, диалог
+   всплывает снизу. Пункты проявляются из блюра волной — тот же эффект,
+   что у заголовков блоков. На десктопе меню не нужно: там ссылки в шапке. */
+
+.nav__burger {
+  display: none;
+}
+
+.menu-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  padding: 96px 24px 40px;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear 0.4s;
+}
+
+.menu-modal[hidden] {
+  display: flex;
+}
+
+.menu-modal--open {
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.menu-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+  transition: background 0.35s ease-out, -webkit-backdrop-filter 0.35s ease-out, backdrop-filter 0.35s ease-out;
+}
+
+.menu-modal--open .menu-modal__overlay {
+  background:
+    radial-gradient(
+      120% 90% at 50% 45%,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.02) 45%,
+      transparent 75%
+    ),
+    rgba(18, 18, 22, 0.86);
+  -webkit-backdrop-filter: blur(48px);
+  backdrop-filter: blur(48px);
+}
+
+.menu-modal__close {
+  position: fixed;
+  top: 16px;
+  right: 24px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-white);
+  opacity: 0;
+  transition: opacity 0.35s ease-out, background 0.2s ease-out, transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.menu-modal--open .menu-modal__close {
+  opacity: 1;
+}
+
+.menu-modal__close:active {
+  background: rgba(255, 255, 255, 0.22);
+  transform: rotate(90deg);
+}
+
+.menu-modal__dialog {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
+  opacity: 0;
+  transform: translateY(24px) scale(0.98);
+  transition: opacity 0.35s ease-out, transform 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.menu-modal--open .menu-modal__dialog {
+  opacity: 1;
+  transform: none;
+}
+
+.menu-modal__list,
+.menu-modal__more {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-modal__list {
+  gap: 8px;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.menu-modal__more {
+  gap: 12px;
+}
+
+.menu-modal__link {
+  display: block;
+  width: fit-content;
+  color: var(--color-white);
+  font-size: 48px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  /* до открытия пункты ждут прозрачными и размытыми */
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(10px);
+  will-change: opacity, filter, transform;
+}
+
+.menu-modal__link--small {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--color-white-72);
+}
+
+.menu-modal--open .menu-modal__link {
+  animation: word-reveal 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation-delay: calc(0.12s + var(--i, 0) * 0.07s);
+}
+
+.menu-modal__link:active {
+  opacity: 0.6 !important;
+}
+
+body.menu-open {
+  overflow: hidden;
+}
+
+@media (max-width: 720px) {
+  .nav__burger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Иконка 20 px, зона нажатия 44 px; отрицательный margin держит иконку
+       на своём месте (отступ шапки 24 px) */
+    width: 44px;
+    height: 44px;
+    margin-right: -12px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-white);
+    pointer-events: auto;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (min-width: 721px) {
+  .menu-modal {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-modal,
+  .menu-modal__overlay,
+  .menu-modal__dialog,
+  .menu-modal__close {
+    transition: none;
+  }
+
+  .menu-modal__link {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  .menu-modal--open .menu-modal__link {
+    animation: none;
+  }
+}

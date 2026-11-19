@@ -292,38 +292,13 @@
   }
 }
 
+/* Телефон (макет 382:3280): плашки те же 96 px, что и на десктопе,
+   только на всю ширину с полями 20 */
 @media (max-width: 767px) {
   .hero-notes {
-    left: 16px;
-    bottom: 16px;
-    width: calc(100% - 32px);
-    height: 80px;
-  }
-
-  .hero-note {
-    height: 80px;
-    gap: 12px;
-    padding: 12px 16px 12px 12px;
-    border-radius: 26px;
-  }
-
-  .hero-note__title {
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
-  }
-
-  .hero-note__desc {
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
-  }
-
-  .hero-note__icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-  }
-
-  .hero-note__title {
-    font-size: 16px;
+    left: 20px;
+    bottom: 20px;
+    width: calc(100% - 40px);
+    max-width: none;
   }
 }

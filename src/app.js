@@ -2,6 +2,7 @@ import { initPreloader } from './preloader.js';
 import { initSmoothScroll } from './smooth-scroll.js';
 import { initCursorScrub } from './cursor-scrub.js';
 import { initNavLogo } from './nav-logo.js';
+import { initNavMenu } from './nav-menu.js';
 import { initHeroStickers } from './hero-stickers.js';
 import { initHeroSpotlight } from './hero-spotlight.js';
 import { initHeroNotes } from './hero-notes.js';
@@ -25,6 +26,7 @@ import './articles.css';
 import './grid.css';
 import './vacancies.css';
 import './footer.css';
+import './nav-menu.css';
 
 // С прелоадером-мазком прокрутку замораживает и размораживает он сам
 // (public/preloader-stroke.js); здесь только прежний прелоадер с логотипом
@@ -32,6 +34,7 @@ if (window.PRELOADER !== 'stroke') document.documentElement.classList.add('is-pr
 initSmoothScroll();
 initCursorScrub(document.querySelector('.hero__video'));
 initNavLogo(document.querySelector('.nav__logo'));
+initNavMenu(document.querySelector('.nav__burger'), document.querySelector('.menu-modal'));
 initHeroStickers(document.querySelector('.hero'));
 initHeroSpotlight(document.querySelector('.hero'));
 initHeroNotes(document.querySelector('.hero'));

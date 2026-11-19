@@ -19,6 +19,9 @@
  *              странице, клик открывает её видео в модалке
  *   icon     — картинка слева, путь без ведущего слэша
  *              (файлы лежат в public/images/widgets/)
+ *   award    — плашка про награду Red Dot. На телефоне наклейка Red Dot
+ *              в углу не помещается и скрыта, поэтому там такая плашка
+ *              встаёт наверх стопки и заменяет её
  */
 
 const NOTES = [
@@ -32,7 +35,8 @@ const NOTES = [
     title: '2 победы на Red Dot 2026',
     text: 'За шрифт и шоурил',
     url: 'https://www.red-dot.org/project/good-no-matter-how-you-look-at-it-showreel-of-the-new-font-92869',
-    icon: 'images/widgets/widget-image2.jpg',
+    icon: 'images/widgets/widget-reddot.jpg',
+    award: true,
   },
   {
     title: 'Вакансия бренд-дизайнера',
@@ -72,7 +76,10 @@ export function initHeroNotes(hero) {
   root.setAttribute('aria-label', 'Новости команды');
 
   // Живой список: смахнули — вынули отсюда, стопка пересобралась
-  const live = NOTES.map((note) => build(note, () => drop(note)));
+  // На телефоне наклейки Red Dot нет — плашка про награду идёт первой
+  const mobile = window.matchMedia('(max-width: 720px)').matches;
+  const list = mobile ? [...NOTES].sort((a, b) => Number(!!b.award) - Number(!!a.award)) : NOTES;
+  const live = list.map((note) => build(note, () => drop(note)));
   live.forEach(({ el }) => root.append(el));
   hero.append(root);
 
