@@ -80,6 +80,19 @@
   -webkit-backdrop-filter: blur(var(--glass));
 }
 
+/* Вторая плашка — тоже настоящее стекло с размытием. Снизу она гаснет:
+   видна только верхняя полоска, а то, что лежит под верхним стеклом,
+   не должно проступать прямоугольником. */
+.hero-note.is-second {
+  --glass: 25px;
+  border-color: rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(var(--glass));
+  -webkit-backdrop-filter: blur(var(--glass));
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 16px, transparent 44px);
+  mask-image: linear-gradient(to bottom, #000 0, #000 16px, transparent 44px);
+}
+
 /* Тон задних плашек — отдельным слоем, чтобы он плавно гас, когда плашка
    выходит вперёд и становится настоящим стеклом (градиент между
    состояниями сам не анимируется). */
