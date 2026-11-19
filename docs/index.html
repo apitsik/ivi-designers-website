@@ -11,14 +11,15 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
     <link rel="preload" href="/fonts/IVI_Sans_Base_Regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/IVI_Sans_Base_Medium.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="./images/hero-background.jpg" as="image" />
+    <link rel="preload" href="./images/hero-background.jpg" as="image" media="(min-width: 721px)" />
+    <link rel="preload" href="./images/hero-background-mobile.jpg" as="image" media="(max-width: 720px)" />
     <!-- Критичный стиль прелоадера: чёрный экран с первого кадра, до загрузки CSS -->
     <style>
       .preloader { position: fixed; inset: 0; z-index: 100; background: #000; }
       html.is-preloading { overflow: hidden; }
     </style>
-    <script type="module" crossorigin src="./assets/index-lSszdhd4.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-zuLXqhFt.css">
+    <script type="module" crossorigin src="./assets/index-Du9YxPxS.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CNQAX_MC.css">
   </head>
   <body>
     <!-- Прелоадер: кадры логотипа подставляются из assets/logos/ в src/preloader.js -->
@@ -42,8 +43,38 @@
         <a class="nav__item" href="#lab"><span class="nav__label" data-text="ivi design lab">ivi design lab</span></a>
         <a class="nav__item" href="#brandbook"><span class="nav__label" data-text="Брендбук">Брендбук</span></a>
         <a class="nav__item" href="https://www.behance.net/eeeveee" target="_blank" rel="noopener"><span class="nav__label" data-text="Беханс">Беханс</span></a>
+        <!-- Только на телефоне: вместо двух рядов ссылок — кнопка меню (src/nav-menu.js) -->
+        <button class="nav__burger" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="menu">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M1 4.5h18M1 10h18M1 15.5h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
       </nav>
     </header>
+
+    <!-- Меню на телефоне: оверлей и крестик те же, что у попапов шоурилов
+         и статей, пункты проявляются из блюра волной, как заголовки блоков -->
+    <div class="menu-modal" id="menu" hidden aria-hidden="true">
+      <div class="menu-modal__overlay" data-close></div>
+      <button class="menu-modal__close" type="button" data-close aria-label="Закрыть меню">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+      <div class="menu-modal__dialog" role="dialog" aria-modal="true" aria-label="Меню">
+        <nav class="menu-modal__list" aria-label="Разделы">
+          <a class="menu-modal__link" href="#showreels" style="--i: 0">Шоурилы</a>
+          <a class="menu-modal__link" href="#teams" style="--i: 1">Команды</a>
+          <a class="menu-modal__link" href="#awards" style="--i: 2">Награды</a>
+          <a class="menu-modal__link" href="#articles" style="--i: 3">Знания</a>
+        </nav>
+        <nav class="menu-modal__more" aria-label="Внешние ссылки">
+          <a class="menu-modal__link menu-modal__link--small" href="https://ivi-design-lab.vercel.app/" target="_blank" rel="noopener" style="--i: 4">ivi design lab</a>
+          <a class="menu-modal__link menu-modal__link--small" href="#brandbook" style="--i: 5">Брендбук</a>
+          <a class="menu-modal__link menu-modal__link--small" href="https://www.behance.net/eeeveee" target="_blank" rel="noopener" style="--i: 6">Беханс</a>
+        </nav>
+      </div>
+    </div>
 
     <main>
       <section class="hero" aria-labelledby="hero-title">
