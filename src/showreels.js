@@ -50,7 +50,7 @@ export function initShowreels(section) {
       head.style.setProperty('--title-fade', (stuck * stuck * (3 - 2 * stuck)).toFixed(4));
     }
 
-    if (MOBILE.matches || REDUCED.matches) {
+    if (REDUCED.matches) {
       items.forEach((it) => {
         it.target = it.current = 0;
         it.el.style.transform = '';

@@ -405,7 +405,9 @@ body.video-modal-open {
   }
 }
 
-/* На узких экранах карточки идут столбиком, заголовок не липнет */
+/* Телефон: та же «рваная» сетка, что на десктопе, только плотнее.
+   Карточки лежат в сетке 392 × 2010 (проценты, как на десктопе),
+   заголовок не липнет, параллакс включён (showreels.js). */
 @media (max-width: 720px) {
   .showreels__panel {
     padding: 96px 0;
@@ -418,29 +420,36 @@ body.video-modal-open {
   }
 
   .showreels__grid {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
     margin-top: 48px;
-    padding: 0 16px;
-    aspect-ratio: auto;
+    aspect-ratio: 392 / 2010;
   }
 
-  .showreel,
+  .showreel--1 { left: 3.83%;  top: 0;      width: 92.35%; }
+  .showreel--2 { left: 3.06%;  top: 11.84%; width: 81.63%; }
+  .showreel--3 { left: 35.71%; top: 22.39%; width: 61.22%; }
+  .showreel--4 { left: 33.16%; top: 51.24%; width: 63.78%; }
+  .showreel--5 { left: 2.55%;  top: 62.19%; width: 73.98%; border-radius: 600px; }
+  .showreel--6 { left: 23.47%; top: 75.62%; width: 76.53%; }
+  .showreel--7 { left: 0;      top: 89.55%; width: 100%; }
+
+  /* Промо: почти на всю ширину, поля меньше, чтобы 44-й шрифт помещался */
   .showreel-promo {
-    position: relative;
-    left: auto;
-    top: auto;
-    width: 100%;
-    transform: none !important;
+    left: 2.04%;
+    top: 32.34%;
+    width: 95.92%;
+    height: auto;
+    aspect-ratio: 514 / 600;
+    padding: 32px 16px;
   }
 
-  .showreel--5 {
-    border-radius: var(--card-radius);
+  .showreel-promo__text--muted {
+    width: auto;
+    align-self: stretch;
   }
 
-  .showreel-promo {
-    margin: 0 auto;
+  .showreel-promo__sticker {
+    width: 140px;
+    height: 140px;
   }
 
   /* Текст в промо-карточках: 44 / 1.1; на самых узких экранах уменьшается */
