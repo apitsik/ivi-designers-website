@@ -27,9 +27,19 @@
   width: 348px;
   max-width: calc(100% - 32px);
   /* Место под сами плашки плюс выглядывающие края задних */
-  height: 124px;
+  height: calc(124 * var(--u));
   display: flex;
   align-items: flex-end;
+  /* Плашки рисуются под ширину 348. Если места меньше, всё содержимое
+     (поля, иконка, шрифты, радиусы) уменьшается пропорционально:
+     --u — это «один пиксель макета», он равен 1px, пока ширины хватает,
+     и ужимается вместе с ней. Так переносы строк не меняются. */
+  container-type: inline-size;
+}
+
+.hero-notes,
+.hero-note {
+  --u: min(1px, calc(100cqw / 348));
 }
 
 .hero-notes.is-empty {
@@ -47,15 +57,15 @@
   bottom: 0;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: calc(12 * var(--u));
   box-sizing: border-box;
   width: 100%;
-  height: 96px;
-  padding: 16px 24px 16px 16px;
+  height: calc(96 * var(--u));
+  padding: calc(16 * var(--u)) calc(24 * var(--u)) calc(16 * var(--u)) calc(16 * var(--u));
   /* Обводка есть у всех, но у задних она прозрачна: четкая рамка
      каждой плашки читалась как «лесенка» из контуров. */
   border: 1px solid transparent;
-  border-radius: 32px;
+  border-radius: calc(32 * var(--u));
   /* Задние плашки — без размытия и без теней. Видно только узкую
      полоску сверху (11 и 22 px), поэтому делаем её того же светлого
      стеклянного тона, что и верхняя плашка, и чем глубже — тем
@@ -70,7 +80,7 @@
   /* Уменьшаем от верхнего края: тогда задние плашки выглядывают
      ровно настолько, насколько их подняли (в макете 11 и 22) */
   transform-origin: 50% 0;
-  transform: translateX(var(--slide)) translateY(calc(var(--depth) * -11px)) scale(calc(1 - var(--depth) * 0.11));
+  transform: translateX(var(--slide)) translateY(calc(var(--depth) * -11 * var(--u))) scale(calc(1 - var(--depth) * 0.11));
   opacity: var(--fade);
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease-out,
     background-color 0.45s ease-out, border-color 0.45s ease-out, --glass 0.45s ease-out;
@@ -205,9 +215,9 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
+  width: calc(64 * var(--u));
+  height: calc(64 * var(--u));
+  border-radius: calc(20 * var(--u));
   background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
@@ -221,14 +231,14 @@
 .hero-note__text {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: calc(4 * var(--u));
   min-width: 0;
-  max-height: 64px;
+  max-height: calc(64 * var(--u));
   overflow: hidden;
 }
 
 .hero-note__title {
-  font-size: 16px;
+  font-size: calc(16 * var(--u));
   font-weight: 500;
   line-height: 1.2;
   /* Длинные заголовки уходят во вторую строку, дальше — многоточие */
@@ -240,7 +250,7 @@
 }
 
 .hero-note__desc {
-  font-size: 14px;
+  font-size: calc(14 * var(--u));
   line-height: 1.25;
   color: var(--color-white-72);
   display: -webkit-box;
