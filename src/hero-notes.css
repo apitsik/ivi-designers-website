@@ -80,28 +80,6 @@
   -webkit-backdrop-filter: blur(var(--glass));
 }
 
-/* Две верхние плашки — настоящее стекло с размытием, третья — плотная
-   заливка без размытия (её видно лишь узкой полоской, снимать подложку
-   ещё раз ради неё дорого). */
-.hero-note.is-second {
-  border-color: rgba(255, 255, 255, 0.08);
-  background-color: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(var(--glass));
-  -webkit-backdrop-filter: blur(var(--glass));
-  --glass: 25px;
-}
-
-/* Снизу задние плашки гаснут: видна только верхняя полоска, а то, что
-   лежит под верхним стеклом, не должно проступать прямоугольником. */
-.hero-note:not(.is-top) {
-  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 16px, transparent 44px);
-  mask-image: linear-gradient(to bottom, #000 0, #000 16px, transparent 44px);
-}
-
-.hero-note.is-third {
-  background-color: rgb(30, 28, 34);
-}
-
 /* Тон задних плашек — отдельным слоем, чтобы он плавно гас, когда плашка
    выходит вперёд и становится настоящим стеклом (градиент между
    состояниями сам не анимируется). */
@@ -113,7 +91,7 @@
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, calc(0.2 - var(--depth) * 0.06 - max(0, var(--depth) - 1) * 0.05)) 0,
+    rgba(255, 255, 255, calc(0.2 - var(--depth) * 0.06)) 0,
     rgba(255, 255, 255, calc(0.07 - var(--depth) * 0.02)) 28px,
     rgba(255, 255, 255, 0.02) 100%
   );
