@@ -1,5 +1,5 @@
 // Шоурилы: наезд плашки на хиро, затухание хиро, проявление заголовка
-// по словам и параллакс карточек со сглаживанием (lerp), чтобы шаги
+// по словам, затухание и блюр заголовка при прокрутке и параллакс карточек со сглаживанием (lerp), чтобы шаги
 // колёсика мыши не давали ступенчатого движения.
 
 import { splitWords, observeReveal } from './reveal.js';
@@ -23,6 +23,7 @@ export function initShowreels(section) {
     target: 0, // сдвиг, который даёт текущий scrollY
   }));
 
+  const head = section.querySelector('.showreels__head');
   const title = section.querySelector('[data-words]');
   if (title) {
     splitWords(title);
@@ -39,6 +40,15 @@ export function initShowreels(section) {
     const enter = clamp(1 - top / window.innerHeight, 0, 1);
     section.style.setProperty('--enter', enter.toFixed(4));
     document.documentElement.style.setProperty('--hero-fade', enter.toFixed(4));
+
+    // Заголовок липнет к верху плашки, а карточки проезжают поверх. С
+    // момента, как он залип (верх плашки дошёл до верха окна), и до
+    // ~80 % высоты экрана он плавно бледнеет и размывается. Поверх
+    // пословного проявления: оно крутится на словах, это — на всём h2.
+    if (head) {
+      const stuck = MOBILE.matches || REDUCED.matches ? 0 : clamp(-section.querySelector('.showreels__panel').getBoundingClientRect().top / (window.innerHeight * 0.8), 0, 1);
+      head.style.setProperty('--title-fade', (stuck * stuck * (3 - 2 * stuck)).toFixed(4));
+    }
 
     if (MOBILE.matches || REDUCED.matches) {
       items.forEach((it) => {

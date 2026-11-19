@@ -465,19 +465,28 @@ export function initArticles(section, modal) {
     let vel = 0;
     let lastX = 0;
 
+    // Указатель «захватываем» только когда палец или мышь реально поехали.
+    // Захват на нажатии уводил следующий click с кнопки на подложку:
+    // ссылка «Смотреть/Читать» не открывалась, а попап закрывался.
+    let captured = false;
+
     viewport.addEventListener('pointerdown', (e) => {
       dragging = true;
+      captured = false;
       moved = 0;
       vel = 0;
       startX = e.clientX;
       lastX = e.clientX;
       startShift = shiftFor(index);
       track.classList.add('is-still');
-      viewport.setPointerCapture(e.pointerId);
     });
 
     viewport.addEventListener('pointermove', (e) => {
       if (!dragging) return;
+      if (!captured && Math.abs(e.clientX - startX) > 4) {
+        viewport.setPointerCapture(e.pointerId);
+        captured = true;
+      }
       moved = e.clientX - startX;
       vel = vel * 0.6 + (e.clientX - lastX) * 0.4;
       lastX = e.clientX;
@@ -488,7 +497,8 @@ export function initArticles(section, modal) {
       if (!dragging) return;
       dragging = false;
       track.classList.remove('is-still');
-      viewport.releasePointerCapture?.(e.pointerId);
+      if (captured) viewport.releasePointerCapture?.(e.pointerId);
+      captured = false;
       const step = slides[0] ? slides[0].offsetWidth + 24 : 1;
       // Сколько карточек прошли пальцем, плюс довесок за скорость броска
       const flick = Math.abs(vel) > 4 ? Math.sign(vel) : 0;

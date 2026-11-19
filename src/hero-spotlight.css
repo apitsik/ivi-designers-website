@@ -32,7 +32,7 @@
   position: absolute;
   inset: 0;
   background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 1.1px, transparent 1.2px);
-  background-size: 36px 36px;
+  background-size: 14px 14px;
   mask-image: radial-gradient(circle var(--radius) at var(--x) var(--y), #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 72%);
   -webkit-mask-image: radial-gradient(circle var(--radius) at var(--x) var(--y), #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 72%);
 }

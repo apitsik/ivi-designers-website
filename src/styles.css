@@ -320,10 +320,12 @@ h1 {
 }
 
 /* Голографический проблеск: по наведению слева направо по стикеру
-   проходит радужная полоса. Слой — копия формы надписи (маска по её
+   проходит перламутровая полоса. Слой — копия формы надписи (маска по её
    альфа-каналу), поэтому блик лежит только на самой наклейке и не
    вылезает за её контур. Полоса нарисована на фоне втрое шире стикера
-   и едет сдвигом background-position: считать в JS нечего. */
+   и едет сдвигом background-position: считать в JS нечего. Цвета
+   пастельные и полупрозрачные, режим overlay — блик подмешивается к
+   рисунку, а не перекрашивает его. */
 .hero__award::after {
   content: '';
   position: absolute;
@@ -337,24 +339,24 @@ h1 {
   mask: url('/stickers/reddot-award.png') center / 100% 100% no-repeat;
   background-image: linear-gradient(
     105deg,
-    transparent 34%,
-    rgba(255, 130, 215, 0.9) 39%,
-    rgba(130, 205, 255, 0.95) 44.5%,
-    rgba(150, 255, 205, 0.9) 50%,
-    rgba(255, 240, 140, 0.95) 55.5%,
-    rgba(255, 150, 175, 0.9) 61%,
-    transparent 66%
+    transparent 38%,
+    rgba(255, 205, 240, 0.4) 42%,
+    rgba(200, 220, 255, 0.5) 46.5%,
+    rgba(205, 255, 235, 0.45) 50.5%,
+    rgba(255, 246, 205, 0.5) 54.5%,
+    rgba(255, 210, 225, 0.4) 58%,
+    transparent 62%
   );
   background-size: 300% 100%;
   background-position: 100% 0;
   background-repeat: no-repeat;
-  mix-blend-mode: hard-light;
+  mix-blend-mode: overlay;
   opacity: 0;
 }
 
 .hero__award:is(:hover, :focus-visible)::after {
   opacity: 1;
-  animation: award-holo 1.1s cubic-bezier(0.45, 0.05, 0.3, 1) both;
+  animation: award-holo 1.4s cubic-bezier(0.4, 0, 0.25, 1) both;
 }
 
 @keyframes award-holo {

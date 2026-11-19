@@ -59,6 +59,11 @@
 }
 
 .showreels__title {
+  /* --title-fade ставит showreels.js: 0 — заголовок чёткий, 1 — почти
+     растворился. Растёт, пока карточки проезжают поверх него. */
+  opacity: calc(1 - var(--title-fade, 0) * 0.9);
+  filter: blur(calc(var(--title-fade, 0) * 20px));
+  will-change: opacity, filter;
   max-width: 930px;
   margin: 0;
   font-size: var(--h1-size);
