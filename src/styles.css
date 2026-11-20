@@ -209,8 +209,8 @@ h1 {
 }
 
 /* Ховер ссылок шапки и футера: под текстом рисуется малиновый мазок-«зигзаг»
-   (Figma 418:3892, вектор hover). Три варианта формы, чтобы соседние ссылки
-   не повторяли друг друга. Мазок — inline-SVG из src/link-scribble.js;
+   (Figma 418:3892, вектор hover). Три варианта формы (наклон тот же), чтобы
+   соседние ссылки не повторяли друг друга. Мазок — inline-SVG из src/link-scribble.js;
    толщина линии не зависит от растяжения (non-scaling-stroke), а проявляется
    он слева направо. */
 .nav__item,
@@ -245,21 +245,23 @@ h1 {
   stroke-width: 10px;
   stroke-linecap: round;
   stroke-linejoin: round;
-  clip-path: inset(-20px 100% -20px -20px);
-  transition: clip-path 0.22s ease-in;
+  /* Спрятан целиком (иначе круглый кончик виден точкой слева) */
+  clip-path: inset(-20px 100% -20px 0);
+  transition: clip-path 0.32s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .scribble path {
   vector-effect: non-scaling-stroke;
 }
 
-/* Три формы: как нарисовано; перевёрнутая по вертикали; приплюснутая */
+/* Три формы с тем же наклоном вверх вправо, как в макете: как нарисовано;
+   пониже и чуть положе; повыше и чуть круче */
 .scribble--2 {
-  transform: scaleY(-1);
+  transform: scaleY(0.82) rotate(-1.5deg);
 }
 
 .scribble--3 {
-  transform: scaleY(0.72) translateY(1px);
+  transform: scaleY(1.12) rotate(1.5deg);
 }
 
 @media (hover: hover) {
@@ -268,7 +270,7 @@ h1 {
   .footer__link:hover .scribble,
   .footer__link:focus-visible .scribble {
     clip-path: inset(-20px -20px -20px -20px);
-    transition: clip-path 0.38s cubic-bezier(0.33, 1, 0.68, 1);
+    transition: clip-path 0.42s cubic-bezier(0.65, 0, 0.35, 1);
   }
 }
 
