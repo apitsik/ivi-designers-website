@@ -6,7 +6,9 @@
 
 const SRC = (n) => `stickers-404/404-sticker-${n}.png`;
 // Пропорции файлов 754 × (388 | 524 | 424); ширина в макете 1440 — около 240
-const RATIO = { 1: 388 / 754, 2: 524 / 754, 3: 424 / 754 };
+// Файлы 496 × (263 | 350 | 286): сам стикер 480 + по 8 на запечённую тень
+const RATIO = { 1: 263 / 496, 2: 350 / 496, 3: 286 / 496 };
+const PAD = 496 / 480;
 const BASE_W = 240;
 
 const EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)';
@@ -31,8 +33,8 @@ const k = 1;
 
 // ----- раскладка -----
 const items = [];
-const stepX = BASE_W * 0.58 * k;
-const stepY = BASE_W * 0.44 * k;
+const stepX = BASE_W * 0.66 * k;
+const stepY = BASE_W * 0.5 * k;
 const cols = Math.ceil(W / stepX) + 2;
 const rows = Math.ceil(H / stepY) + 2;
 let kind = 0;
@@ -65,32 +67,30 @@ const all = items.concat(hero);
 // Легко для браузера: только transform и opacity, без фильтров, 3D и бликов.
 // Стикер подъезжает от центра экрана чуть крупнее и повёрнутым, и прижимается.
 const stick = (el, rot, x, y) => {
-  const dx = x - W / 2;
-  const dy = y - H / 2;
-  const len = Math.hypot(dx, dy) || 1;
-  const ox = (-dx / len) * 22;
-  const oy = (-dy / len) * 22;
+  // Откуда и как садится — у каждого стикера своё, случайное: никакого круга
+  const ang = Math.random() * Math.PI * 2;
+  const dist = rand(14, 34);
+  const ox = Math.cos(ang) * dist;
+  const oy = Math.sin(ang) * dist;
+  const spin = rand(-9, 9);
+  const big = rand(1.08, 1.2);
   const T = (tx, ty, r, sc) => `translate(-50%, -50%) translate(${tx}px, ${ty}px) rotate(${r}deg) scale(${sc})`;
-  const anim = el.animate(
+  el.animate(
     [
-      { transform: T(ox, oy, rot - 6, 1.14), opacity: 0, offset: 0 },
-      { transform: T(ox * 0.3, oy * 0.3, rot - 2, 1.06), opacity: 1, offset: 0.35 },
+      { transform: T(ox, oy, rot + spin, big), opacity: 0, offset: 0 },
+      { transform: T(ox * 0.3, oy * 0.3, rot + spin * 0.3, 1 + (big - 1) * 0.4), opacity: 1, offset: 0.35 },
       { transform: T(0, 0, rot, 0.97), opacity: 1, offset: 0.75 },
       { transform: T(0, 0, rot, 1), opacity: 1, offset: 1 },
     ],
-    { duration: 420, easing: EASE_OUT, fill: 'both' },
+    { duration: rand(340, 460), easing: EASE_OUT, fill: 'both' },
   );
-  // После посадки слой снимаем с видеокарты
-  anim.onfinish = () => {
-    el.style.willChange = 'auto';
-  };
 };
 
 const make = (s) => {
   const el = document.createElement('div');
   el.className = 'nf__sticker';
-  el.style.width = `${s.w}px`;
-  el.style.height = `${s.w * RATIO[s.n]}px`;
+  el.style.width = `${s.w * PAD}px`;
+  el.style.height = `${s.w * PAD * RATIO[s.n]}px`;
   el.style.left = `${s.x}px`;
   el.style.top = `${s.y}px`;
   el.style.setProperty('--rot', `${s.rot}deg`);
@@ -104,14 +104,13 @@ const make = (s) => {
 };
 
 const run = () => {
-  // Весь набор клеится примерно за 2 с; главная тройка — последней, чуть медленнее
-  const gap = Math.min(36, 1800 / Math.max(1, items.length));
+  // Клеятся вперемешку в случайные моменты за ~1,8 с; главная тройка — в конце
+  const span = 1800;
   all.forEach((s, i) => {
     const el = make(s);
     if (reduce.matches) return;
-    el.style.willChange = 'transform, opacity';
     const isHero = i >= items.length;
-    const delay = isHero ? items.length * gap + 150 + (i - items.length) * 260 : i * gap;
+    const delay = isHero ? span + 100 + (i - items.length) * 240 : Math.random() * span;
     setTimeout(() => stick(el, s.rot, s.x, s.y), delay);
   });
 };
