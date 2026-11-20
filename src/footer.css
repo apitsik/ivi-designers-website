@@ -221,9 +221,7 @@
 }
 
 .footer__link-label::after {
-  content: attr(data-text);
-  color: var(--color-black);
-  transition: color 0.12s ease-out;
+  content: none;
 }
 
 .footer__link:hover .footer__link-label,

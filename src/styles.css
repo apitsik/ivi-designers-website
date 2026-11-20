@@ -213,12 +213,18 @@ h1 {
    внутри маски пункта, наружу не выходят; рисуются слева направо. */
 .nav__item,
 .footer__link {
+  --bar: calc(var(--row) + 14px);
   position: relative;
   overflow: visible;
-  clip-path: inset(0);
-  /* Поля внутри маски: мазки закрывают слово целиком, не выходя за пункт */
+  /* Поля внутри пункта: мазки закрывают слово целиком */
   padding-inline: 10px;
   margin-inline: -10px;
+}
+
+/* Второй копии текста (была для «выезда» снизу) больше нет */
+.nav__label::after,
+.footer__link-label::after {
+  content: none;
 }
 
 .nav__label,
@@ -227,27 +233,35 @@ h1 {
   z-index: 1;
 }
 
+/* Четыре наклонных мазка встык, чуть разной высоты: сверху и снизу
+   торчат их кончики, как у маркера на референсе */
 .nav__item::before,
 .footer__link::before {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: -9px -2px -5px;
   z-index: 0;
   pointer-events: none;
   opacity: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 100' preserveAspectRatio='none'%3E%3Cpolygon points='8,0 20,1 12,100 0,98' fill='%23e92153' fill-opacity='0.86'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 100' preserveAspectRatio='none'%3E%3Cpolygon points='9,1 20,0 11,99 0,100' fill='%23e92153' fill-opacity='0.86'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 100' preserveAspectRatio='none'%3E%3Cpolygon points='7,0 20,2 13,100 0,99' fill='%23e92153' fill-opacity='0.86'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 100' preserveAspectRatio='none'%3E%3Cpolygon points='9,0 20,0 11,98 0,100' fill='%23e92153' fill-opacity='0.86'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 100' preserveAspectRatio='none'%3E%3Cpolygon points='9,0 19,4 11,100 1,96' fill='%23e92153'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 100' preserveAspectRatio='none'%3E%3Cpolygon points='11,2 20,0 9,97 0,100' fill='%23e92153'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 100' preserveAspectRatio='none'%3E%3Cpolygon points='8,0 20,3 12,100 0,97' fill='%23e92153'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 100' preserveAspectRatio='none'%3E%3Cpolygon points='10,3 19,0 10,98 1,100' fill='%23e92153'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: 0 0, 33.3% 0, 66.6% 0, 100% 0;
-  background-size: 46% 100%, 46% 100%, 46% 100%, 46% 100%;
+  background-position: 0 0, 33.3% 4px, 66.6% 0, 100% 2px;
+  background-size:
+    46% var(--bar), 46% calc(var(--bar) - 6px), 46% var(--bar), 46% calc(var(--bar) - 3px);
   transition: opacity 0.25s ease-out;
 }
 
 @keyframes scribble {
   0% { background-size: 46% 0, 46% 0, 46% 0, 46% 0; }
-  25% { background-size: 46% 100%, 46% 0, 46% 0, 46% 0; }
-  50% { background-size: 46% 100%, 46% 100%, 46% 0, 46% 0; }
-  75% { background-size: 46% 100%, 46% 100%, 46% 100%, 46% 0; }
-  100% { background-size: 46% 100%, 46% 100%, 46% 100%, 46% 100%; }
+  25% { background-size: 46% var(--bar), 46% 0, 46% 0, 46% 0; }
+  50% { background-size: 46% var(--bar), 46% calc(var(--bar) - 6px), 46% 0, 46% 0; }
+  75% { background-size: 46% var(--bar), 46% calc(var(--bar) - 6px), 46% var(--bar), 46% 0; }
+  100% { background-size: 46% var(--bar), 46% calc(var(--bar) - 6px), 46% var(--bar), 46% calc(var(--bar) - 3px); }
+}
+
+/* В футере строка стоит чуть ниже — мазки опускаем вместе с ней */
+.footer__link::before {
+  inset: -5px -2px -9px;
 }
 
 @media (hover: hover) {
