@@ -31,7 +31,6 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  perspective: 900px;
   pointer-events: none;
 }
 
@@ -41,10 +40,9 @@
   display: block;
   transform: translate(-50%, -50%) rotate(var(--rot));
   transform-origin: center;
-  transform-style: preserve-3d;
   opacity: 0;
-  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.45));
-  will-change: transform, filter, opacity;
+  /* Тень как у настоящего стикера: короткая и почти не размытая */
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55));
 }
 
 .nf__sticker img {
@@ -56,25 +54,7 @@
   -webkit-user-drag: none;
 }
 
-/* Блик при наклеивании — как у стикеров в хиро */
-.nf__sticker-gloss {
-  position: absolute;
-  inset: 0;
-  filter: brightness(2.4) saturate(0.2) contrast(0.8);
-  mix-blend-mode: screen;
-  opacity: 0;
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(100deg, transparent 35%, #fff 48%, #fff 52%, transparent 65%);
-  mask-image: linear-gradient(100deg, transparent 35%, #fff 48%, #fff 52%, transparent 65%);
-  -webkit-mask-size: 300% 100%;
-  mask-size: 300% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: 120% 0;
-  mask-position: 120% 0;
-}
-
-/* Дорога домой: появляется, когда все стикеры наклеены */
+/* Дорога домой: видна сразу */
 .nf__home {
   position: absolute;
   left: 50%;
@@ -92,16 +72,8 @@
   font-weight: 500;
   letter-spacing: -0.02em;
   text-decoration: none;
-  opacity: 0;
-  transform: translate(-50%, 12px);
-  pointer-events: none;
-  transition: opacity 0.5s ease-out, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.25s ease-out;
-}
-
-.nf.is-done .nf__home {
-  opacity: 1;
-  transform: translate(-50%, 0);
-  pointer-events: auto;
+  transform: translateX(-50%);
+  transition: background-color 0.25s ease-out;
 }
 
 .nf__home:hover,
@@ -113,9 +85,5 @@
 @media (prefers-reduced-motion: reduce) {
   .nf__sticker {
     opacity: 1;
-  }
-
-  .nf__home {
-    transition: none;
   }
 }
