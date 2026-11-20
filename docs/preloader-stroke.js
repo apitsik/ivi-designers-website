@@ -345,11 +345,17 @@
     // Голова идёт по пути и кисть толстеет; потом хвост идёт по пути и
     // кисть истончается. Проходы чуть нахлёстываются (см. TAIL_AT_MS).
     const FAT = WIDTH_FAT - WIDTH_THIN;
+    const narrow = window.innerWidth <= 720 || window.innerWidth < window.innerHeight;
+    const from0 = narrow ? 0.4 : WIDTH_FROM;
     return play(
       (ms) => {
         const head = clamp01(ms / HEAD_MS);
         const tail = clamp01((ms - TAIL_AT_MS) / TAIL_MS);
-        const grow = ease(clamp01((head - WIDTH_FROM) / (1 - WIDTH_FROM)));
+        const g = ease(clamp01((head - from0) / (1 - from0)));
+        // На узком экране кисть при появлении растягивается сильнее и
+        // читается широкой «размазнёй». Держим её тоньше дольше, к полной
+        // толщине она приходит только к концу прохода (как на выходе)
+        const grow = narrow ? g * g : g;
         const width = WIDTH_THIN + FAT * grow * (1 - ease(tail));
         paint(len * ease(tail), len * ease(head), width);
       },
