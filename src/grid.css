@@ -230,7 +230,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  box-shadow: inset 0 0 150px 0 var(--glow);
+  box-shadow: inset 0 0 var(--glow-size, 150px) 0 var(--glow);
   pointer-events: none;
   transition: box-shadow 0.35s cubic-bezier(0.25, 1, 0.5, 1);
 }
@@ -451,6 +451,8 @@
     gap: 8px;
     padding: 32px 16px;
     border-radius: 80px;
+    /* внутренняя тень на телефоне меньше: 60 (макет 397:3442) */
+    --glow-size: 60px;
   }
 
   .grid__button-text {
