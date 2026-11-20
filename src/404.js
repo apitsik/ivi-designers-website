@@ -1,12 +1,4 @@
-// Страница 404: экран заклеивается стикерами. Раскладка — рваная сетка с
-// шагом ~ в половину стикера, поэтому они перекрывают друг друга; повороты
-// и размеры случайные. Три «главных» стикера (смайл, 404, «страница не
-// найдена») клеятся последними и ложатся поверх по центру.
-// Наклеивание — упрощённая версия хиро (src/hero-stickers.js), без бликов.
-
 const SRC = (n) => `stickers-404/404-sticker-${n}.png`;
-// Пропорции файлов 754 × (388 | 524 | 424); ширина в макете 1440 — около 240
-// Файлы 496 × (263 | 350 | 286): сам стикер 480 + по 8 на запечённую тень
 const RATIO = { 1: 263 / 496, 2: 350 / 496, 3: 286 / 496 };
 const PAD = 496 / 480;
 const BASE_W = 240;
@@ -15,8 +7,6 @@ const EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 const root = document.querySelector('.nf');
-// «На главную» ведёт в корень сайта: на github.io это папка проекта, а не корень
-// домена, поэтому ссылку берём из <base>, который выставлен в 404.html
 const home = document.querySelector('.nf__home');
 if (home) home.href = document.baseURI;
 const layer = document.querySelector('.nf__stickers');
@@ -32,10 +22,8 @@ const shuffle = (arr) => {
 
 const W = window.innerWidth;
 const H = window.innerHeight;
-// Размер стикеров не зависит от ширины экрана: везде ~240
 const k = 1;
 
-// ----- раскладка -----
 const items = [];
 const stepX = BASE_W * 0.66 * k;
 const stepY = BASE_W * 0.5 * k;
@@ -56,8 +44,6 @@ for (let r = 0; r < rows; r += 1) {
     });
   }
 }
-// Закрываем «дыры»: проходим по сетке точек и, где ни один стикер не лежит,
-// добавляем ещё один — так чёрных просветов на экране не остаётся
 const covered = (px, py) =>
   items.some((it) => {
     const w = it.w * 0.84;
@@ -87,7 +73,6 @@ for (let pass = 0; pass < 40; pass += 1) {
 }
 shuffle(items);
 
-// Главная тройка по центру, поверх всех
 const HK = 1;
 const hero = [
   { n: 1, x: W / 2 - 215 * HK, y: H / 2 + 24 * HK, w: BASE_W * HK, rot: -22 },
@@ -96,11 +81,7 @@ const hero = [
 ];
 const all = items.concat(hero);
 
-// ----- наклеивание -----
-// Легко для браузера: только transform и opacity, без фильтров, 3D и бликов.
-// Стикер подъезжает от центра экрана чуть крупнее и повёрнутым, и прижимается.
 const stick = (el, rot, x, y) => {
-  // Откуда и как садится — у каждого стикера своё, случайное: никакого круга
   const ang = Math.random() * Math.PI * 2;
   const dist = rand(14, 34);
   const ox = Math.cos(ang) * dist;
@@ -137,7 +118,6 @@ const make = (s) => {
 };
 
 const run = () => {
-  // Клеятся вперемешку в случайные моменты за ~1,8 с; главная тройка — в конце
   const span = 1800;
   all.forEach((s, i) => {
     const el = make(s);
@@ -148,7 +128,6 @@ const run = () => {
   });
 };
 
-// Ждём картинки, чтобы стикеры не появлялись пустыми
 const preload = [1, 2, 3].map(
   (n) =>
     new Promise((res) => {

@@ -1,13 +1,3 @@
-// Vacancies: «Присоединяйся к лучшей команде». Заголовок проявляется из
-// блюра той же волной, что остальные H2 (src/reveal.js), подзаголовок и
-// кнопка продолжают её. Позади текста — след из фотографий за курсором:
-// каждые TRAIL_STEP px движения в точке курсора появляется карточка со
-// следующим фото (случайный поворот, скругление), плавно проявляется,
-// на миг застывает, растворяется и удаляется из DOM. Одновременно на
-// экране не больше MAX_SHOTS карточек. Кнопка «Отправить резюме» открывает
-// попап с формой — пока без бэкенда, после отправки показывает «спасибо».
-// @gdeprostotamangelovsto
-
 import { splitWords, observeReveal } from './reveal.js';
 import { lenis } from './smooth-scroll.js';
 
@@ -35,17 +25,16 @@ const IMAGES = [
   'vacancies-image-20.jpg',
 ].map((name) => `images/vacancies/${name}`);
 
-// ----- параметры следа (по мотивам Smooth Image Trail) -----
-const TRAIL_SPACING = 70; // px пройденного пути между карточками
-const MAX_SHOTS = 7; // одновременно видимых карточек
-const ROTATE_MAX = 12; // ± градусов
-const SIZE_JITTER = 0.1; // ± доля от базового размера
+const TRAIL_SPACING = 70;
+const MAX_SHOTS = 7;
+const ROTATE_MAX = 12;
+const SIZE_JITTER = 0.1;
 const DRIFT = 18;
-const MIN_AGE_OPACITY = 0.22; // прозрачность самой дальней карточки // px — карточка чуть доезжает по направлению движения
-const POP_MS = 520; // упругое появление 0.5 → 1.05 → 1
-const HOLD_MS = 200; // держится на экране
-const EXIT_MS = 320; // мягкое растворение
-const EVICT_MS = 160; // быстрый уход самой старой при переполнении
+const MIN_AGE_OPACITY = 0.22;
+const POP_MS = 520;
+const HOLD_MS = 200;
+const EXIT_MS = 320;
+const EVICT_MS = 160;
 
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -56,8 +45,6 @@ export function initVacancies(section) {
   initTrail(section);
   initScrollPic(section);
 }
-
-// ----- планшет и телефон: картинка над заголовком меняется по таймеру -----
 
 const PIC_COUNT = 6;
 
@@ -75,7 +62,7 @@ function initScrollPic(section) {
     return img;
   });
   const compact = window.matchMedia('(max-width: 1024px)');
-  const STEP_MS = 2200; // сколько держится одна картинка
+  const STEP_MS = 2200;
   let current = -1;
   let timer = 0;
   let visible = false;
@@ -91,7 +78,6 @@ function initScrollPic(section) {
     timer = 0;
     if (!compact.matches) return;
     if (current < 0) show(0);
-    // При «меньше анимации» картинку не меняем
     if (visible && !REDUCED.matches) timer = setInterval(tick, STEP_MS);
   };
   new IntersectionObserver(([entry]) => {
@@ -100,8 +86,6 @@ function initScrollPic(section) {
   }).observe(section);
   compact.addEventListener('change', sync);
 }
-
-// ----- проявление: слова H2, затем подзаголовок и кнопка -----
 
 function initReveal(section) {
   const title = section.querySelector('[data-words]');
@@ -114,28 +98,16 @@ function initReveal(section) {
   observeReveal(section);
 }
 
-// ----- след из картинок -----
-
-// Карточки спавнятся не по таймеру, а по пройденному пути: от точки
-// последнего спавна до текущей позиции курсора отрезок делится шагами
-// TRAIL_SPACING, и в каждой точке появляется карточка — при резком рывке
-// они равномерно ложатся вдоль траектории, а не кучкуются. Каждая
-// карточка: случайный поворот и размер, упругий поп (scale 0.5 → 1.05 → 1)
-// с небольшим доездом по направлению движения, пауза и мягкое
-// растворение с усадкой и уходом вниз. Больше MAX_SHOTS не живёт —
-// самая старая быстро гаснет.
 function initTrail(section) {
   const layer = section.querySelector('.vacancies__trail');
   if (!layer || REDUCED.matches) return;
 
-  // Порядок фото — перетасованная очередь без повторов подряд
   let queue = [];
   const nextSrc = () => {
     if (!queue.length) queue = shuffle(IMAGES.slice());
     return queue.pop();
   };
 
-  // Фото подгружаются заранее, когда секция подъезжает к экрану
   const preload = new IntersectionObserver(
     (entries) => {
       if (!entries.some((e) => e.isIntersecting)) return;
@@ -150,9 +122,9 @@ function initTrail(section) {
   );
   preload.observe(section);
 
-  const shots = []; // живые карточки по порядку появления
-  let last = null; // точка последнего спавна
-  const POP_EASE = 'cubic-bezier(0.34, 1.56, 0.64, 1)'; // упругий overshoot
+  const shots = [];
+  let last = null;
+  const POP_EASE = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
   const EXIT_EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
   const spawn = (x, y, dirX, dirY) => {
@@ -168,15 +140,11 @@ function initTrail(section) {
     shot.append(img);
     layer.append(shot);
 
-    // Карточка целиком остаётся внутри секции по вертикали. Сверху и снизу
-    // за краем её закрывали соседние блоки (grid и футер) и резали по
-    // прямой линии. Запас — поворот (до ~1.2 × стороны), поп 1.05 и доезд.
     const half = shot.offsetWidth * 0.64 + DRIFT;
     const top = Math.min(Math.max(y, half), Math.max(half, layer.clientHeight - half));
     shot.style.left = `${x}px`;
     shot.style.top = `${top}px`;
 
-    // Доезд по направлению движения курсора: карточка «догоняет» точку
     const dx = dirX * DRIFT;
     const dy = dirY * DRIFT;
     const at = (tx, ty, s) => `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) rotate(${rot.toFixed(2)}deg) scale(${s})`;
@@ -195,15 +163,11 @@ function initTrail(section) {
 
     entry.timer = setTimeout(() => hide(entry, EXIT_MS), POP_MS + HOLD_MS);
 
-    // Лишние — самые старые — быстро уходят
     const alive = shots.filter((s) => !s.hiding);
     for (let i = 0; i < alive.length - MAX_SHOTS; i++) hide(alive[i], EVICT_MS);
     fadeByAge();
   };
 
-  // Чем дальше карточка от курсора (старше), тем прозрачнее: свежая — 1,
-  // самая дальняя из живых — MIN_AGE_OPACITY. Ставится на <img>, чтобы
-  // не спорить с попом/растворением, которые крутят opacity обёртки.
   const fadeByAge = () => {
     const alive = shots.filter((s) => !s.hiding);
     const n = alive.length;
@@ -217,7 +181,6 @@ function initTrail(section) {
     if (entry.hiding) return;
     entry.hiding = true;
     clearTimeout(entry.timer);
-    // Стартуем из текущего состояния попа, чтобы не было скачка
     const cs = getComputedStyle(entry.el);
     const from = { opacity: cs.opacity, transform: cs.transform === 'none' ? '' : cs.transform };
     entry.anim?.cancel();
@@ -237,7 +200,6 @@ function initTrail(section) {
   };
 
   section.addEventListener('pointermove', (e) => {
-    // Под открытым попапом след не рисуем
     if (document.body.classList.contains('video-modal-open')) return;
     const rect = section.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -252,7 +214,6 @@ function initTrail(section) {
     if (dist < TRAIL_SPACING) return;
     const ux = dx / dist;
     const uy = dy / dist;
-    // Идём по отрезку шагами и спавним в каждой точке
     let n = 0;
     while (dist >= TRAIL_SPACING && n < 12) {
       last = { x: last.x + ux * TRAIL_SPACING, y: last.y + uy * TRAIL_SPACING };
@@ -260,11 +221,9 @@ function initTrail(section) {
       dist -= TRAIL_SPACING;
       n++;
     }
-    // При очень длинном рывке хвост отрезка не копим — начинаем от курсора
     if (n >= 12) last = { x, y };
   });
 
-  // Ушли из секции — следующий заход начнёт отсчёт заново, без «прыжка»
   const reset = () => {
     last = null;
   };

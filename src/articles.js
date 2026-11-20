@@ -1,20 +1,6 @@
-// Статьи: 3D-колода квадратных карточек веером (референс Studio Deck
-// Carousel). Карточки стоят на окружности в глубину: центральная — лицом,
-// боковые разворачиваются по Y и уходят назад. Позиция колоды — непрерывное
-// число pos (индекс активной карточки, может быть дробным во время драга),
-// транформы считаются от него каждый кадр, поэтому драг «живой», а
-// перелистывание — плавный lerp к ближайшему целому. Список бесконечный:
-// сдвиг каждой карточки берётся по модулю N и центрируется.
-//
-// Управление: стрелки под колодой, драг/свайп, клик по боковой карточке
-// (едем к ней), клик по центральной — попап статьи (та же механика
-// и оверлей, что у попапа шоурилов). Список статей — в массиве ARTICLES.
-// @gdeprostotamangelovsto
-
 import { lenis } from './smooth-scroll.js';
 import { splitWords } from './reveal.js';
 
-// kind — подпись над заголовком в попапе («Статья», «Подкаст», «Выступление»)
 const ARTICLES = [
   {
     kind: 'Статья',
@@ -97,15 +83,13 @@ const ARTICLES = [
 
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-// Геометрия веера (в долях размера карточки): шаг по X между соседями,
-// угол разворота боковых, уход в глубину и сжатие по расстоянию.
-const STEP_X = 0.52; // расстояние между центрами соседей (карточки внахлёст)
-const ROT_Y = 50; // градусы разворота соседней карточки
-const DEPTH = 0.9; // уход в глубину на первом шаге
-const SCALE_STEP = 0.025; // сжатие по расстоянию от центра
-const DRAG_PX = 140; // пикселей драга на одну карточку
-const SMOOTHING = 0.14; // доля пути к цели за кадр
-const EDGE_FADE = 1.2; // за сколько шагов до края колоды карточка растворяется
+const STEP_X = 0.52;
+const ROT_Y = 50;
+const DEPTH = 0.9;
+const SCALE_STEP = 0.025;
+const DRAG_PX = 140;
+const SMOOTHING = 0.14;
+const EDGE_FADE = 1.2;
 
 export function initArticles(section, modal) {
   if (!section) return;
@@ -116,7 +100,6 @@ export function initArticles(section, modal) {
   const nextBtn = section.querySelector('[data-next]');
   const N = ARTICLES.length;
 
-  // ----- карточки -----
   const cards = ARTICLES.map((a, i) => {
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -134,27 +117,21 @@ export function initArticles(section, modal) {
     return btn;
   });
 
-  let pos = 0; // текущая (отрисованная) позиция
-  let target = 0; // куда едем
+  let pos = 0;
+  let target = 0;
   let active = 0;
   let raf = 0;
   let lastTime = 0;
 
-  // Сдвиг карточки i относительно позиции p, по модулю N, в (-N/2, N/2]
   const offsetOf = (i, p) => {
     let d = (((i - p) % N) + N) % N;
     if (d > N / 2) d -= N;
     return d;
   };
 
-  // ----- выход колоды -----
-  // Когда блок въезжает в экран, карточки лежат стопкой в центре, чуть
-  // ниже и повёрнутые, а потом веером разъезжаются в стороны — сначала
-  // центральная, за ней остальные волной. introAt — момент старта (мс),
-  // null — колода ещё не показана (карточки скрыты).
-  const INTRO_DELAY = 350; // ждём, пока начнёт проявляться заголовок
-  const INTRO_STEP = 85; // задержка на каждый шаг от центра
-  const INTRO_MS = 900; // длительность одной карточки
+  const INTRO_DELAY = 350;
+  const INTRO_STEP = 85;
+  const INTRO_MS = 900;
   const easeOutBack = (t) => {
     const c1 = 1.5;
     const c3 = c1 + 1;
@@ -163,7 +140,6 @@ export function initArticles(section, modal) {
   let introAt = REDUCED.matches ? -Infinity : null;
   let introRaf = 0;
 
-  // Прогресс выхода карточки: 0 — в стопке, 1 — на своём месте
   const introOf = (ad) => {
     if (introAt === null) return 0;
     const t = (performance.now() - introAt - INTRO_DELAY - Math.min(ad, 6) * INTRO_STEP) / INTRO_MS;
@@ -179,20 +155,13 @@ export function initArticles(section, modal) {
       const s = Math.sign(d);
       const ip = introOf(ad);
       const ie = easeOutBack(ip);
-      // Веер: соседи центра развёрнуты на ROT_Y (хорошо видны),
-      // дальние разворачиваются к зрителю ещё сильнее — по 4° на шаг
       const rot = flat ? 0 : -s * Math.max(30, ROT_Y - Math.max(0, ad - 1) * 4) * Math.min(1, ad * 1.6);
       const x = d * STEP_X * size * ie;
       const z = flat ? 0 : -Math.min(ad, 1) * DEPTH * size * 0.35 - ad * size * 0.06;
       const sc = Math.max(0.8, 1 - ad * SCALE_STEP) * (0.55 + 0.45 * Math.min(1, ie));
-      // В стопке карточка ниже и повёрнута в плоскости экрана, при выходе выпрямляется
       const lift = (1 - ie) * size * 0.35;
       const tilt = (1 - ie) * (s || 1) * 14;
       card.style.transform = `translate3d(${x.toFixed(1)}px, ${lift.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${rot.toFixed(2)}deg) rotateZ(${tilt.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
-      // На краю колоды карточка перескакивает с одной стороны на другую
-      // (сдвиг d меняет знак на ±N/2). Чтобы скачок не был виден, карточка
-      // растворяется, не доезжая до края шага на EDGE_FADE, и так же
-      // проявляется с другой стороны.
       const fade = Math.min(1, Math.max(0, (N / 2 - ad) / EDGE_FADE)) * Math.min(1, ip * 3);
       card.style.opacity = fade.toFixed(3);
       card.style.visibility = fade > 0 ? '' : 'hidden';
@@ -234,19 +203,15 @@ export function initArticles(section, modal) {
     if (!raf) raf = requestAnimationFrame(tick);
   };
 
-  // Едем к ближайшему целому по короткой дуге (pos не нормализуем,
-  // чтобы колода не прыгала при переходе через границу списка)
   const goTo = (step) => {
     target = Math.round(target) + step;
     setActive(Math.round(target));
     animate();
   };
 
-  // ----- стрелки -----
   prevBtn?.addEventListener('click', () => goTo(-1));
   nextBtn?.addEventListener('click', () => goTo(1));
 
-  // ----- драг / свайп / клик -----
   let dragging = false;
   let moved = false;
   let startX = 0;
@@ -254,9 +219,8 @@ export function initArticles(section, modal) {
   let lastX = 0;
   let lastT = 0;
   let velocity = 0;
-  let pressed = null; // карточка под курсором в момент нажатия
+  let pressed = null;
 
-  // Клик по карточке: центральная открывает попап, боковая — едет в центр
   const activate = (card) => {
     const i = Number(card.dataset.index);
     const d = Math.round(offsetOf(i, target));
@@ -286,7 +250,7 @@ export function initArticles(section, modal) {
     if (!moved) return;
     const now = performance.now();
     const dt = Math.max(1, now - lastT);
-    velocity = (e.clientX - lastX) / dt; // px/ms
+    velocity = (e.clientX - lastX) / dt;
     lastX = e.clientX;
     lastT = now;
     pos = target = startPos - dx / DRAG_PX;
@@ -297,15 +261,12 @@ export function initArticles(section, modal) {
     if (!dragging) return;
     dragging = false;
     deck.classList.remove('is-dragging');
-    // setPointerCapture переводит click на колоду, поэтому «клик» без
-    // движения разбираем здесь, по карточке из pointerdown
     if (!moved) {
       if (pressed) activate(pressed);
       pressed = null;
       return;
     }
     pressed = null;
-    // Инерция: быстрый флик докручивает на карточку вперёд
     const fling = Math.abs(velocity) > 0.5 ? -Math.sign(velocity) : 0;
     target = Math.round(target + fling * 0.5);
     setActive(target);
@@ -316,14 +277,12 @@ export function initArticles(section, modal) {
   deck.addEventListener('pointerup', endDrag);
   deck.addEventListener('pointercancel', endDrag);
 
-  // Клавиатура (Enter/Space на карточке): click без указателя, detail === 0
   cards.forEach((card) => {
     card.addEventListener('click', (e) => {
       if (e.detail === 0) activate(card);
     });
   });
 
-  // ----- клавиатура, когда фокус в колоде -----
   section.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(-1); }
     if (e.key === 'ArrowRight') { e.preventDefault(); goTo(1); }
@@ -341,8 +300,6 @@ export function initArticles(section, modal) {
     else deck.classList.remove('is-intro');
   };
 
-  // Блок въехал в экран — заголовок и надписи проявляются (CSS по .is-visible),
-  // колода разъезжается. Ушёл — всё сбрасывается и сыграет заново.
   const titleEl = section.querySelector('[data-words]');
   if (titleEl) splitWords(titleEl);
 
@@ -370,11 +327,6 @@ export function initArticles(section, modal) {
   );
   io.observe(section);
 
-  // ----- попап статьи -----
-  // Попап статьи — слайдер: в центре выбранная статья, по бокам видны
-  // соседние, список закольцован. Листается стрелками, драгом, клавишами
-  // и кликом по соседней карточке. Открытие/закрытие — как у остальных
-  // попапов (src/video-modal.js).
   const openModal = (() => {
     if (!modal) return () => {};
     const viewport = modal.querySelector('.article-modal__viewport');
@@ -383,14 +335,10 @@ export function initArticles(section, modal) {
     const arrows = [...modal.querySelectorAll('.article-modal__arrow')];
     let opener = null;
     let hideTimer = 0;
-    // Список склеен трижды: листаем по средней копии, а когда уходим
-    // в соседнюю — молча перескакиваем обратно. Для человека список
-    // бесконечный, у края ничего не упирается.
     const COPIES = 3;
     const N = ARTICLES.length;
-    let index = N; // начало средней копии
+    let index = N;
 
-    // ----- карточки -----
     const slides = [];
     for (let c = 0; c < COPIES; c += 1) {
       ARTICLES.forEach((a, i) => {
@@ -444,7 +392,6 @@ export function initArticles(section, modal) {
       });
     }
 
-    // ----- листание -----
     const shiftFor = (i) => {
       const slide = slides[i];
       if (!slide) return 0;
@@ -467,13 +414,11 @@ export function initArticles(section, modal) {
       track.style.setProperty('--shift', `${-shiftFor(index)}px`);
       paint();
       if (!animate) {
-        // дать браузеру применить сдвиг до возврата анимации
         void track.offsetWidth;
         track.classList.remove('is-still');
       }
     };
 
-    // Ушли в крайнюю копию — незаметно возвращаемся в среднюю
     const recenter = () => {
       if (index >= N && index < N * 2) return;
       go(((index % N) + N) % N + N, false);
@@ -498,15 +443,11 @@ export function initArticles(section, modal) {
 
     arrows.forEach((a) => a.addEventListener('click', () => go(index + Number(a.dataset.dir))));
     modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
-    // Клик по пустому месту диалога (вне карточки) — тоже закрытие
     const dialog = modal.querySelector('.video-modal__dialog');
-    // Закрываем только по честному клику мимо карточек: после драга
-    // браузер тоже шлёт click, и модалка «смахивалась» бы при листании
     dialog.addEventListener('click', (e) => {
       if (Math.abs(moved) > 6) return;
       if (e.target === dialog || e.target === viewport) close();
     });
-    // Клик по соседней карточке подводит её в центр
     slides.forEach((slide, k) => {
       slide.addEventListener('click', () => {
         if (Math.abs(moved) > 6) return;
@@ -520,10 +461,6 @@ export function initArticles(section, modal) {
       if (e.key === 'ArrowLeft') go(index - 1);
     });
 
-    // ----- драг -----
-    // Лента идёт за пальцем, а отпускаем — доезжает до ближайшей карточки.
-    // Листает лёгкое движение: достаточно сдвинуть на пятую часть карточки
-    // или просто мазнуть, тянуть через весь экран не надо.
     let dragging = false;
     let startX = 0;
     let startShift = 0;
@@ -531,9 +468,6 @@ export function initArticles(section, modal) {
     let vel = 0;
     let lastX = 0;
 
-    // Указатель «захватываем» только когда палец или мышь реально поехали.
-    // Захват на нажатии уводил следующий click с кнопки на подложку:
-    // ссылка «Смотреть/Читать» не открывалась, а попап закрывался.
     let captured = false;
 
     viewport.addEventListener('pointerdown', (e) => {
@@ -567,7 +501,6 @@ export function initArticles(section, modal) {
       captured = false;
       const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
       const step = slides[0] ? slides[0].offsetWidth + gap : 1;
-      // Сколько карточек прошли пальцем, плюс довесок за скорость броска
       const flick = Math.abs(vel) > 4 ? Math.sign(vel) : 0;
       const dragged = moved / step;
       let by = Math.trunc(dragged);
@@ -580,7 +513,6 @@ export function initArticles(section, modal) {
     viewport.addEventListener('pointercancel', endDrag);
     viewport.addEventListener('dragstart', (e) => e.preventDefault());
 
-    // Колесо и трекпад тоже листают, по одной карточке за жест
     let wheelLock = 0;
     viewport.addEventListener('wheel', (e) => {
       const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
@@ -596,8 +528,6 @@ export function initArticles(section, modal) {
       if (!modal.hidden) go(index, false);
     });
 
-    // Картинки карточек грузим заранее: иначе при первом открытии после
-    // обновления сайта белая карточка вспыхивает пустой, пока они едут
     const preload = () => {
       slides.forEach((slide) => {
         const im = slide.querySelector('.article-modal__img');
@@ -616,7 +546,6 @@ export function initArticles(section, modal) {
       document.body.classList.add('video-modal-open');
       lenis?.stop();
       go(N + i, false);
-      // Показываем попап, когда картинка активной карточки готова (но не дольше 500 мс)
       const activeImg = slides[N + i]?.querySelector('.article-modal__img');
       const ready = activeImg && !activeImg.complete
         ? Promise.race([activeImg.decode().catch(() => {}), new Promise((r) => setTimeout(r, 500))])

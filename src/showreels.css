@@ -1,22 +1,12 @@
-/* ---------- Шоурилы ---------- */
-
-/* Макет: белая плашка 1440 × 3965 (Figma «Showreels»). Заголовок на top 134,
-   сетка карточек начинается на 505 и занимает 3460 по высоте. Карточки
-   позиционируются в процентах от этой сетки, высота — через aspect-ratio,
-   так что раскладка масштабируется вместе с экраном. */
-
 :root {
   --color-black: #000000;
   --color-black-60: rgba(0, 0, 0, 0.6);
-  /* subtitle: 44 / 1.1, letter-spacing -3% */
   --subtitle-size: clamp(28px, 3.06vw, 44px);
   --subtitle-line: 1.1;
   --subtitle-tracking: -0.03em;
   --card-radius: clamp(40px, 8.33vw, 120px);
 }
 
-/* Хиро прилипает к верху: плашка шоурилов едет по нему сверху,
-   а сам хиро гаснет через --hero-fade (ставит showreels.js). */
 .hero {
   opacity: calc(1 - var(--hero-fade, 0));
 }
@@ -24,31 +14,22 @@
 .showreels {
   position: relative;
   z-index: 1;
-  /* 0 — плашка ещё под хиро, 1 — закрыла его целиком */
   --enter: 0;
 }
 
 .showreels__panel {
   position: relative;
-  /* Плашку тоже поднимаем в слой заранее — по той же причине, что и хиро */
   transform: translateZ(0);
   background: var(--color-white);
   color: var(--color-black);
-  /* Скругление 280 px держится, пока плашка проходит первые 70 % экрана,
-     и распрямляется до 0 на отрезке 70 → 100 % (--enter из showreels.js) */
   --straighten: clamp(0, calc((var(--enter) - 0.7) / 0.3), 1);
   --panel-start-radius: 280px;
   --panel-radius: calc(var(--panel-start-radius) * (1 - var(--straighten)));
   border-radius: var(--panel-radius) var(--panel-radius) 0 0;
-  /* Снизу 200 — отступ от последней карточки до плашки extra-text
-     (padding, а не margin у сетки: margin схлопывался наружу и в зазоре
-     просвечивал тёмный фон body) */
   padding: 134px 0 200px;
   isolation: isolate;
 }
 
-/* Заголовок закреплён на фоне плашки: липнет к верху, карточки проезжают поверх.
-   Появляется через блюр и прозрачность по мере того, как плашка закрывает хиро. */
 .showreels__head {
   position: sticky;
   top: 134px;
@@ -60,8 +41,6 @@
 }
 
 .showreels__title {
-  /* --title-fade ставит showreels.js: 0 — заголовок чёткий, 1 — почти
-     растворился. Растёт, пока карточки проезжают поверх него. */
   opacity: calc(1 - var(--title-fade, 0) * 0.9);
   filter: blur(calc(var(--title-fade, 0) * 20px));
   will-change: opacity, filter;
@@ -75,9 +54,6 @@
   color: var(--color-black);
 }
 
-/* Слова проявляются по очереди (span .word расставляет showreels.js):
-   из прозрачности, блюра и лёгкого сдвига снизу, с задержкой по индексу.
-   Запускается классом .is-visible из IntersectionObserver (showreels.js). */
 .showreels__title .word {
   display: inline-block;
   opacity: 0;
@@ -86,9 +62,6 @@
   will-change: opacity, filter, transform;
 }
 
-/* Проявление: 1 s на слово, шаг волны 0.18 s. Класс .is-visible снимается,
-   когда заголовок уходит с экрана (showreels.js) — слова возвращаются
-   в исходное состояние и при следующем входе проявляются заново. */
 .showreels__title.is-visible .word {
   animation: word-reveal 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
   animation-delay: calc(var(--word-index) * 0.18s);
@@ -109,8 +82,6 @@
   margin-top: 149px;
   aspect-ratio: 1440 / 3460;
 }
-
-/* ----- карточка ----- */
 
 .showreel {
   position: absolute;
@@ -140,14 +111,11 @@
   will-change: transform;
 }
 
-/* Ховер: картинка внутри карточки увеличивается до 1.1 (половина от state=hover в Figma),
-   сама карточка остаётся на месте и обрезает её по скруглению. */
 .showreel:hover .showreel__img,
 .showreel:focus-visible .showreel__img {
   transform: scale(1.1);
 }
 
-/* Позиции из Figma: left/width — доля от 1440, top — доля от 3460 */
 .showreel--1 { left: 17.64%; top: 0;      width: 64.72%; aspect-ratio: 932 / 540; }
 .showreel--2 { left: 1.67%;  top: 17.63%; width: 62.92%; aspect-ratio: 906 / 510; }
 .showreel--3 { left: 55.14%; top: 29.16%; width: 35.28%; aspect-ratio: 508 / 398; }
@@ -156,11 +124,6 @@
 .showreel--6 { left: 35.9%;  top: 65.12%; width: 43.61%; aspect-ratio: 628 / 490; }
 .showreel--7 { left: 15.63%; top: 81.21%; width: 69.79%; aspect-ratio: 1005 / 482; }
 
-/* ----- промо-карточка «нравится скроллить?» (Figma 31:25) ----- */
-
-/* Это просто картинка 1028 × 1200 (2x от 514 × 600) с текстом и стикером
-   внутри. Скругление такое же, как у остальных карточек, и меняется
-   с шириной экрана. */
 .showreel-promo {
   position: absolute;
   left: 26.18%;
@@ -180,12 +143,6 @@
   object-fit: cover;
 }
 
-/* ----- попап с плеером ----- */
-
-/* Попап не выключается через display: оверлей с backdrop-filter, вылетая
-   из display: none, рисовался сразу на полной силе и дёргался. Вместо этого
-   он всегда в раскладке, но невидим (visibility), а при открытии плавно
-   нарастают сам блюр (0 → 40) и затемнение; диалог проявляется отдельно. */
 .video-modal {
   position: fixed;
   inset: 0;
@@ -218,10 +175,6 @@
   transition: background 0.35s ease-out, -webkit-backdrop-filter 0.35s ease-out, backdrop-filter 0.35s ease-out;
 }
 
-/* Подложка не чёрная, а тёмно-серая и чуть прозрачнее: сквозь неё
-   пробивается размытая страница, и попап читается как стекло, а не
-   как дырка в экране. Сверху добавлено пятно посветлее по центру —
-   оно даёт ощущение глубины, будто свет падает на плоскость. */
 .video-modal--open .video-modal__overlay {
   background:
     radial-gradient(
@@ -262,10 +215,6 @@
   transform: none;
 }
 
-/* Сцена облегает видео: --video-ar ставит video-modal.js (oEmbed Vimeo).
-   Горизонтальное упирается в ширину 932, вертикальное — в высоту окна
-   минус место под подпись и отступы (~85vh на большом экране),
-   ширина при этом выводится из пропорции. */
 .video-modal__dialog {
   --video-ar: 16 / 9;
 }
@@ -278,10 +227,6 @@
   transition: max-width 0.35s ease-out;
 }
 
-/* Вертикальный ролик: отступ до подписи тот же, что у горизонтального (32);
-   нижний margin в центрированном флексе поднимает группу на 20 px,
-   чтобы уравнять поля сверху и снизу (transform не трогаем — внутри
-   диалога лежит fixed-крестик) */
 .video-modal--portrait .video-modal__dialog {
   gap: 32px;
   margin-bottom: 40px;
@@ -292,7 +237,6 @@
   border-radius: 36px;
 }
 
-/* Свечение-глоу: размытая копия превью позади плеера (blur 60, 60%) */
 .video-modal__glow {
   position: absolute;
   inset: 0;
@@ -373,9 +317,6 @@ body.video-modal-open {
   }
 }
 
-/* Телефон: та же «рваная» сетка, что на десктопе, только плотнее.
-   Карточки лежат в сетке 392 × 2010 (проценты, как на десктопе),
-   заголовок не липнет, параллакс включён (showreels.js). */
 @media (max-width: 720px) {
   .showreels__panel {
     padding: 96px 0;
@@ -400,8 +341,6 @@ body.video-modal-open {
   .showreel--6 { left: 23.47%; top: 74.6%;  width: 76.53%; }
   .showreel--7 { left: 0;      top: 89.42%; width: 100%; }
 
-  /* Промо: на десктопе оно примерно вровень с соседними карточками,
-     так же и здесь */
   .showreel-promo {
     left: 17%;
     top: 31.75%;
@@ -423,8 +362,6 @@ body.video-modal-open {
   }
 }
 
-/* Планшет и телефон: плашка начинает с меньшего радиуса, чтобы не быть
-   «таблеткой» (макет «Resizes»: телефон 80) */
 @media (max-width: 1024px) {
   .showreels__panel {
     --panel-start-radius: 140px;

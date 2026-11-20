@@ -1,15 +1,8 @@
-// Шоурилы: наезд плашки на хиро, затухание хиро, проявление заголовка
-// по словам, затухание и блюр заголовка при прокрутке и параллакс карточек со сглаживанием (lerp), чтобы шаги
-// колёсика мыши не давали ступенчатого движения.
-
 import { splitWords, observeReveal } from './reveal.js';
 
 const MOBILE = window.matchMedia('(max-width: 720px)');
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-// Коэффициент сглаживания параллакса: доля пути к цели за кадр (при 60 fps).
-// Меньше — мягче и «тяжелее», больше — отзывчивее. Поверх Lenis нужен
-// лишь лёгкий досглаживающий слой, иначе карточки заметно отстают.
 const SMOOTHING = 0.3;
 
 export function initShowreels(section) {
@@ -19,8 +12,8 @@ export function initShowreels(section) {
   const items = [...section.querySelectorAll('[data-speed]')].map((el) => ({
     el,
     speed: parseFloat(el.dataset.speed) || 0,
-    current: 0, // сглаженный сдвиг, который реально применён
-    target: 0, // сдвиг, который даёт текущий scrollY
+    current: 0,
+    target: 0,
   }));
 
   const head = section.querySelector('.showreels__head');
@@ -33,18 +26,12 @@ export function initShowreels(section) {
   let raf = 0;
   let lastTime = 0;
 
-  // Считаем целевые значения от scrollY. Вызывается на скролл/ресайз.
   const measure = () => {
-    // Насколько плашка закрыла хиро: 0 — её верх у нижнего края окна, 1 — у верхнего.
     const top = section.getBoundingClientRect().top;
     const enter = clamp(1 - top / window.innerHeight, 0, 1);
     section.style.setProperty('--enter', enter.toFixed(4));
     document.documentElement.style.setProperty('--hero-fade', enter.toFixed(4));
 
-    // Заголовок липнет к верху плашки, а карточки проезжают поверх. С
-    // момента, как он залип (верх плашки дошёл до верха окна), и до
-    // ~80 % высоты экрана он плавно бледнеет и размывается. Поверх
-    // пословного проявления: оно крутится на словах, это — на всём h2.
     if (head) {
       const stuck = MOBILE.matches || REDUCED.matches ? 0 : clamp(-section.querySelector('.showreels__panel').getBoundingClientRect().top / (window.innerHeight * 0.8), 0, 1);
       head.style.setProperty('--title-fade', (stuck * stuck * (3 - 2 * stuck)).toFixed(4));
@@ -58,9 +45,6 @@ export function initShowreels(section) {
       return;
     }
 
-    // Параллакс: сдвиг пропорционален расстоянию центра карточки от центра окна.
-    // Положительная скорость — карточка «ближе» и едет быстрее скролла,
-    // отрицательная — отстаёт. Считаем от нетрансформированной позиции.
     const gridTop = grid.getBoundingClientRect().top;
     const mid = window.innerHeight / 2;
     items.forEach((it) => {
@@ -69,8 +53,6 @@ export function initShowreels(section) {
     });
   };
 
-  // Кадр сглаживания: каждая карточка подтягивается к цели по lerp,
-  // с поправкой на реальную длительность кадра (на 120 Гц не быстрее).
   const tick = (now) => {
     raf = 0;
     const dt = lastTime ? Math.min((now - lastTime) / 16.67, 3) : 1;

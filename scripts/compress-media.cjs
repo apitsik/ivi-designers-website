@@ -1,9 +1,3 @@
-// compress-media — сжатие картинок сайта без смены имён и форматов. @gdeprostotamangelovsto
-// Запуск: npm run media:compress  (нужен sharp: npm i -D sharp)
-// Видео жмутся отдельно ffmpeg-ом, рецепт — ниже в комментарии.
-// Сжатие изображений в public/ без смены имён и форматов.
-// PNG → палитра (imagequant, 256 цветов, альфа сохраняется), JPG → mozjpeg q82 progressive.
-// Пишет новый файл только если он меньше исходного.
 const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
@@ -45,11 +39,3 @@ walk(root);
   console.log(`\nIMAGES: ${(before / 1048576).toFixed(1)} MB → ${(after / 1048576).toFixed(1)} MB (-${(100 - after / before * 100).toFixed(0)}%)`);
 })();
 
-// Видео (ffmpeg): без звука, H.264, faststart, 60fps → 30fps, широкие ролики сетки → 1280px.
-//   ffmpeg -i in.mp4 -an -c:v libx264 -preset slow -crf 27 -pix_fmt yuv420p -movflags +faststart \
-//          -vf "scale=1280:-2,fps=30" out.mp4
-//   hero-ivi.mp4 — то же, но -crf 20 и без scale, плюс ключевой кадр каждые 3 кадра:
-//   ролик перематывается курсором (src/cursor-scrub.js), а при одном ключевом кадре
-//   на весь ролик каждая перемотка заново декодирует всё с начала и тормозит.
-//     ffmpeg -i in.mp4 -an -c:v libx264 -preset slow -crf 20 -g 3 -keyint_min 3 -bf 0 \
-//            -pix_fmt yuv420p -movflags +faststart hero-ivi.mp4

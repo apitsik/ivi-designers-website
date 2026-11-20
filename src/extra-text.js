@@ -1,17 +1,5 @@
-// Extra Text: розовая плашка выезжает снизу, по пути подрастает (0.8 → 1,
-// как step 1 → step 3 в Figma), и в момент, когда её верх проходит
-// середину экрана, вся страница переключается с белого на чёрный
-// (класс .theme-dark на <html>, сам переход — в CSS).
-// Иконка, заголовок и подзаголовок проявляются той же волной из блюра,
-// что и заголовок шоурилов (src/reveal.js).
-
 import { splitWords, observeReveal } from './reveal.js';
 
-// Доля экрана, которую верх плашки должен пройти снизу вверх, чтобы
-// фон стал чёрным: 0.5 — ровно середина, 0.58 — чуть выше середины.
-// Обратно в белый — только когда плашка опустится ниже THEME_SWITCH_OFF:
-// зазор (гистерезис) нужен, чтобы фон не мигал, пока скролл качается
-// у самого порога.
 const THEME_SWITCH_AT = 0.58;
 const THEME_SWITCH_OFF = 0.48;
 
@@ -22,9 +10,6 @@ export function initExtraText(section) {
   const title = section.querySelector('[data-words]');
   const root = document.documentElement;
 
-  // Волна проявления идёт сквозь всё содержимое по порядку:
-  // иконка (0) → слова заголовка (1…n) → подзаголовок (n+1).
-  // Индекс каждого элемента — в --word-index, задержка считается в CSS.
   if (title) {
     const icon = section.querySelector('.extra-text__icon');
     const subtitle = section.querySelector('.extra-text__subtitle');
@@ -41,11 +26,6 @@ export function initExtraText(section) {
 
   const measure = () => {
     ticking = false;
-    // 0 — верх плашки у нижнего края окна, 1 — у верхнего.
-    // Верх считаем без учёта transform: плашка масштабируется от центра
-    // (scale зависит от --enter), и если мерить её rect, верх уезжает
-    // вслед за собственным ростом — получается петля и дрожание порога.
-    // Поэтому берём rect секции (она не трансформируется) + offsetTop плашки.
     const top = section.getBoundingClientRect().top + card.offsetTop;
     const enter = clamp(1 - top / window.innerHeight, 0, 1);
     section.style.setProperty('--enter', enter.toFixed(4));

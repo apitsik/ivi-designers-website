@@ -1,9 +1,3 @@
-/* ---------- Прелоадер ----------
-   Чёрный экран поверх всего, по центру перебираются кадры логотипа из
-   навбара (assets/logos). Когда картинки, hero-видео и шрифты догрузились,
-   полотно уезжает вверх. Критичная часть (чёрный фон на весь экран) ещё
-   раз продублирована инлайном в <head>, чтобы не мигнуть до загрузки CSS. */
-
 .preloader {
   position: fixed;
   inset: 0;
@@ -17,14 +11,13 @@
 
 .preloader__logo {
   display: block;
-  width: 64px; /* как .nav__logo */
+  width: 64px;
   height: 64px;
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
 }
 
-/* Уезд вверх: быстрый вход, мягкий выход (easeInOutQuart-подобный) */
 .preloader.is-leaving {
   transform: translateY(-100%);
   transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
@@ -37,7 +30,6 @@
   }
 }
 
-/* Пока прелоадер на экране — скролл и выделение заморожены */
 html.is-preloading {
   overflow: hidden;
 }

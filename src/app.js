@@ -29,8 +29,6 @@ import './vacancies.css';
 import './footer.css';
 import './nav-menu.css';
 
-// С прелоадером-мазком прокрутку замораживает и размораживает он сам
-// (public/preloader-stroke.js); здесь только прежний прелоадер с логотипом
 if (window.PRELOADER !== 'stroke') document.documentElement.classList.add('is-preloading');
 initSmoothScroll();
 initCursorScrub(document.querySelector('.hero__video'));
@@ -50,8 +48,4 @@ initVacancies(document.querySelector('.vacancies'));
 initFooter(document.querySelector('.footer'));
 initVideoModal(document.querySelector('.video-modal:not(.article-modal)'), document.querySelectorAll('.showreel[data-vimeo]'));
 
-// Прелоадер запускаем последним: к этому моменту все модули уже создали
-// свои <img>, и он дождётся их загрузки, прежде чем открыть сайт.
-// Мазок запускает себя сам из своего тега в index.html — здесь только
-// прежний прелоадер с логотипом (window.PRELOADER задан в index.html)
 if (window.PRELOADER !== 'stroke') initPreloader(document.querySelector('.preloader'));

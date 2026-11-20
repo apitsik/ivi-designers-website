@@ -1,16 +1,4 @@
-/* ---------- Grid ---------- */
-
-/* Макет (Figma «grid», 66:2905): чёрная секция с полями 160 × 18, внутри
-   столбик с gap 160: H2 80 / 0.92 −3 % на 996 и сетка картинок/видео
-   (gap 8) из трёх рядов и кнопки-плашки внизу. Пропорции взяты из макета
-   1404 (ширина без полей) и переведены в проценты и aspect-ratio, чтобы
-   сетка сжималась целиком. Скругления: 500 у пилюль, 100 у маленьких,
-   200 у большой картинки. Видео автоплеятся без звука и контролов, ничего
-   в сетке не кликабельно, кроме плашки-кнопки, ведущей на ivi design lab.
-   @gdeprostotamangelovsto */
-
 :root {
-  /* subtitle: 44 / 1.1 −3 % */
   --grid-sub-size: clamp(24px, 3.06vw, 44px);
   --grid-sub-line: 1.1;
   --grid-sub-tracking: -0.03em;
@@ -19,13 +7,10 @@
 .grid {
   position: relative;
   z-index: 1;
-  /* Сверху на 150 больше макетных 160 — воздух после плашки статей;
-     снизу на 100 меньше — ближе к блоку вакансий */
   padding: clamp(176px, 21.5vw, 310px) 18px max(0px, calc(clamp(96px, 11.1vw, 160px) - 100px));
   background: var(--page-bg);
   transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
   color: var(--color-white);
-  /* Блок не кликабельный — обычный курсор */
   cursor: var(--cursor-arrow);
 }
 
@@ -34,7 +19,6 @@
   flex-direction: column;
   align-items: center;
   gap: clamp(72px, 11.1vw, 160px);
-  /* Без потолка по ширине: сетка и кнопка тянутся до полей секции */
   margin: 0 auto;
 }
 
@@ -48,8 +32,6 @@
   text-align: center;
 }
 
-/* ----- проявление заголовка из блюра (как у остальных H2) ----- */
-
 .grid__title .word {
   display: inline-block;
   opacity: 0;
@@ -62,8 +44,6 @@
   animation: word-reveal 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
   animation-delay: calc(var(--word-index) * 0.18s);
 }
-
-/* ----- сетка ----- */
 
 .grid__images {
   display: flex;
@@ -87,15 +67,11 @@
   min-width: 0;
 }
 
-/* Ячейка: картинка или видео заполняют её целиком (object-fit: cover).
-   Размер задаётся снаружи шириной и aspect-ratio. */
 .grid__item {
   position: relative;
   flex: 0 0 auto;
   overflow: hidden;
-  /* Чёрная подложка на случай прозрачных PNG и пока видео грузится */
   background: var(--color-black);
-  /* Скругление с overflow: hidden без артефактов на краю у видео */
   isolation: isolate;
   transform: translateZ(0);
 }
@@ -111,29 +87,25 @@
   pointer-events: none;
 }
 
-/* Ряд 1: маленький квадрат-видео и широкая пилюля-видео, прижаты вправо */
 .grid__row--1 {
   justify-content: flex-end;
 }
 
 .grid__item--1 {
-  width: 13.675%; /* 192 / 1404 */
+  width: 13.675%;
   aspect-ratio: 192 / 193;
 }
 
 .grid__item--2 {
-  width: 69.302%; /* 973 / 1404 */
-  aspect-ratio: 973 / 400; /* высота 400 при ширине макета */
+  width: 69.302%;
+  aspect-ratio: 973 / 400;
   border-radius: 500px;
 }
 
-/* Кадр видео опущен внутри пилюли: видна верхняя треть ролика
-   (в макете окно смотрит на 35 % высоты кадра, а не на центр) */
 .grid__item--2 > video {
   object-position: 50% 32%;
 }
 
-/* Ряд 2: слева вертикальный овал на половину ширины, справа колонка */
 .grid__item--3 {
   flex: 1 0 0;
   width: auto;
@@ -141,7 +113,6 @@
   border-radius: 500px;
 }
 
-/* Внутреннее свечение сверху (inner shadow 4 / 208 белый 25 %) */
 .grid__item--3::after {
   content: '';
   position: absolute;
@@ -157,18 +128,16 @@
 }
 
 .grid__item--5 {
-  width: 59.169%; /* 413 / 698 */
+  width: 59.169%;
   aspect-ratio: 413 / 275;
   border-radius: 100px;
 }
 
 .grid__item--6 {
-  width: 27.221%; /* 190 / 698 */
+  width: 27.221%;
   aspect-ratio: 190 / 147;
 }
 
-/* Ряд 3: чуть у́же сетки (1397 / 1404), слева столбик с бейджем и видео,
-   справа большая картинка во всю высоту ряда */
 .grid__row--3 {
   width: 99.501%;
 }
@@ -179,28 +148,22 @@
 }
 
 .grid__item--7 {
-  width: 50.28%; /* 359 / 714 */
+  width: 50.28%;
   aspect-ratio: 359 / 205;
   border-radius: 100px;
 }
 
-/* Видео grid-image-8.mp4 пока не выгружено из Figma: ячейка на месте,
-   на чёрном фоне её не видно. Положить файл в public/video/ — заработает. */
 .grid__item--8 {
   width: 100%;
   aspect-ratio: 1920 / 1300;
 }
 
 .grid__item--9 {
-  width: 48.318%; /* 675 / 1397 */
+  width: 48.318%;
   aspect-ratio: 1392 / 1436;
   border-radius: 200px;
 }
 
-/* ----- плашка-кнопка ----- */
-
-/* Чёрная пилюля во всю ширину (1404 × 481, скругление 600) с внутренним
-   свечением 150 белый 42 %. По ховеру светлеет, по нажатию темнеет. */
 .grid__button {
   --glow: rgba(255, 255, 255, 0.42);
   --bg: var(--color-black);
@@ -209,7 +172,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* Макет (357:2082): текст — картинка 168 × 96 — текст через 24 px */
   gap: 24px;
   width: 100%;
   min-height: clamp(280px, 34.3vw, 481px);
@@ -297,8 +259,6 @@
   }
 }
 
-/* Планшет (Figma «Grid», 397:3351): тот же состав, но ряды поуже, сетка
-   800 при кадре 832. Ширины в процентах от ширины сетки. */
 @media (max-width: 1024px) {
   .grid {
     padding: 160px 16px 24px;
@@ -318,19 +278,19 @@
   }
 
   .grid__item--1 {
-    width: 15%; /* 120 / 800 */
+    width: 15%;
     aspect-ratio: 1;
   }
 
   .grid__item--2 {
-    width: 84%; /* 672 / 800 */
+    width: 84%;
     aspect-ratio: 672 / 280;
     border-radius: 500px;
   }
 
   .grid__item--3 {
     flex: 0 0 auto;
-    width: 49.375%; /* 395 / 800 */
+    width: 49.375%;
     aspect-ratio: 395 / 500;
     border-radius: 500px;
   }
@@ -344,13 +304,13 @@
   }
 
   .grid__item--5 {
-    width: 57.4%; /* 227,9 / 397 */
+    width: 57.4%;
     aspect-ratio: 227.88 / 151.74;
     border-radius: 48px;
   }
 
   .grid__item--6 {
-    width: 25.19%; /* 100 / 397 */
+    width: 25.19%;
     aspect-ratio: 100 / 78;
   }
 
@@ -360,11 +320,11 @@
 
   .grid__col--3 {
     flex: 0 0 auto;
-    width: 49.5%; /* 396 / 800 */
+    width: 49.5%;
   }
 
   .grid__item--7 {
-    width: 65.66%; /* 260 / 396 */
+    width: 65.66%;
     aspect-ratio: 260 / 148;
     border-radius: 0;
   }
@@ -396,9 +356,6 @@
   }
 }
 
-/* Телефон (Figma «Grid», 397:3400): мозаика 376 в три дорожки
-   80 | 162,9 | 117,1 (зазор 8). Ряды и колонки «растворяем»
-   (display: contents), и ячейки ложатся прямо в сетку. */
 @media (max-width: 720px) {
   .grid {
     padding: 160px 8px 16px;
@@ -434,7 +391,6 @@
   .grid__item--8 { grid-area: 5 / 1 / 6 / 4; aspect-ratio: 376 / 254.58; }
   .grid__item--9 { grid-area: 6 / 1 / 7 / 4; aspect-ratio: 376 / 400; border-radius: 80px; }
 
-  /* правая колонка ряда 3: две маленькие картинки друг под другом */
   .grid__col--2 > .grid__row {
     grid-area: 3 / 3 / 4 / 4;
     display: flex;
@@ -451,7 +407,6 @@
     gap: 8px;
     padding: 32px 16px;
     border-radius: 80px;
-    /* внутренняя тень на телефоне меньше: 60 (макет 397:3442) */
     --glow-size: 60px;
   }
 

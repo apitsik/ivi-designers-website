@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Команда дизайна иви</title>
-    <!-- Фавикон — основной логотип из навигации (assets/logos/logo-01) -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png" />
@@ -14,14 +13,12 @@
     <link rel="preload" href="/images/hero-background.jpg" as="image" media="(min-width: 721px)" />
     <link rel="preload" href="/images/hero-background-mobile.jpg" as="image" media="(max-width: 720px)" />
     <link rel="stylesheet" href="/src/styles.css" />
-    <!-- Критичный стиль прелоадера: чёрный экран с первого кадра, до загрузки CSS -->
     <style>
       .preloader { position: fixed; inset: 0; z-index: 100; background: #000; }
       html.is-preloading { overflow: hidden; }
     </style>
   </head>
   <body>
-    <!-- Прелоадер: кадры логотипа подставляются из assets/logos/ в src/preloader.js -->
     <div class="preloader" aria-hidden="true">
       <img class="preloader__logo" alt="" decoding="async" />
     </div>
@@ -34,7 +31,6 @@
       </nav>
 
       <a class="nav__logo" href="#top" aria-label="Наверх страницы">
-        <!-- Кадры логотипа подставляются из assets/logos/ в src/nav-logo.js -->
         <img class="nav__logo-img" width="64" height="64" alt="" decoding="async" />
       </a>
 
@@ -42,7 +38,6 @@
         <a class="nav__item" href="#lab"><span class="nav__label" data-text="ivi design lab">ivi design lab</span></a>
         <a class="nav__item" href="#brandbook"><span class="nav__label" data-text="Брендбук">Брендбук</span></a>
         <a class="nav__item" href="https://www.behance.net/eeeveee" target="_blank" rel="noopener"><span class="nav__label" data-text="Беханс">Беханс</span></a>
-        <!-- Только на телефоне: вместо двух рядов ссылок — кнопка меню (src/nav-menu.js) -->
         <button class="nav__burger" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="menu">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M1 4.5h18M1 10h18M1 15.5h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -51,8 +46,6 @@
       </nav>
     </header>
 
-    <!-- Меню на телефоне: оверлей и крестик те же, что у попапов шоурилов
-         и статей, пункты проявляются из блюра волной, как заголовки блоков -->
     <div class="menu-modal" id="menu" hidden aria-hidden="true">
       <div class="menu-modal__overlay" data-close></div>
       <button class="menu-modal__close" type="button" data-close aria-label="Закрыть меню">
@@ -107,8 +100,6 @@
           </div>
         </div>
 
-        <!-- Награда Red Dot в правом нижнем углу (Figma 314:5880). Надпись
-             висит всегда, по наведению из-за неё слева выезжает шарик. -->
         <a
           class="hero__award"
           href="https://www.red-dot.org/project/good-no-matter-how-you-look-at-it-showreel-of-the-new-font-92869"
@@ -122,14 +113,9 @@
 
       </section>
 
-      <!-- Шоурилы: белая плашка наезжает на хиро при скролле.
-           Заголовок закреплён на фоне, карточки едут поверх с параллаксом.
-           Клик по карточке открывает попап с плеером Vimeo (src/video-modal.js).
-           Позиции карточек — в src/showreels.css (сетка 1440 × 3460 из Figma). -->
       <section class="showreels" id="showreels" aria-labelledby="showreels-title">
         <div class="showreels__panel">
           <div class="showreels__head">
-            <!-- Слова оборачиваются в span в src/showreels.js и проявляются по очереди -->
             <h2 id="showreels-title" class="showreels__title" data-words>
               Не&nbsp;читай этот текст.<br />Лучше смотри наши шоурилы
             </h2>
@@ -146,8 +132,6 @@
               <img class="showreel__img" src="/images/showreels/showreel-3.jpg" alt="Шоурил 3" loading="lazy" decoding="async" />
             </button>
 
-            <!-- Промо-карточка 514 × 600: просто картинка (текст и стикер внутри),
-                 скругление накладывается в CSS и меняется с шириной экрана -->
             <div class="showreel-promo" data-speed="0.04">
               <img class="showreel-promo__img" src="/images/showreels/showreel-promo.jpg" alt="Просто скроллишь? Лучше жмякни и посмотри шоурил" width="1028" height="1200" loading="lazy" decoding="async" />
             </div>
@@ -168,10 +152,6 @@
         </div>
       </section>
 
-      <!-- Extra Text: розовая плашка выезжает снизу и подрастает; когда её верх
-           проходит середину экрана, страница переключается на чёрный
-           (.theme-dark на <html>, src/extra-text.js). Иконка, слова заголовка
-           и&nbsp;подзаголовок проявляются из&nbsp;блюра той же&nbsp;волной, что и&nbsp;заголовок шоурилов. -->
       <section class="extra-text" id="extra-text" aria-labelledby="extra-text-title">
         <div class="extra-text__card">
           <img class="extra-text__icon" src="/images/extra-text/extra-text-image.png" alt="" width="138" height="79" loading="lazy" decoding="async" />
@@ -182,18 +162,6 @@
         </div>
       </section>
 
-      <!-- Команды. Сцена залипает на экране, пока секция прокручивается:
-           папки по очереди выезжают снизу в стопку, пауза на превью, затем
-           каждая по очереди выходит на середину со своими стикерами
-           (src/team.js, раскадровка Team step 1 – step 13 в Figma).
-
-           Координаты — прямо из макета 1440 × 832, лежат в data-*:
-           data-stack-* — место в стопке, data-park-* — куда папка опускается,
-           пока ждёт очереди, data-enter-* — откуда выезжает снизу.
-           У стикеров data-x / data-y — левый верхний угол без поворота,
-           data-w / data-h — размер, data-rot — поворот, data-order — очередь.
-
-           Тексты папок и содержимое попапа правятся здесь же. -->
       <section class="team" id="teams" aria-labelledby="team-title">
         <div class="team__stage">
           <div class="team__scene">
@@ -204,10 +172,6 @@
               Не&nbsp;дизайнерами<br />едиными
             </h2>
 
-            <!-- Только на телефоне: полупрозрачные соседние папки сверху и снизу,
-                 чтобы было видно, что дальше есть ещё (team.css) -->
-
-            <!-- (01) Продукт -->
             <article
               class="team-folder"
               style="--folder: #a69898"
@@ -231,10 +195,6 @@
                   <div class="team-folder__lines"></div>
                 </div>
               </div>
-              <!-- Содержимое попапа (Figma «product-team», 302:1445).
-                   style="--w" — ширина карточки в пикселях макета при высоте
-                   592; у половинок стопки --h — высота. Порядок карточек
-                   здесь = порядок в слайдере. -->
               <template class="team-folder__detail">
                 <div class="team-modal__card team-modal__card--text">
                   <span class="team-modal__dot"></span>
@@ -259,7 +219,6 @@
               </template>
             </article>
 
-            <!-- (02) Контент -->
             <article
               class="team-folder"
               style="--folder: #d9d9d9"
@@ -313,7 +272,6 @@
               </template>
             </article>
 
-            <!-- (03) Бренд -->
             <article
               class="team-folder"
               style="--folder: #c98caa"
@@ -362,7 +320,6 @@
               </template>
             </article>
 
-            <!-- Стикеры: по три на команду, подъезжают снизу по очереди -->
             <span class="team__sticker" data-folder="0" data-order="1" data-x="72.4" data-y="318.32" data-w="288" data-h="222" data-rot="-9.54"><img src="/images/team/team-sticker-3.png" alt="" loading="lazy" decoding="async" /></span>
             <span class="team__sticker" data-folder="0" data-order="2" data-x="1097.43" data-y="346.84" data-w="243" data-h="221" data-rot="5.99"><img src="/images/team/team-sticker-2.png" alt="" loading="lazy" decoding="async" /></span>
             <span class="team__sticker" data-folder="0" data-order="3" data-x="246" data-y="585" data-w="336" data-h="144"><img src="/images/team/team-sticker-4.png" alt="" loading="lazy" decoding="async" /></span>
@@ -375,11 +332,6 @@
             <span class="team__sticker" data-folder="2" data-order="2" data-x="108" data-y="449" data-w="344" data-h="222"><img src="/images/team/team-sticker-11.png" alt="" loading="lazy" decoding="async" /></span>
             <span class="team__sticker" data-folder="2" data-order="3" data-x="978" data-y="428" data-w="356" data-h="201"><img src="/images/team/team-sticker-12.png" alt="" loading="lazy" decoding="async" /></span>
 
-            <!-- Четвёртый экран: «А ещё у нас есть» (макет Team step 16,
-                 node 217:1385). Пока третья папка доезжает вверх, снизу
-                 выходят три фото, затем по очереди приклеиваются четыре
-                 жёлтых стикера. Координаты — те же, что у остальных:
-                 левый верхний угол без поворота, размер и угол в data-*. -->
             <span class="team-photo" data-order="1" data-x="243.22" data-y="322.73" data-w="248" data-h="292" data-rot="-8.5"><span class="team-photo__frame"><img src="/images/team/team-others-photo-1.png" alt="" loading="lazy" decoding="async" /></span></span>
             <span class="team-photo" data-order="2" data-x="644.12" data-y="341.96" data-w="248" data-h="290" data-rot="8.07"><span class="team-photo__frame"><img src="/images/team/team-others-photo-2.png" alt="" loading="lazy" decoding="async" /></span></span>
             <span class="team-photo" data-order="3" data-x="975" data-y="270" data-w="248" data-h="292" data-rot="0"><span class="team-photo__frame"><img src="/images/team/team-others-photo-3.png" alt="" loading="lazy" decoding="async" /></span></span>
@@ -392,14 +344,8 @@
         </div>
       </section>
 
-      <!-- Awards: подпись, список наград и иконка проявляются из блюра волной,
-           как остальные H2. Список собирается из массива AWARDS в начале
-           src/awards.js — там же меняются названия, статусы и картинки.
-           При наведении на награду остальные гаснут, а за курсором плывёт
-           картинка проекта (40 %). Блок информационный, кликов нет. -->
       <section class="awards" id="awards" aria-labelledby="awards-title">
         <div class="awards__preview" aria-hidden="true">
-          <!-- Два слоя: картинки сменяются кроссфейдом (src/awards.js) -->
           <img alt="" loading="lazy" decoding="async" />
           <img alt="" loading="lazy" decoding="async" />
         </div>
@@ -412,12 +358,6 @@
         </div>
       </section>
 
-      <!-- Articles: белая плашка со скруглением и внутренним свечением,
-           внутри 3D-колода квадратных карточек веером (референс Studio Deck
-           Carousel). Карточки и попап собирает src/articles.js из массива
-           ARTICLES — там же названия, описания, кнопки и ссылки.
-           Картинки: /images/articles/article-N-cover.jpg (колода)
-           и article-N-image.jpg (попап). -->
       <section class="articles" id="articles" aria-labelledby="articles-title" tabindex="-1">
         <div class="articles__block">
           <h2 id="articles-title" class="articles__title" data-words>
@@ -436,13 +376,6 @@
         </div>
       </section>
 
-      <!-- Grid: библиотека иллюстраций. Чёрная секция, H2 проявляется
-           из блюра, как остальные (data-words, src/grid.js). Сетка картинок
-           и видео в пропорциях макета 1404 (src/grid.css), видео играют
-           без звука и контролов, ничего не кликабельно. Внизу плашка-кнопка
-           на ivi design lab: по ховеру светлеет, по нажатию темнеет.
-           Картинки: /images/grid/, видео: /video/grid-image-N.mp4
-           -->
       <section class="grid" id="grid" aria-labelledby="grid-title">
         <div class="grid__inner">
           <h2 id="grid-title" class="grid__title" data-words>
@@ -501,13 +434,6 @@
         </div>
       </section>
 
-      <!-- Vacancies: «Присоединяйся к лучшей команде». Чёрная секция, по
-           центру H2 (проявляется из блюра, как остальные — data-words),
-           подзаголовок и акцентная кнопка; волна проявления идёт сквозь
-           них подряд. Позади текста — слой .vacancies__trail: за курсором
-           спавнятся фотографии из /images/vacancies/ (src/vacancies.js),
-           они ниже текста по z-index. Кнопка «Отправить резюме» —
-           ссылка mailto на почту команды. -->
       <section class="vacancies" id="vacancies" aria-labelledby="vacancies-title">
         <div class="vacancies__trail" aria-hidden="true"></div>
         <div class="vacancies__content">
@@ -526,12 +452,6 @@
       </section>
     </main>
 
-    <!-- Footer: чёрная секция, внутри светлая плашка (скругление 200,
-         внутреннее свечение). Текст и ссылки лежат в .footer__text поверх
-         физики (z-index выше). Снизу плашки — канвас .footer__physics:
-         при появлении футера сверху осыпаются логотипы из /images/footer/,
-         падают по Matter.js, их можно таскать и подбрасывать
-         (src/footer.js). -->
     <footer class="footer" id="footer">
       <div class="footer__block">
         <canvas class="footer__physics" aria-hidden="true"></canvas>
@@ -541,7 +461,6 @@
           <div class="footer__line1">
             <p class="footer__name">Команды дизайна Иви</p>
             <a class="footer__top" href="#top">
-              <!-- Иконка roundArrowRight из макета (79:3158), заливка currentColor -->
               <svg class="footer__top-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8ZM3.7832 8.6376C3.39826 9.0326 3.40693 9.66462 3.80273 10.0487C4.19863 10.4326 4.83181 10.424 5.2168 10.0292L8.00098 7.17374L10.7832 10.0292C11.1682 10.4239 11.8014 10.4326 12.1973 10.0487C12.593 9.66464 12.6017 9.03261 12.2168 8.6376L8.86035 5.19327C8.38919 4.70999 7.61082 4.70998 7.13965 5.19327L3.7832 8.6376Z" fill="currentColor" />
               </svg>
@@ -576,11 +495,8 @@
       </div>
     </footer>
 
-    <!-- Попап с плеером Vimeo. Пустой, пока не кликнули по карточке. -->
     <div class="video-modal" hidden aria-hidden="true">
       <div class="video-modal__overlay" data-close></div>
-      <!-- Крестик вне диалога: у диалога на время анимации стоит transform,
-           а под трансформированным предком fixed считается от него и прыгает -->
       <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -595,20 +511,13 @@
       </div>
     </div>
 
-    <!-- Попап статьи: те же оверлей, блюр и анимация, что у попапа шоурилов
-         (классы .video-modal), внутри карточка 496 × 526 (src/articles.css).
-         Контент подставляет src/articles.js. -->
     <div class="video-modal article-modal" hidden aria-hidden="true">
       <div class="video-modal__overlay" data-close></div>
-      <!-- Крестик вне диалога: у диалога на время анимации стоит transform,
-           а под трансформированным предком fixed считается от него и прыгает -->
       <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </button>
-      <!-- Карточки слайдера собирает src/articles.js из массива ARTICLES:
-           соседние видно по краям, список закольцован. -->
       <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="article-modal-title">
         <div class="article-modal__viewport">
           <div class="article-modal__track"></div>
@@ -621,11 +530,6 @@
       </div>
     </div>
 
-    <!-- Попап команды: те же оверлей, блюр и анимация, что у попапов
-         шоурилов и статей (классы .video-modal), внутри горизонтальный
-         слайдер карточек (src/team.css). Карточки приходят из <template>
-         внутри самой папки в&nbsp;секции «Команды» — текст и&nbsp;картинки правятся
-         там же, рядом с&nbsp;командой. -->
     <div class="video-modal team-modal" hidden aria-hidden="true">
       <div class="video-modal__overlay" data-close></div>
       <button class="video-modal__close" type="button" data-close aria-label="Закрыть">
@@ -633,10 +537,6 @@
           <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </button>
-      <!-- Подпись и навигация вынесены из диалога по той же причине, что и
-           крестик: у диалога на время анимации стоит transform, и позиции
-           внутри него считались бы от него, а не от окна. Подпись идёт по
-           одной линии с крестиком, навигация — по центру нижнего отступа. -->
       <p id="team-modal-title" class="team-modal__name"></p>
       <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="team-modal-title">
         <div class="team-modal__viewport">
@@ -650,14 +550,9 @@
       </div>
     </div>
 
-    <!-- Какой прелоадер показывать: 'stroke' — мазок кистью,
-
-         'logo' — прежний перебор кадров логотипа. -->
-
-    <script>window.PRELOADER = 'stroke';</script>
-    <!-- Обычным тегом, не через сборку: файл крошечный и выполняется
-         сразу, поэтому кисть трогается с первых миллисекунд, а не после
-         загрузки основного кода сайта. -->
+    <script>
+      window.PRELOADER = 'stroke';
+    </script>
     <script src="/preloader-stroke.js"></script>
 
     <script type="module" src="/src/main.js"></script>

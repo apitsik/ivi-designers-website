@@ -1,8 +1,3 @@
-// Инерционный скролл на Lenis. Lenis крутит обычный window-скролл,
-// поэтому scroll-события, sticky и IntersectionObserver работают как раньше —
-// просто scrollY меняется плавно. Остальные модули берут инстанс отсюда,
-// чтобы останавливать скролл под попапом и ехать по якорям.
-
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
@@ -16,8 +11,6 @@ export function initSmoothScroll() {
   lenis = new Lenis({
     duration: 1.2,
     smoothWheel: true,
-    // на сенсорных экранах тоже сглаживаем: без этого блоки вроде наград
-    // проскакивают рывками
     syncTouch: true,
     syncTouchLerp: 0.085,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -29,7 +22,6 @@ export function initSmoothScroll() {
   };
   requestAnimationFrame(raf);
 
-  // Якоря из навигации едут плавно через Lenis
   document.querySelectorAll('a[href^="#"]').forEach((a) => {
     a.addEventListener('click', (e) => {
       const id = a.getAttribute('href');

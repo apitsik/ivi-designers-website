@@ -1,12 +1,3 @@
-// Прелоадер: чёрный экран, по центру мелькают кадры логотипа из навбара.
-// Перебор начинается с основного лого (logo-01), разгоняется, крутится,
-// пока грузятся картинки/hero-видео/шрифты, затем тормозит и останавливается
-// снова на основном лого. После этого полотно уезжает вверх.
-//
-// Темп задаётся интервалом между кадрами: SLOW_MS в начале и в конце,
-// FAST_MS на пике. Разгон и торможение — по синусоиде, чтобы ускорение
-// и замедление были плавными.
-
 import './preloader.css';
 
 const frameModules = import.meta.glob('../assets/logos/*.{svg,png,webp}', {
@@ -15,20 +6,17 @@ const frameModules = import.meta.glob('../assets/logos/*.{svg,png,webp}', {
   import: 'default',
 });
 
-const SLOW_MS = 200; // интервал между кадрами в покое (старт/финиш)
-const FAST_MS = 45; // интервал на пике скорости
-const RAMP_STEPS = 6; // кадров на разгон и столько же на торможение
-const MIN_SPIN_MS = 150; // минимум крутимся на полной скорости (чтобы не дёргалось)
-const MAX_WAIT_MS = 5000; // страховка: дольше этого не ждём, даже если что-то не догрузилось
-const LEAVE_MS = 700; // длительность уезда, синхронно с CSS
+const SLOW_MS = 200;
+const FAST_MS = 45;
+const RAMP_STEPS = 6;
+const MIN_SPIN_MS = 150;
+const MAX_WAIT_MS = 5000;
+const LEAVE_MS = 700;
 
 const easeInOutSine = (t) => -(Math.cos(Math.PI * t) - 1) / 2;
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Ждём только то, что видно сразу после прелоадера: <img> без lazy,
-// hero-видео до состояния «можно играть без буферизации», шрифты.
-// Ленивые картинки ниже по странице греем в кэш фоном, не задерживая выход.
 export function waitForAssets(root) {
   const tasks = [];
 
@@ -64,15 +52,12 @@ export function waitForAssets(root) {
   return Promise.race([Promise.all(tasks), wait(MAX_WAIT_MS)]);
 }
 
-// Метка в памяти браузера: один раз показали — больше не показываем.
-// Живёт до тех пор, пока человек не почистит данные сайта.
 const SEEN_KEY = 'ivi-design-preloader-seen';
 
 function alreadySeen() {
   try {
     return localStorage.getItem(SEEN_KEY) === '1';
   } catch {
-    // Приватный режим или запрет хранилища — показываем как обычно
     return false;
   }
 }
@@ -81,14 +66,12 @@ function remember() {
   try {
     localStorage.setItem(SEEN_KEY, '1');
   } catch {
-    /* не страшно */
   }
 }
 
 export function initPreloader(el) {
   if (!el) return Promise.resolve();
 
-  // Второй и следующие визиты: сразу страница, без перебора логотипа
   if (alreadySeen()) {
     el.remove();
     return Promise.resolve();
@@ -110,7 +93,6 @@ export function initPreloader(el) {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   const assetsReady = waitForAssets(document);
 
-  // Прогреваем кадры, чтобы перебор не споткнулся о первую загрузку
   const framesReady = Promise.all(
     frames.map(
       (src) =>
@@ -132,7 +114,6 @@ export function initPreloader(el) {
       }, reduce.matches ? 400 : LEAVE_MS);
     });
 
-  // Меньше движения — без перебора: просто ждём и уходим
   if (reduce.matches) {
     return assetsReady.then(() => wait(300)).then(leave);
   }
@@ -146,16 +127,12 @@ export function initPreloader(el) {
   const run = async () => {
     await framesReady;
 
-    // Разгон: SLOW → FAST
     for (let i = 0; i < RAMP_STEPS; i++) {
       const t = easeInOutSine(i / RAMP_STEPS);
       await wait(SLOW_MS + (FAST_MS - SLOW_MS) * t);
       step();
     }
 
-    // Крутимся на пике, пока не догрузится всё, не пройдёт минимум и пока
-    // не окажемся на кадре, с которого торможение в RAMP_STEPS шагов
-    // приедет ровно на основное лого (кадр 0).
     let ready = false;
     assetsReady.then(() => (ready = true));
     const spinStart = performance.now();
@@ -165,14 +142,12 @@ export function initPreloader(el) {
       step();
     }
 
-    // Торможение: FAST → SLOW, финиш на кадре 0
     for (let i = 0; i < RAMP_STEPS; i++) {
       const t = easeInOutSine((i + 1) / RAMP_STEPS);
       await wait(FAST_MS + (SLOW_MS - FAST_MS) * t);
       step();
     }
 
-    // Пауза на основном лого — и уезжаем
     await wait(150);
     await leave();
   };

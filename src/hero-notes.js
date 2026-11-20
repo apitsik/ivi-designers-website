@@ -1,29 +1,3 @@
-/**
- * Уведомления в хиро (Figma 334:6192, hero step 1; тексты — 18:105).
- *
- * Стопка плашек в левом нижнем углу, как уведомления в macOS: верхняя
- * видна целиком, под ней выглядывают края следующих. Клик по плашке
- * открывает то, о чём она говорит. При наведении на верхнюю в левом
- * верхнем углу появляется крестик. Плашку можно смахнуть в сторону
- * мышью или пальцем — уехала, следующая встала на её место.
- *
- * Содержимое ведём ТОЛЬКО руками и ниоткуда не подтягиваем: новая
- * статья или награда сама плашкой не станет. Когда решаем, что событие
- * должно стать виджетом, — дописываем объект в начало массива NOTES.
- * Первое в массиве лежит сверху стопки.
- *
- *   title    — крупная строка
- *   text     — строка помельче под ней
- *   url      — куда ведёт клик (новая вкладка)
- *   showreel — вместо ссылки: селектор карточки шоурила на этой же
- *              странице, клик открывает её видео в модалке
- *   icon     — картинка слева, путь без ведущего слэша
- *              (файлы лежат в public/images/widgets/)
- *   award    — плашка про награду Red Dot. На телефоне наклейка Red Dot
- *              в углу не помещается и скрыта, поэтому там такая плашка
- *              встаёт наверх стопки и заменяет её
- */
-
 const NOTES = [
   {
     title: 'Новая ленточка на бехансе',
@@ -64,9 +38,8 @@ const NOTES = [
   },
 ];
 
-// Подъём и уменьшение каждой следующей плашки заданы в hero-notes.css
-const DEPTH = 3; // больше трёх всё равно не видно
-const THROW = 90; // с какого сдвига считаем, что смахнули
+const DEPTH = 3;
+const THROW = 90;
 
 export function initHeroNotes(hero) {
   if (!hero || !NOTES.length) return;
@@ -75,8 +48,6 @@ export function initHeroNotes(hero) {
   root.className = 'hero-notes';
   root.setAttribute('aria-label', 'Новости команды');
 
-  // Живой список: смахнули — вынули отсюда, стопка пересобралась
-  // На телефоне наклейки Red Dot нет — плашка про награду идёт первой
   const mobile = window.matchMedia('(max-width: 720px)').matches;
   const list = mobile ? [...NOTES].sort((a, b) => Number(!!b.award) - Number(!!a.award)) : NOTES;
   const live = list.map((note) => build(note, () => drop(note)));
@@ -90,7 +61,6 @@ export function initHeroNotes(hero) {
     if (i < 0) return;
     order[i].el.classList.add('is-gone');
     order.splice(i, 1);
-    // Плашка доезжает за кадр анимации, потом убираем её совсем
     setTimeout(() => {
       const dead = live.find((o) => o.note === note);
       dead?.el.remove();
@@ -105,7 +75,6 @@ export function initHeroNotes(hero) {
       el.classList.toggle('is-top', i === 0);
       el.classList.toggle('is-second', i === 1);
       el.classList.toggle('is-deep', i >= DEPTH);
-      // Кликается и фокусируется только верхняя
       el.tabIndex = i === 0 ? 0 : -1;
       el.setAttribute('aria-hidden', i === 0 ? 'false' : 'true');
       const close = el.querySelector('.hero-note__close');
@@ -114,9 +83,6 @@ export function initHeroNotes(hero) {
     root.classList.toggle('is-empty', !order.length);
   }
 
-  // ----- смахивание -----
-  // Тянем только верхнюю и только вбок: вертикаль оставляем странице,
-  // иначе на телефоне нельзя будет пролистать хиро пальцем.
   let drag = null;
 
   root.addEventListener('pointerdown', (e) => {
@@ -136,7 +102,6 @@ export function initHeroNotes(hero) {
       drag.locked = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
       if (drag.locked === 'x') {
         drag.el.classList.add('is-dragging');
-        // Пока верхнюю тянут, под ней должна быть видна настоящая вторая
         root.classList.add('is-swiping');
       }
     }
@@ -163,7 +128,6 @@ export function initHeroNotes(hero) {
   root.addEventListener('pointerup', endDrag);
   root.addEventListener('pointercancel', endDrag);
 
-  // Клик после смахивания — не переход по ссылке
   root.addEventListener('click', (e) => {
     const card = e.target.closest('.hero-note');
     if (card && card.dataset.moved === '1') {
@@ -183,17 +147,14 @@ function build(note, remove) {
     el.target = '_blank';
     el.rel = 'noopener';
   } else {
-    // Без внешней ссылки: плашка открывает шоурил на этой же странице
     el.href = '#';
     el.setAttribute('role', 'button');
     el.addEventListener('click', (e) => {
-      // Смахивали, а не кликали — перехватчик в root уже погасил клик
       if (e.defaultPrevented) return;
       e.preventDefault();
       document.querySelector(note.showreel)?.click();
     });
   }
-  // Иначе браузер начинает тащить саму ссылку и обрывает наш жест
   el.draggable = false;
   el.addEventListener('dragstart', (e) => e.preventDefault());
 
@@ -235,7 +196,6 @@ function build(note, remove) {
   text.append(title, desc);
   el.append(icon, text, close);
 
-  // Если плашку тащили — клик по ней не должен открывать ссылку
   let moved = 0;
   el.addEventListener('pointerdown', (e) => {
     moved = e.clientX;

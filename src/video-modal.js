@@ -1,12 +1,3 @@
-// Попап с плеером Vimeo. Открывается кликом по карточке с data-vimeo,
-// закрывается крестиком, Esc или кликом по оверлею. При закрытии iframe
-// удаляется целиком — видео останавливается и выгружается.
-//
-// Пропорции плеера подстраиваются под само видео: сначала берём пропорцию
-// превью карточки (мгновенно), потом уточняем через oEmbed Vimeo
-// (width/height ролика). Вертикальные ролики растягиваются по высоте,
-// горизонтальные — по ширине; чёрных полей по бокам нет.
-
 import { lenis } from './smooth-scroll.js';
 
 const ratioCache = new Map();
@@ -37,11 +28,9 @@ export function initVideoModal(modal, cards) {
     clearTimeout(hideTimer);
 
     title.textContent = card.dataset.title || '';
-    // Глоу — размытая копия превью карточки
     const img = card.querySelector('img');
     glow.style.backgroundImage = img ? `url("${img.currentSrc || img.src}")` : '';
 
-    // Пропорция: data-ratio="9/16" на карточке > кэш oEmbed > превью > 16:9
     if (card.dataset.ratio) {
       const [w, h] = card.dataset.ratio.split('/').map(Number);
       setRatio(w, h);
@@ -59,7 +48,6 @@ export function initVideoModal(modal, cards) {
     modal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('video-modal-open');
     lenis?.stop();
-    // Два кадра: сначала display, потом класс — чтобы сработал transition
     requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add('video-modal--open')));
     closeBtn.focus({ preventScroll: true });
 
@@ -79,7 +67,6 @@ export function initVideoModal(modal, cards) {
     modal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('video-modal-open');
     lenis?.start();
-    // Плеер выгружаем сразу, чтобы звук не продолжал играть под анимацию
     frame.replaceChildren();
     hideTimer = setTimeout(() => {
       modal.hidden = true;
@@ -91,8 +78,6 @@ export function initVideoModal(modal, cards) {
 
   cards.forEach((card) => card.addEventListener('click', () => open(card)));
   modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
-  // Диалог шире плеера: клик по его пустому месту (рядом с видео, над
-  // подписью) закрывает так же, как клик по оверлею
   dialog.addEventListener('click', (e) => {
     if (e.target === dialog) close();
   });
@@ -101,7 +86,6 @@ export function initVideoModal(modal, cards) {
   });
 }
 
-// Размер ролика через публичный oEmbed Vimeo (без токена)
 async function fetchVimeoSize(id) {
   try {
     const url = `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(`https://vimeo.com/${id}`)}`;
@@ -121,7 +105,6 @@ function buildPlayer(id, name) {
     title: '0',
     byline: '0',
     portrait: '0',
-    // Без интерфейса плеера: ни панели, ни логотипа, ни оверлеев
     controls: '0',
     badge: '0',
     pip: '0',

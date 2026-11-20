@@ -1,24 +1,5 @@
-// Awards: список наград словами с пометками «победа / золото / шорт-лист»
-// (Figma «awards», 36:971). Блок чисто информационный — клики никуда
-// не ведут. При наведении на награду остальные гаснут, а за курсором
-// плавно плывёт полупрозрачная картинка проекта (40 %).
-// Заголовок, награды и иконка проявляются из блюра той же волной,
-// что и остальные H2 (src/reveal.js).
-//
-// @gdeprostotamangelovsto
-
 import { observeReveal } from './reveal.js';
 
-// ---------------------------------------------------------------------------
-// СПИСОК НАГРАД — единственное место, которое надо править.
-// name   — название награды (крупно)
-// url    — ссылка на кейс или новость; без неё награда просто не кликается
-// status — пометка рядом: «победа», «золото», «шорт-лист» и т. п.
-// image  — картинка проекта, которая всплывает под курсором
-//          (кладём в public/images/awards/, путь от корня сайта)
-// Порядок в массиве = порядок на странице. Удалить награду — убрать строку,
-// добавить — дописать ещё одну.
-// ---------------------------------------------------------------------------
 export const AWARDS = [
   { name: 'G8', status: 'победа', image: 'images/awards/awards-image1.png', url: 'https://confluence.ivi.ru/pages/viewpage.action?pageId=516883985&spaceKey=DES' },
   { name: 'Медиабренд', status: 'золото', image: 'images/awards/awards-image2.png', url: 'https://t.me/mediabrandmoscow/3803' },
@@ -33,10 +14,8 @@ export const AWARDS = [
   { name: 'G8', status: 'шорт-лист', image: 'images/awards/awards-image11.png', url: 'https://g8.art/ru/works/4962' },
 ];
 
-// Иконка под списком (public/images/awards/awards-icon.svg, 118 × 56)
 export const AWARDS_ICON = 'images/awards/awards-icon.svg';
 
-// Насколько картинка отстаёт от курсора (0 — рывком, 1 — не двигается)
 const FOLLOW_EASE = 0.12;
 
 export function initAwards(section) {
@@ -46,18 +25,13 @@ export function initAwards(section) {
   const list = section.querySelector('.awards__list');
   const iconWrap = section.querySelector('.awards__icon');
   const preview = section.querySelector('.awards__preview');
-  // Два слоя картинки: при переходе с награды на награду новая проявляется
-  // поверх старой кроссфейдом, а не рывком
   const layers = preview ? [...preview.querySelectorAll('img')] : [];
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ----- разметка списка из AWARDS -----
-  // Индексы проявления идут сквозь заголовок → награды → иконку одной волной
   let index = 0;
   if (title) title.style.setProperty('--word-index', index++);
 
   const items = AWARDS.map((award) => {
-    // Награда со ссылкой — <a>, без ссылки — обычный <div>
     const item = document.createElement(award.url ? 'a' : 'div');
     item.className = 'award';
     if (award.url) {
@@ -71,7 +45,6 @@ export function initAwards(section) {
 
     const name = document.createElement('span');
     name.className = 'award__name';
-    // «Award» в конце на планшете и телефоне не нужен (макет «Resizes»)
     if (award.name.endsWith(' Award')) {
       name.append(award.name.slice(0, -6));
       const extra = document.createElement('span');
@@ -86,8 +59,6 @@ export function initAwards(section) {
     status.className = 'award__status';
     status.textContent = award.status;
 
-    // строка «название + статус» и картинка проекта под ней: картинка
-    // видна только у «горящей» награды на планшете и телефоне
     const row = document.createElement('span');
     row.className = 'award__row';
     row.append(name, ' ', status);
@@ -115,8 +86,6 @@ export function initAwards(section) {
     if (icon && !icon.getAttribute('src')) icon.src = AWARDS_ICON;
   }
 
-  // Подгружаем картинки заранее, чтобы при первом наведении не было пустоты
-  // (но не при старте сайта, а когда секция подъезжает к экрану)
   const warm = new IntersectionObserver(
     (entries) => {
       if (!entries.some((e) => e.isIntersecting)) return;
@@ -130,14 +99,9 @@ export function initAwards(section) {
   );
   warm.observe(section);
 
-  // на телефоне и планшете блок проявляется сразу, как показался снизу
   const early = window.matchMedia('(max-width: 720px), (max-width: 1024px) and (orientation: portrait)').matches;
   observeReveal(section, section, early ? '0px 0px -8% 0px' : undefined);
 
-  // ----- планшет и телефон: подсвечиваем награды по очереди -----
-  // Список в колонку, «горит» награда, ближайшая к середине экрана; под ней
-  // раскрывается картинка. Положение считаем по строкам без раскрытой
-  // картинки, иначе раскрытие сдвигало бы список и фокус дёргался бы.
   const compact = window.matchMedia('(max-width: 720px), (max-width: 1024px) and (orientation: portrait)');
   let focused = -1;
   const setFocus = (k) => {
@@ -147,7 +111,6 @@ export function initAwards(section) {
     items.forEach((item, i) => item.classList.toggle('is-focus', i === k));
   };
   const updateFocus = () => {
-    // картинка за текстом чуть плывёт с прокруткой (лёгкий параллакс)
     if (focused >= 0 && items[focused]) {
       const r = items[focused].getBoundingClientRect();
       const d = (r.top + r.height / 2 - window.innerHeight / 2) / window.innerHeight;
@@ -175,13 +138,9 @@ export function initAwards(section) {
   window.addEventListener('resize', updateFocus);
   updateFocus();
 
-  // ----- превью за курсором -----
   if (!preview || layers.length < 2) return;
 
   let front = 0;
-  // Картинки подгружены заранее, поэтому слой переключаем сразу, не дожидаясь
-  // onload: так нет гонки, когда курсор перескочил раньше, чем догрузился
-  // предыдущий кадр, и превью оставалось пустым
   const showImage = (src) => {
     if (layers[front].getAttribute('src') === src) return;
     const back = layers[1 - front];
@@ -226,8 +185,6 @@ export function initAwards(section) {
       active = true;
       clearTimeout(hideTimer);
       if (!wasHovering) {
-        // Первое появление — сразу под курсором, без пролёта из прошлой точки.
-        // При переходе с награды на награду картинка плавно доезжает.
         const r = section.getBoundingClientRect();
         x = targetX = e.clientX - r.left;
         y = targetY = e.clientY - r.top;
@@ -237,8 +194,6 @@ export function initAwards(section) {
     item.addEventListener('pointerleave', () => {
       item.classList.remove('is-hovered');
       active = false;
-      // Прячем превью с задержкой: если курсор перешёл на соседнюю награду,
-      // она успеет отменить и картинка просто сменится кроссфейдом
       clearTimeout(hideTimer);
       hideTimer = setTimeout(() => {
         if (!active) section.classList.remove('is-hovering');
@@ -251,8 +206,6 @@ export function initAwards(section) {
     lastPointer = { clientX: e.clientX, clientY: e.clientY };
     if (active) move(e);
   });
-  // Содержимое залипает, а секция продолжает ехать: без этого превью
-  // уезжало бы вместе с ней и отрывалось от курсора, пока мышь стоит
   window.addEventListener(
     'scroll',
     () => {

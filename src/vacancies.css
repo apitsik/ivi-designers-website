@@ -1,15 +1,3 @@
-/* ---------- Vacancies ---------- */
-
-/* Макет (Figma «vacancies», 79:3080): чёрная секция 1440 × 832, по центру
-   столбик с gap 48: текст (H2 80 / 0.92 −3 % на 930, подзаголовок 18
-   белый 72 % с opacity 0.7, gap 32) и кнопка 56 × (16 / 32), скругление 24,
-   акцент #e92153. Позади — след из фотографий за курсором: карточки
-   ~217 со скруглением 64 и лёгким поворотом (src/vacancies.js).
-   @gdeprostotamangelovsto */
-
-/* z-index ниже, чем у grid: всё, что окажется за верхним краем секции,
-   уходит под блок grid. Карточки следа за край не выпускаем (см. spawn
-   в vacancies.js), чтобы их не резало его чёрным нижним отступом. */
 .vacancies {
   position: relative;
   z-index: 0;
@@ -18,19 +6,14 @@
   justify-content: center;
   min-height: clamp(560px, 57.8vw, 832px);
   padding: clamp(96px, 11.1vw, 160px) 18px;
-  /* По горизонтали режем (иначе карточки у края дают скролл страницы),
-     по вертикали — нет: карточки сверху и снизу не обрезаются */
   overflow-x: clip;
   overflow-y: visible;
   background: var(--page-bg);
   transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
   color: var(--color-white);
-  /* Вертикальный скролл пальцем остаётся, pointermove приходит в след */
   touch-action: pan-y;
   cursor: var(--cursor-arrow);
 }
-
-/* ----- след из картинок (под текстом) ----- */
 
 .vacancies__trail {
   position: absolute;
@@ -39,9 +22,6 @@
   pointer-events: none;
 }
 
-/* Одна карточка следа: центр в точке курсора. Поворот, размер (±10 %),
-   поп и растворение задаёт JS (Web Animations) — здесь только форма.
-   Базовый размер 217 в макете 1440 → ~15 vw. Сквозная для курсора. */
 .vacancies__shot {
   --shot-size: clamp(120px, 15vw, 217px);
   --size-scale: 1;
@@ -51,9 +31,8 @@
   width: calc(var(--shot-size) * var(--size-scale));
   height: calc(var(--shot-size) * var(--size-scale));
   margin: calc(var(--shot-size) * var(--size-scale) / -2) 0 0 calc(var(--shot-size) * var(--size-scale) / -2);
-  border-radius: 29.5%; /* 64 / 217 */
+  border-radius: 29.5%;
   overflow: hidden;
-  /* Скругление с overflow: hidden без артефактов на краю при трансформах */
   isolation: isolate;
   opacity: 0;
   will-change: transform, opacity;
@@ -65,17 +44,12 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Прозрачность «по дальности» ставит JS, переход — мягкий */
   transition: opacity 0.3s ease-out;
 }
 
-/* Картинка 116 × 116 над заголовком — только планшет и телефон
-   (Figma 411:3457); на десктопе её роль играет след за курсором */
 .vacancies__pic {
   display: none;
 }
-
-/* ----- текст и кнопка (над следом) ----- */
 
 .vacancies__content {
   position: relative;
@@ -86,8 +60,6 @@
   gap: 48px;
   width: 100%;
   max-width: 930px;
-  /* Текст прозрачен для курсора — след рисуется и под ним;
-     кнопка возвращает события себе ниже */
   pointer-events: none;
 }
 
@@ -117,7 +89,6 @@
   opacity: 0.7;
 }
 
-/* Две кнопки в ряд (Figma 302:5754): акцентная и прозрачная, gap 16 */
 .vacancies__actions {
   display: flex;
   gap: 16px;
@@ -126,7 +97,6 @@
   justify-content: center;
 }
 
-/* Кнопка: по ховеру светлеет, по нажатию темнеет */
 .vacancies__button {
   display: inline-flex;
   align-items: center;
@@ -165,11 +135,6 @@
   outline-offset: 4px;
 }
 
-/* Вторая, спокойная: полупрозрачная белая плашка с размытием под ней.
-   Правила идут после общих — иначе розовый ховер основной кнопки
-   перебивал бы их и вторая тоже розовела. Свой слой (translateZ)
-   нужен, чтобы размытие не пересчитывалось на каждом кадре и кнопка
-   не мерцала под курсором. */
 .vacancies__button--ghost,
 .vacancies__button--ghost:is(:hover, :focus-visible),
 .vacancies__button--ghost:active {
@@ -187,10 +152,6 @@
   background: rgba(255, 255, 255, 0.3);
   transform: translateZ(0) scale(0.97);
 }
-
-
-/* ----- проявление из блюра: слова заголовка, затем подзаголовок и кнопка
-   той же волной (индексы продолжают нумерацию слов, см. vacancies.js) ----- */
 
 .vacancies__title .word,
 .vacancies__subtitle,
@@ -212,8 +173,6 @@
   animation-delay: calc(var(--word-index) * 0.18s);
 }
 
-/* После проявления кнопка живёт на transition (ховер/нажатие), а не на
-   keyframes — forwards-анимация иначе перебила бы transform */
 .vacancies.is-visible .vacancies__button {
   animation-name: word-reveal-button;
 }
@@ -262,7 +221,6 @@
     font-size: 16px;
   }
 
-  /* Кнопки чуть меньше десктопных */
   .vacancies__actions {
     gap: 12px;
   }
@@ -280,9 +238,6 @@
 
 }
 
-/* Планшет и телефон (Figma 411:3457): сверху картинка 116, под ней
-   текст и кнопки. Следа за курсором нет, картинка меняется по скроллу:
-   новая выезжает из размытия и мелкого масштаба, старая уходит в него (по таймеру). */
 @media (max-width: 1024px) {
   .vacancies__trail {
     display: none;

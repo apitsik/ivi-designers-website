@@ -19,35 +19,26 @@
   --color-white-72: rgba(255, 255, 255, 0.72);
   --color-white-32: rgba(255, 255, 255, 0.32);
   --color-bg: #050005;
-  /* Курсоры из макета (public/cursors). Числа после файла — точка клика:
-     остриё стрелки и кончик указательного пальца. Везде, где в модулях
-     стоял pointer или default, подставляются эти переменные. */
   --cursor-arrow: url('/cursors/arrow.svg') 3 1, url('/cursors/arrow.png') 3 1, default;
   --cursor-hand: url('/cursors/hand.svg') 10 1, url('/cursors/hand.png') 10 1, pointer;
 
   --font-base: 'IVI Sans Base', system-ui, sans-serif;
 
-  /* p3: 16 / 1.2 */
   --p3-size: 16px;
   --p3-line: 1.2;
-  /* p2: 18 / 1.2 */
   --p2-size: 18px;
   --p2-line: 1.2;
-  /* H1: 80 / 0.92, letter-spacing -4% */
   --h1-size: clamp(44px, 5.56vw, 80px);
   --h1-line: 0.92;
   --h1-tracking: -0.04em;
 }
 
-/* Планшет: H2 — 64 при ширине макета 832 (Figma «Resizes», 394:929) */
 @media (min-width: 721px) and (max-width: 1024px) {
   :root {
     --h1-size: clamp(48px, 7.7vw, 64px);
   }
 }
 
-/* Телефон: все заголовки H2 блоков — 36 (макет 382:3988), P2 и P1 — 16.
-   Заголовок хиро задан отдельно (48). */
 @media (max-width: 720px) {
   :root {
     --h1-size: clamp(30px, 9.16vw, 36px);
@@ -56,7 +47,6 @@
   }
 }
 
-/* Заголовки вне плашек: отступ 16 px от краёв экрана (планшет и телефон) */
 @media (max-width: 1024px) {
   .showreels__head,
   .grid__title,
@@ -81,11 +71,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ----- курсоры (Figma 302:5761) -----
-   Иконки из макета лежат в public/cursors: стрелка по всей странице,
-   рука — на всём, что кликается. Сначала SVG (чёткий в Chrome),
-   следом PNG для браузеров без SVG-курсоров, в конце системный.
-   Числа после файла — точка клика: кончик стрелки и кончик пальца. */
 html,
 body {
   cursor: var(--cursor-arrow);
@@ -119,11 +104,6 @@ h1 {
   margin: 0;
 }
 
-/* ---------- Навигация ---------- */
-
-/* Пункты меню рисуются в режиме difference: белый текст инвертирует
-   то, что под ним (на тёмном — белый, на светлом — тёмный).
-   Логотип из этого эффекта исключён — он показывается как есть. */
 .nav {
   position: fixed;
   top: 0;
@@ -160,9 +140,6 @@ h1 {
   gap: 16px;
 }
 
-/* Пункт — маска высотой в одну строку. Внутри столбиком две копии текста:
-   верхняя 72%, нижняя белая. По ховеру столбик уезжает вверх на строку —
-   верхняя уходит под маску, нижняя занимает её место (как state=v в Figma). */
 .nav__item {
   --row: 19px;
   display: block;
@@ -192,13 +169,11 @@ h1 {
   color: var(--color-white);
 }
 
-/* Уход курсора — чуть быстрее и спокойнее, чем приход */
 .nav__item:not(:hover):not(:focus-visible) .nav__label {
   transition-duration: 0.35s;
   transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
 }
 
-/* Нажатие — нижняя копия приглушается до 32% (state=press) */
 .nav__item:active .nav__label::after {
   color: var(--color-white-32);
 }
@@ -208,16 +183,10 @@ h1 {
   outline-offset: 4px;
 }
 
-/* Ховер ссылок шапки и футера: под текстом рисуется малиновый мазок-«зигзаг»
-   (Figma 418:3892, вектор hover). Три варианта формы (наклон тот же), чтобы
-   соседние ссылки не повторяли друг друга. Мазок — inline-SVG из src/link-scribble.js;
-   толщина линии не зависит от растяжения (non-scaling-stroke), а проявляется
-   он слева направо. */
 .nav__item,
 .footer__link {
   position: relative;
   overflow: visible;
-  /* Второй копии текста (была для «выезда» снизу) больше нет */
 }
 
 .nav__label::after,
@@ -245,7 +214,6 @@ h1 {
   stroke-width: 10px;
   stroke-linecap: round;
   stroke-linejoin: round;
-  /* Спрятан целиком (иначе круглый кончик виден точкой слева) */
   clip-path: inset(-20px 100% -20px 0);
   transition: clip-path 0.32s cubic-bezier(0.65, 0, 0.35, 1);
 }
@@ -254,8 +222,6 @@ h1 {
   vector-effect: non-scaling-stroke;
 }
 
-/* Три формы с тем же наклоном вверх вправо, как в макете: как нарисовано;
-   пониже и чуть положе; повыше и чуть круче */
 .scribble--2 {
   transform: scaleY(0.82) rotate(-1.5deg);
 }
@@ -274,7 +240,6 @@ h1 {
   }
 }
 
-/* Текст на мазке белый — и в шапке, и в светлом футере */
 .footer__link:hover .footer__link-label,
 .footer__link:focus-visible .footer__link-label {
   color: var(--color-white);
@@ -301,10 +266,6 @@ h1 {
 }
 
 @media (max-width: 900px) {
-  /* Макет мобильной версии (382:3280): слева пусто, по центру логотип 48,
-     справа кнопка меню. Ссылки уезжают в попап (src/nav-menu.js).
-     Включается уже на планшете: шесть ссылок в строку там налезают
-     на логотип. */
   .nav {
     height: 80px;
     padding: 16px 24px;
@@ -321,10 +282,7 @@ h1 {
   }
 }
 
-/* ---------- Hero ---------- */
-
 .hero {
-  /* sticky: плашка шоурилов наезжает на хиро сверху (см. showreels.css) */
   position: sticky;
   top: 0;
   z-index: 0;
@@ -336,15 +294,10 @@ h1 {
   padding: 158px 24px;
   overflow: hidden;
   isolation: isolate;
-  /* Слой создаётся сразу, а не на первом скролле: иначе в момент, когда
-     браузер поднимает хиро в отдельный слой, он успевает показать один
-     пустой кадр — это и было белое мерцание */
   will-change: opacity, transform;
   transform: translateZ(0);
 }
 
-/* Фон лежит обычным слоем под контентом. С z-index: -1 он выпадал из
-   поднятого слоя хиро и на кадр исчезал. */
 .hero__background {
   position: absolute;
   inset: 0;
@@ -378,15 +331,10 @@ h1 {
   pointer-events: none;
 }
 
-/* ----- награда Red Dot (Figma 314:5880) -----
-   Надпись 220 × 119 прижата к правому нижнему углу. Шарик лежит под ней
-   и по наведению выезжает влево — как будто вылезает из-за надписи. */
 .hero__award {
   position: absolute;
   right: 32px;
   bottom: 24px;
-  /* Выше подсветки под курсором (.hero__spotlight, z-index 3):
-     точки и свечение не должны ложиться на стикер */
   z-index: 4;
   display: block;
   width: 220px;
@@ -419,13 +367,6 @@ h1 {
   transform: none;
 }
 
-/* Голографический проблеск: по наведению слева направо по стикеру
-   проходит перламутровая полоса. Слой — копия формы надписи (маска по её
-   альфа-каналу), поэтому блик лежит только на самой наклейке и не
-   вылезает за её контур. Полоса нарисована на фоне втрое шире стикера
-   и едет сдвигом background-position: считать в JS нечего. Цвета
-   пастельные и полупрозрачные, режим overlay — блик подмешивается к
-   рисунку, а не перекрашивает его. */
 .hero__award::after {
   content: '';
   position: absolute;
@@ -481,7 +422,7 @@ h1 {
 
 .hero__subtitle {
   position: relative;
-  max-width: 440px; /* две строки, как в макете */
+  max-width: 440px;
   margin-inline: auto;
   font-size: var(--p2-size);
   font-weight: 400;
@@ -494,8 +435,6 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Макет 1:8: от подписи до заголовка 72 (24 от hero__content + 48
-     отсюда), от заголовка до подзаголовка 280 */
   gap: 280px;
   width: 100%;
   padding: 48px 0 24px;
@@ -510,19 +449,16 @@ h1 {
 }
 
 @media (max-width: 720px) {
-  /* Фон под телефон: вертикальная картинка, подстраивается под окно */
   .hero__background {
     background-image: url('/images/hero-background-mobile.jpg');
     background-position: center;
     background-size: cover;
   }
 
-  /* Макет 382:3280: блок текста стоит чуть выше центра окна */
   .hero {
     padding: 70px 16px 137px;
   }
 
-  /* В макете подпись → заголовок 46 (22 + 24), без лишних полей */
   .hero__text {
     gap: 140px;
     padding: 0;
@@ -545,8 +481,6 @@ h1 {
     max-width: 332px;
   }
 
-  /* Наклейка Red Dot на телефоне не помещается — вместо неё плашка-виджет
-     про награду (src/hero-notes.js, флаг award) */
   .hero__award {
     display: none;
   }
