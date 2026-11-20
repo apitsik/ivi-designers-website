@@ -255,6 +255,22 @@
   }
 }
 
+/* Планшет и телефон: столбики ссылок выровнены по левому краю */
+@media (max-width: 1024px) {
+  .footer__links {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .footer__link {
+    text-align: left;
+  }
+
+  .footer__link-label {
+    align-items: flex-start;
+  }
+}
+
 @media (max-width: 960px) {
   .footer__line2 {
     flex-wrap: wrap;
