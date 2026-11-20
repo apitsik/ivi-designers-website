@@ -54,6 +54,49 @@ export function initVacancies(section) {
 
   initReveal(section);
   initTrail(section);
+  initScrollPic(section);
+}
+
+// ----- планшет и телефон: картинка над заголовком меняется по скроллу -----
+
+const PIC_COUNT = 6;
+
+function initScrollPic(section) {
+  const pic = section.querySelector('.vacancies__pic');
+  if (!pic) return;
+  const names = shuffle(IMAGES.slice()).slice(0, PIC_COUNT);
+  const imgs = names.map((src) => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = '';
+    img.decoding = 'async';
+    img.draggable = false;
+    pic.appendChild(img);
+    return img;
+  });
+  const compact = window.matchMedia('(max-width: 1024px)');
+  let current = -1;
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    if (!compact.matches) return;
+    const r = section.getBoundingClientRect();
+    const vh = window.innerHeight;
+    // 0 — секция только показалась снизу, 1 — верх секции у верха экрана
+    const p = Math.min(0.999, Math.max(0, (vh - r.top) / (vh + r.height * 0.4)));
+    const idx = Math.floor(p * imgs.length);
+    if (idx === current) return;
+    imgs.forEach((im, i) => im.classList.toggle('is-on', i === idx));
+    current = idx;
+  };
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  update();
 }
 
 // ----- проявление: слова H2, затем подзаголовок и кнопка -----
