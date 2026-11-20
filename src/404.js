@@ -15,6 +15,10 @@ const EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 const root = document.querySelector('.nf');
+// «На главную» ведёт в корень сайта: на github.io это папка проекта, а не корень
+// домена, поэтому ссылку берём из <base>, который выставлен в 404.html
+const home = document.querySelector('.nf__home');
+if (home) home.href = document.baseURI;
 const layer = document.querySelector('.nf__stickers');
 
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -51,6 +55,35 @@ for (let r = 0; r < rows; r += 1) {
       rot,
     });
   }
+}
+// Закрываем «дыры»: проходим по сетке точек и, где ни один стикер не лежит,
+// добавляем ещё один — так чёрных просветов на экране не остаётся
+const covered = (px, py) =>
+  items.some((it) => {
+    const w = it.w * 0.84;
+    const h = it.w * RATIO[it.n] * 0.7;
+    const a = (-it.rot * Math.PI) / 180;
+    const dx = px - it.x;
+    const dy = py - it.y;
+    const lx = dx * Math.cos(a) - dy * Math.sin(a);
+    const ly = dx * Math.sin(a) + dy * Math.cos(a);
+    return Math.abs(lx) < w / 2 && Math.abs(ly) < h / 2;
+  });
+for (let pass = 0; pass < 40; pass += 1) {
+  let hole = null;
+  for (let y = 0; y <= H && !hole; y += 36) {
+    for (let x = 0; x <= W && !hole; x += 36) {
+      if (!covered(x, y)) hole = { x, y };
+    }
+  }
+  if (!hole) break;
+  items.push({
+    n: Math.floor(Math.random() * 3) + 1,
+    x: hole.x + rand(-20, 20),
+    y: hole.y + rand(-14, 14),
+    w: BASE_W,
+    rot: (Math.random() < 0.5 ? -1 : 1) * rand(6, 34),
+  });
 }
 shuffle(items);
 
