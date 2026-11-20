@@ -297,18 +297,120 @@
   }
 }
 
-@media (max-width: 720px) {
+/* Планшет (Figma «Grid», 397:3351): тот же состав, но ряды поуже, сетка
+   800 при кадре 832. Ширины в процентах от ширины сетки. */
+@media (max-width: 1024px) {
   .grid {
-    padding-inline: 8px;
+    padding: 160px 16px 24px;
   }
 
-  /* Телефон: мозаика в два столбца вместо трёх рядов десктопа, чтобы
-     картинки были крупнее. Ряды и колонки «растворяем» (display: contents),
-     и все ячейки ложатся прямо в сетку; где ячеек две, вторая тянется
-     по высоте первой (object-fit: cover обрезает кадр). */
+  .grid__inner {
+    gap: 80px;
+  }
+
+  .grid__title {
+    max-width: none;
+    width: 100%;
+  }
+
+  .grid__row--1 {
+    justify-content: space-between;
+  }
+
+  .grid__item--1 {
+    width: 15%; /* 120 / 800 */
+    aspect-ratio: 1;
+  }
+
+  .grid__item--2 {
+    width: 84%; /* 672 / 800 */
+    aspect-ratio: 672 / 280;
+    border-radius: 500px;
+  }
+
+  .grid__item--3 {
+    flex: 0 0 auto;
+    width: 49.375%; /* 395 / 800 */
+    aspect-ratio: 395 / 500;
+    border-radius: 500px;
+  }
+
+  .grid__col--2 {
+    flex: 1 0 0;
+  }
+
+  .grid__item--4 {
+    aspect-ratio: 397 / 341.26;
+  }
+
+  .grid__item--5 {
+    width: 57.4%; /* 227,9 / 397 */
+    aspect-ratio: 227.88 / 151.74;
+    border-radius: 48px;
+  }
+
+  .grid__item--6 {
+    width: 25.19%; /* 100 / 397 */
+    aspect-ratio: 100 / 78;
+  }
+
+  .grid__row--3 {
+    width: 100%;
+  }
+
+  .grid__col--3 {
+    flex: 0 0 auto;
+    width: 49.5%; /* 396 / 800 */
+  }
+
+  .grid__item--7 {
+    width: 65.66%; /* 260 / 396 */
+    aspect-ratio: 260 / 148;
+    border-radius: 0;
+  }
+
+  .grid__item--8 {
+    aspect-ratio: 396 / 268.125;
+  }
+
+  .grid__item--9 {
+    flex: 1 0 0;
+    width: auto;
+    aspect-ratio: 396 / 424.125;
+    border-radius: 80px;
+  }
+
+  .grid__button {
+    gap: 16px;
+    min-height: 0;
+    padding: 48px 16px;
+    border-radius: 600px;
+  }
+
+  .grid__button-text {
+    font-size: 32px;
+  }
+
+  .grid__button-image {
+    width: 119px;
+  }
+}
+
+/* Телефон (Figma «Grid», 397:3400): мозаика 376 в три дорожки
+   80 | 162,9 | 117,1 (зазор 8). Ряды и колонки «растворяем»
+   (display: contents), и ячейки ложатся прямо в сетку. */
+@media (max-width: 720px) {
+  .grid {
+    padding: 160px 8px 16px;
+  }
+
+  .grid__inner {
+    gap: 48px;
+  }
+
   .grid__images {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 80fr 162.86fr 117.14fr;
     gap: 8px;
   }
 
@@ -319,26 +421,43 @@
 
   .grid__item {
     width: auto;
-    aspect-ratio: auto;
-    align-self: stretch;
+    align-self: start;
     min-height: 0;
+    border-radius: 0;
   }
 
-  .grid__item--2 { grid-area: 1 / 1 / 2 / 3; aspect-ratio: 973 / 400; border-radius: 160px; }
-  .grid__item--3 { grid-area: 2 / 1 / 3 / 2; aspect-ratio: 710 / 898; border-radius: 160px; }
-  .grid__item--1 { grid-area: 2 / 2 / 3 / 3; border-radius: 40px; }
-  .grid__item--4 { grid-area: 3 / 1 / 4 / 3; aspect-ratio: 698 / 600; border-radius: 40px; }
-  .grid__item--7 { grid-area: 4 / 1 / 5 / 3; aspect-ratio: 359 / 205; border-radius: 100px; }
-  .grid__item--6 { grid-area: 5 / 1 / 6 / 2; aspect-ratio: 190 / 147; border-radius: 40px; }
-  .grid__item--5 { grid-area: 5 / 2 / 6 / 3; border-radius: 40px; }
-  .grid__item--9 { grid-area: 6 / 1 / 7 / 2; aspect-ratio: 1392 / 1436; border-radius: 120px; }
-  .grid__item--8 { grid-area: 6 / 2 / 7 / 3; border-radius: 40px; }
+  .grid__item--2 { grid-area: 1 / 1 / 2 / 4; aspect-ratio: 376 / 170; border-radius: 500px; }
+  .grid__item--1 { grid-area: 2 / 1 / 3 / 2; aspect-ratio: 1; }
+  .grid__item--3 { grid-area: 2 / 2 / 3 / 4; aspect-ratio: 288 / 364.26; border-radius: 500px; }
+  .grid__item--4 { grid-area: 3 / 1 / 4 / 3; aspect-ratio: 250.86 / 215.64; }
+  .grid__item--7 { grid-area: 4 / 1 / 5 / 4; aspect-ratio: 376 / 214.74; width: auto; }
+  .grid__item--8 { grid-area: 5 / 1 / 6 / 4; aspect-ratio: 376 / 254.58; }
+  .grid__item--9 { grid-area: 6 / 1 / 7 / 4; aspect-ratio: 376 / 400; border-radius: 80px; }
 
-  /* Плашка-кнопка: скругление поменьше, чтобы не выглядела кругом */
+  /* правая колонка ряда 3: две маленькие картинки друг под другом */
+  .grid__col--2 > .grid__row {
+    grid-area: 3 / 3 / 4 / 4;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .grid__item--5 { width: 100%; aspect-ratio: 117.14 / 78; border-radius: 24px; }
+  .grid__item--6 { width: 85.4%; aspect-ratio: 100 / 78; }
+
   .grid__button {
-    grid-area: 7 / 1 / 8 / 3;
-    min-height: 0;
-    padding: 40px 24px;
-    border-radius: 56px;
+    grid-area: 7 / 1 / 8 / 4;
+    gap: 8px;
+    padding: 32px 16px;
+    border-radius: 80px;
+  }
+
+  .grid__button-text {
+    font-size: 20px;
+  }
+
+  .grid__button-image {
+    width: 70px;
   }
 }

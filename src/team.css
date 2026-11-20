@@ -86,8 +86,15 @@
    когда уехала третья папка. --swap ставит team.js. */
 .team__title--others {
   top: 15.63%; /* 130 / 832 — в макете step 16 заголовок выше, чем у первого */
-  opacity: calc(var(--swap, 0) * (1 - var(--swapout, 0)));
+  opacity: calc(1 - var(--swapout, 0));
   filter: blur(calc(var(--swapout, 0) * 12px));
+  pointer-events: none;
+}
+
+/* слова ждут в блюре и проявляются волной, когда team.js ставит .is-in */
+.team.is-visible .team__title--others.is-in .word {
+  animation: word-reveal 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation-delay: calc(var(--word-index) * 0.18s);
 }
 
 /* Тот же эффект, что у остальных H2 (showreels.css, extra-text.css):
@@ -100,7 +107,7 @@
   will-change: opacity, filter, transform;
 }
 
-.team.is-visible .team__title .word {
+.team.is-visible .team__title:not(.team__title--others) .word {
   animation: word-reveal 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
   animation-delay: calc(var(--word-index) * 0.18s);
 }

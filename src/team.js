@@ -84,14 +84,14 @@ const PHONE = {
   folders: [
     // enter — шаг 1 (папки въезжают с поворотом), stack — шаг 2 (собрались)
     { enter: [37, 210, 8.1], stack: [43, 220, 3.7], park: null, rest: [49, 159] },
-    { enter: [17, 348, -8.9], stack: [21, 308, -6], park: [40, 445, -5.7], rest: [49, 227] },
+    { enter: [17, 348, -8.9], stack: [21, 308, -6], park: [40, 497, -5.7], rest: [49, 227] },
     { enter: [41, 530, 14.8], stack: [54, 414, 4.8], park: [58, 567, 2.4], rest: [49, 229] },
   ],
   // стикеры: центр в макете [x, y] и масштаб (boost) относительно папки
   stickers: [
     [[48, 247], [319, 360.5], [135.5, 403]],
     [[33, 272.5], [363.5, 426.5], [133.5, 474.5], null],
-    [[362.5, 369, 0.77], [81, 433.5, 0.77]],
+    [[362.5, 369, 0.77], [81, 433.5, 0.77], [96, 168, 0.77]],
   ],
 };
 
@@ -102,7 +102,7 @@ const TABLET = {
   title: 236,
   folders: [
     { stack: [106, 476, 3.7], park: null, rest: [113, 488] },
-    { stack: [8, 687, -6], park: [94, 1131, -5.7], rest: [113, 488] },
+    { stack: [8, 687, -6], park: [94, 1165, -5.7], rest: [113, 488] },
     { stack: [82, 992, 4.8], park: [131, 1250, 2.4], rest: [113, 488] },
   ],
   stickers: [
@@ -141,12 +141,14 @@ const SWAP_FROM = OTHERS_START - 0.01;
 const SWAP_TO = OTHERS_START + 0.05;
 // Фото выходят снизу по очереди
 const PHOTO_START = OTHERS_START;
-const PHOTO_GAP = 0.025;
+// Фото и стикеры чередуются: фото, стикер, фото, стикер…
+const SLOT = 0.024;
+const PHOTO_GAP = SLOT * 2;
 const PHOTO_LEN = 0.085;
 const PHOTO_RISE = 520;
 // Затем по очереди приклеиваются стикеры
-const NOTE_START = OTHERS_START + 0.14;
-const NOTE_GAP = 0.016;
+const NOTE_START = OTHERS_START + SLOT;
+const NOTE_GAP = SLOT * 2;
 const NOTE_LEN = 0.04;
 // На сколько стикер отогнут от стены, пока не приклеился
 const NOTE_TILT = 78;
@@ -168,6 +170,7 @@ export function initTeam(section, modal) {
     splitWords(title);
     observeReveal(scene, section);
   }
+  if (titleOthers) splitWords(titleOthers);
 
   section.style.setProperty('--steps', STEPS);
 
@@ -487,6 +490,8 @@ export function initTeam(section, modal) {
     const swap = ease(range(p, SWAP_FROM, SWAP_TO));
     scene?.style.setProperty('--swap', swap.toFixed(4));
     titleOthers?.setAttribute('aria-hidden', swap > 0.5 ? 'false' : 'true');
+    // слова проявляются из блюра, как у остальных H2
+    titleOthers?.classList.toggle('is-in', swap > 0.3);
 
     items.forEach((item, i) => placeFolder(item, i, p));
     placeOthers(p);
@@ -515,14 +520,11 @@ export function initTeam(section, modal) {
       // своей очереди ещё нет: опускаемся из стопки вниз и ждём
       const t = glide(range(p, PREVIEW_END, PREVIEW_END + ARRIVE * SPAN));
       pos = mix(stack, park, t);
-      // телефон и планшет: ждущая папка притушена, чтобы надпись на ней
-      // не уводила взгляд от активной
-      if (cfg.compact) fo = 1 - 0.7 * t;
+
     } else if (p < arriveTo) {
       // едем на своё место: первая — прямо из стопки, остальные — снизу
       const t = glide(range(p, arriveFrom, arriveTo));
       pos = mix(i === 0 ? stack : park, REST, t);
-      if (cfg.compact && i > 0) fo = 0.3 + 0.7 * t;
     } else if (p > leaveFrom) {
       // уходим вверх — третья папка тоже, за ней начинается четвёртый экран.
       // На телефоне и планшете первая и вторая папки сперва остаются сверху
