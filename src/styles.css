@@ -215,7 +215,7 @@ h1 {
   stroke-linecap: round;
   stroke-linejoin: round;
   clip-path: inset(-20px 100% -20px 0);
-  transition: clip-path 0.32s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: clip-path 0.45s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .scribble path {
@@ -223,11 +223,25 @@ h1 {
 }
 
 .scribble--2 {
-  transform: scaleY(0.82) rotate(-1.5deg);
+  transform: scaleY(0.9) rotate(-1deg);
 }
 
 .scribble--3 {
-  transform: scaleY(1.12) rotate(1.5deg);
+  transform: scaleY(1.2) rotate(2deg);
+  left: -4px;
+  width: calc(100% + 13px);
+}
+
+.scribble--4 {
+  transform: scaleY(0.75) rotate(-2.5deg) translateY(1px);
+  left: -1px;
+  width: calc(100% + 6px);
+}
+
+.scribble--5 {
+  transform: scaleY(1.05) rotate(1deg) skewX(-6deg);
+  left: -3px;
+  width: calc(100% + 11px);
 }
 
 @media (hover: hover) {
@@ -236,7 +250,7 @@ h1 {
   .footer__link:hover .scribble,
   .footer__link:focus-visible .scribble {
     clip-path: inset(-20px -20px -20px -20px);
-    transition: clip-path 0.42s cubic-bezier(0.65, 0, 0.35, 1);
+    transition: clip-path 0.62s cubic-bezier(0.65, 0, 0.35, 1);
   }
 }
 
