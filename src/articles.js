@@ -404,7 +404,7 @@ export function initArticles(section, modal) {
         const img = document.createElement('img');
         img.className = 'article-modal__img';
         img.alt = '';
-        img.loading = 'lazy';
+        img.decoding = 'async';
         const src = `images/articles/article-${i + 1}-image.jpg`;
         img.src = src;
 
@@ -596,6 +596,17 @@ export function initArticles(section, modal) {
       if (!modal.hidden) go(index, false);
     });
 
+    // Картинки карточек грузим заранее: иначе при первом открытии после
+    // обновления сайта белая карточка вспыхивает пустой, пока они едут
+    const preload = () => {
+      slides.forEach((slide) => {
+        const im = slide.querySelector('.article-modal__img');
+        if (im) im.decode?.().catch(() => {});
+      });
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(preload, { timeout: 4000 });
+    else setTimeout(preload, 2500);
+
     return (i) => {
       opener = cards[i];
       clearTimeout(hideTimer);
@@ -605,7 +616,12 @@ export function initArticles(section, modal) {
       document.body.classList.add('video-modal-open');
       lenis?.stop();
       go(N + i, false);
-      requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add('video-modal--open')));
+      // Показываем попап, когда картинка активной карточки готова (но не дольше 500 мс)
+      const activeImg = slides[N + i]?.querySelector('.article-modal__img');
+      const ready = activeImg && !activeImg.complete
+        ? Promise.race([activeImg.decode().catch(() => {}), new Promise((r) => setTimeout(r, 500))])
+        : Promise.resolve();
+      ready.then(() => requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add('video-modal--open'))));
       closeBtn.focus({ preventScroll: true });
     };
   })();
