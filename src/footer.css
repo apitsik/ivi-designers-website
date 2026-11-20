@@ -229,7 +229,6 @@
 .footer__link:hover .footer__link-label,
 .footer__link:focus-visible .footer__link-label {
   opacity: 1;
-  transform: translateY(calc(-1 * var(--row) - 1px));
 }
 
 /* Уход курсора — чуть быстрее и спокойнее, чем приход */

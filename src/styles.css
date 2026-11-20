@@ -187,9 +187,9 @@ h1 {
   transition: color 0.12s ease-out;
 }
 
-.nav__item:hover .nav__label,
-.nav__item:focus-visible .nav__label {
-  transform: translateY(calc(-1 * var(--row) - 1px));
+.nav__item:hover,
+.nav__item:focus-visible {
+  color: var(--color-white);
 }
 
 /* Уход курсора — чуть быстрее и спокойнее, чем приход */
@@ -241,8 +241,8 @@ h1 {
 
 @keyframes scribble {
   0% { background-size: 0 60%, 0 60%, 0 60%; }
-  38% { background-size: 100% 60%, 0 60%, 0 60%; }
-  70% { background-size: 100% 60%, 100% 60%, 0 60%; }
+  35% { background-size: 70% 60%, 40% 60%, 15% 60%; }
+  70% { background-size: 100% 60%, 85% 60%, 55% 60%; }
   100% { background-size: 100% 60%, 100% 60%, 100% 60%; }
 }
 
