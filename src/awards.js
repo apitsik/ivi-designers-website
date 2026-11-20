@@ -71,13 +71,40 @@ export function initAwards(section) {
 
     const name = document.createElement('span');
     name.className = 'award__name';
-    name.textContent = award.name;
+    // «Award» в конце на планшете и телефоне не нужен (макет «Resizes»)
+    if (award.name.endsWith(' Award')) {
+      name.append(award.name.slice(0, -6));
+      const extra = document.createElement('span');
+      extra.className = 'award__name-extra';
+      extra.textContent = ' Award';
+      name.append(extra);
+    } else {
+      name.textContent = award.name;
+    }
 
     const status = document.createElement('span');
     status.className = 'award__status';
     status.textContent = award.status;
 
-    item.append(name, ' ', status);
+    // строка «название + статус» и картинка проекта под ней: картинка
+    // видна только у «горящей» награды на планшете и телефоне
+    const row = document.createElement('span');
+    row.className = 'award__row';
+    row.append(name, ' ', status);
+
+    const pic = document.createElement('span');
+    pic.className = 'award__pic';
+    const picIn = document.createElement('span');
+    picIn.className = 'award__pic-in';
+    const picImg = document.createElement('img');
+    picImg.alt = '';
+    picImg.loading = 'lazy';
+    picImg.decoding = 'async';
+    picImg.src = award.image;
+    picIn.append(picImg);
+    pic.append(picIn);
+
+    item.append(row, pic);
     list.append(item);
     return item;
   });
@@ -104,6 +131,41 @@ export function initAwards(section) {
   warm.observe(section);
 
   observeReveal(section);
+
+  // ----- планшет и телефон: подсвечиваем награды по очереди -----
+  // Список в колонку, «горит» награда, ближайшая к середине экрана; под ней
+  // раскрывается картинка. Положение считаем по строкам без раскрытой
+  // картинки, иначе раскрытие сдвигало бы список и фокус дёргался бы.
+  const compact = window.matchMedia('(max-width: 720px), (max-width: 1024px) and (orientation: portrait)');
+  let focused = -1;
+  const setFocus = (k) => {
+    if (k === focused) return;
+    focused = k;
+    section.classList.toggle('is-focusing', k >= 0);
+    items.forEach((item, i) => item.classList.toggle('is-focus', i === k));
+  };
+  const updateFocus = () => {
+    if (!compact.matches) {
+      setFocus(-1);
+      return;
+    }
+    const first = items[0];
+    const rowH = first.querySelector('.award__row').offsetHeight;
+    const gap = parseFloat(getComputedStyle(list).rowGap) || 0;
+    const step = rowH + gap;
+    const top = list.getBoundingClientRect().top;
+    const mid = window.innerHeight / 2;
+    const raw = (mid - top - rowH / 2) / step;
+    const sectionRect = section.getBoundingClientRect();
+    if (raw < -0.6 || sectionRect.bottom < window.innerHeight * 0.35) {
+      setFocus(-1);
+      return;
+    }
+    setFocus(clamp(Math.round(raw), 0, items.length - 1));
+  };
+  window.addEventListener('scroll', updateFocus, { passive: true });
+  window.addEventListener('resize', updateFocus);
+  updateFocus();
 
   // ----- превью за курсором -----
   if (!preview || layers.length < 2) return;
@@ -190,4 +252,8 @@ export function initAwards(section) {
     },
     { passive: true },
   );
+}
+
+function clamp(v, min, max) {
+  return Math.min(Math.max(v, min), max);
 }

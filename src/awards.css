@@ -265,3 +265,159 @@
     white-space: normal;
   }
 }
+
+/* ----- планшет и телефон (Figma «Awards», 397:3078) -----
+   Награды в одну колонку. Когда блок проезжает середину экрана, по очереди
+   «загорается» одна награда (остальные 20 %), а под ней раскрывается
+   картинка проекта. Шрифт везде IVI Sans Base. Список подсвечивает awards.js. */
+
+.award__row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.award__pic {
+  display: none;
+}
+
+@media (max-width: 720px), (max-width: 1024px) and (orientation: portrait) {
+  .awards {
+    /* пустой низ экрана команд: награды начинаются раньше */
+    margin-top: -32svh;
+    padding: 96px 10px 96px;
+    --award-name: 32px;
+    --award-status: 12px;
+    --award-gap: 16px;
+    --award-pic-w: 137px;
+    --award-icon-w: 93px;
+    --award-icon-h: 44px;
+  }
+
+  /* залипание десктопа здесь не нужно */
+  .awards::after {
+    display: none;
+  }
+
+  .awards__inner {
+    position: static;
+    min-height: 0;
+    width: 100%;
+    gap: 48px;
+  }
+
+  .awards__title {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .awards__list {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--award-gap);
+    width: 100%;
+  }
+
+  .award {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .award__row {
+    gap: 4px;
+    justify-content: center;
+    flex-wrap: wrap;
+    transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .award__name {
+    font-size: var(--award-name);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+  }
+
+  .award__name-extra {
+    display: none;
+  }
+
+  .award__status {
+    font-size: var(--award-status);
+    line-height: 1.2;
+  }
+
+  /* картинка раскрывается под горящей наградой */
+  .award__pic {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s cubic-bezier(0.25, 1, 0.5, 1), margin-top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .award__pic-in {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .award__pic img {
+    display: block;
+    width: var(--award-pic-w);
+    height: auto;
+    aspect-ratio: 952 / 552;
+    margin: 0 auto;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .award.is-focus .award__pic {
+    grid-template-rows: 1fr;
+    margin-top: 16px;
+    margin-bottom: 12px;
+  }
+
+  .award.is-focus .award__pic img {
+    opacity: 1;
+  }
+
+  /* остальные гаснут: 20 % */
+  .awards.is-visible.is-focusing .award:not(.is-focus) .award__row {
+    opacity: 0.2;
+  }
+
+  .awards.is-visible .award > * {
+    transition: none;
+  }
+
+  .awards.is-visible .award > .award__row {
+    transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .awards__icon,
+  .awards__icon img {
+    width: var(--award-icon-w);
+    height: var(--award-icon-h);
+  }
+
+  /* превью за курсором тут не нужно */
+  .awards__preview {
+    display: none;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1024px) and (orientation: portrait) {
+  .awards {
+    padding-inline: 16px;
+    --award-name: 56px;
+    --award-status: 14px;
+    --award-gap: 24px;
+    --award-pic-w: 210px;
+    --award-icon-w: 118px;
+    --award-icon-h: 56px;
+  }
+
+  .award__row {
+    gap: 8px;
+  }
+}

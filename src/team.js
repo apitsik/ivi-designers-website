@@ -82,9 +82,10 @@ const PHONE = {
   scale: SCALE_PHONE,
   title: 128, // верх заголовка
   folders: [
-    { stack: [37, 210, 8.1], park: null, rest: [49, 159] },
-    { stack: [17, 348, -8.9], park: [40, 445, -5.7], rest: [49, 227] },
-    { stack: [41, 530, 14.8], park: [58, 567, 2.4], rest: [49, 229] },
+    // enter — шаг 1 (папки въезжают с поворотом), stack — шаг 2 (собрались)
+    { enter: [37, 210, 8.1], stack: [43, 220, 3.7], park: null, rest: [49, 159] },
+    { enter: [17, 348, -8.9], stack: [21, 308, -6], park: [40, 445, -5.7], rest: [49, 227] },
+    { enter: [41, 530, 14.8], stack: [54, 414, 4.8], park: [58, 567, 2.4], rest: [49, 229] },
   ],
   // стикеры: центр в макете [x, y] и масштаб (boost) относительно папки
   stickers: [
@@ -322,13 +323,16 @@ export function initTeam(section, modal) {
     items.forEach((item, i) => {
       const m = mock.folders[i];
       const st = centerOf(m.stack);
+      const en = m.enter ? centerOf(m.enter) : st;
       const rest = centerOf([m.rest[0], m.rest[1], 0]);
       const park = m.park ? centerOf(m.park) : st;
       const x = (cx) => cx;
       // выезд снизу: полностью за нижним краем экрана
       const belowY = stageH + folderPx * 0.75;
       item.cfg = {
-        enter: fold(x(st.cx), belowY + 40 * i, m.stack[2] * 1.5),
+        enter: m.enter
+          ? fold(en.cx, belowY + 60 * i, m.enter[2] * 1.6)
+          : fold(st.cx, belowY + 60 * i, m.stack[2] * 1.5),
         stack: fold(st.cx, st.cy, m.stack[2]),
         park: fold(park.cx, park.cy, m.park ? m.park[2] : 0),
         rest: fold(rest.cx, rest.cy, 0),
@@ -369,19 +373,51 @@ export function initTeam(section, modal) {
         s.node.style.setProperty('--boost', boost);
       });
     });
+    // Предыдущая папка остаётся сверху полупрозрачной: отступ до неё равен
+    // отступу от активной папки до следующей (как карусель)
+    const rest1 = centerOf([mock.folders[1].rest[0], mock.folders[1].rest[1], 0]);
+    const park2 = centerOf(mock.folders[2].park);
+    const gapD = park2.cy - rest1.cy;
+    [0, 1].forEach((i) => {
+      const m = mock.folders[i];
+      const nextRest = centerOf([mock.folders[i + 1].rest[0], mock.folders[i + 1].rest[1], 0]);
+      const own = centerOf([m.rest[0], m.rest[1], 0]);
+      items[i].cfg.prev = fold(own.cx, nextRest.cy - gapD, 0);
+    });
     layoutOthers(u, true, sceneLeft, sceneTop, stageH, phone ? 'phone' : 'tablet');
   };
 
   // Фото и стикеры четвёртого экрана
   const layoutOthers = (u, compact, sceneLeft, sceneTop, stageH, kind = 'phone') => {
+    const stageW = stage ? stage.clientWidth : window.innerWidth;
+    let boost = compact ? COMPACT_OTHERS_BOOST[kind] : 1;
+    let squeeze = 1;
+
+    if (compact && u > 0) {
+      // Всё должно поместиться по высоте окна: если нижний стикер вылезает
+      // за экран, уменьшаем крупность и сжимаем раскладку к верху
+      const top0 = 0.25 * stageH;
+      const limit = stageH - 20;
+      let bottom = 0;
+      [[photos, MOBILE_PHOTOS], [notes, MOBILE_NOTES]].forEach(([list, table]) => {
+        list.forEach((o, k) => {
+          if (!table[k]) return;
+          const h = parseFloat(o.node.dataset.h) * u * boost;
+          bottom = Math.max(bottom, table[k][1] * stageH + h);
+        });
+      });
+      if (bottom > limit) squeeze = clamp((limit - top0) / (bottom - top0), 0.6, 1);
+    }
+
     const place = (list, table) => {
       list.forEach((o, k) => {
         if (compact && u > 0 && table[k]) {
-          const boost = COMPACT_OTHERS_BOOST[kind];
-          const s = u * boost;
-          o.x = (table[k][0] * stage.clientWidth - sceneLeft) / s;
-          o.y = (table[k][1] * stageH - sceneTop) / s;
-          o.node.style.setProperty('--boost', boost);
+          const s = u * boost * squeeze;
+          const top0 = 0.25 * stageH;
+          const y = top0 + (table[k][1] * stageH - top0) * squeeze;
+          o.x = (table[k][0] * stageW - sceneLeft) / s;
+          o.y = (y - sceneTop) / s;
+          o.node.style.setProperty('--boost', boost * squeeze);
         } else {
           o.x = o.x0;
           o.y = o.y0;
@@ -457,7 +493,7 @@ export function initTeam(section, modal) {
   const placeFolder = (item, i, p) => {
     const { el, start, stickers, cfg } = item;
     // Позиции (с учётом полей или макета телефона) считает resize
-    const { enter, stack, park, rest: REST, exit } = cfg;
+    const { enter, stack, park, rest: REST, exit, prev } = cfg;
     // Первая папка выходит прямо из стопки, остальные стартуют с нахлёстом
     const arriveFrom = i === 0 ? start : start - OVERLAP * SPAN;
     const arriveTo = start + ARRIVE * SPAN;
@@ -465,6 +501,7 @@ export function initTeam(section, modal) {
     const leaveTo = start + SPAN;
 
     let pos;
+    let fo = 1;
 
     if (p < STACK_END) {
       // выезжают по очереди снизу и собираются в стопку
@@ -479,8 +516,16 @@ export function initTeam(section, modal) {
       // едем на своё место: первая — прямо из стопки, остальные — снизу
       pos = mix(i === 0 ? stack : park, REST, glide(range(p, arriveFrom, arriveTo)));
     } else if (p > leaveFrom) {
-      // уходим вверх — третья папка тоже, за ней начинается четвёртый экран
-      pos = mix(REST, exit, glide(range(p, leaveFrom, leaveTo)));
+      // уходим вверх — третья папка тоже, за ней начинается четвёртый экран.
+      // На телефоне и планшете первая и вторая папки сперва остаются сверху
+      // полупрозрачными, а уходят совсем, когда уезжает следующая.
+      if (prev) {
+        const out2 = glide(range(p, leaveFrom + SPAN, leaveTo + SPAN));
+        pos = out2 > 0 ? mix(prev, exit, out2) : mix(REST, prev, glide(range(p, leaveFrom, leaveTo)));
+        fo = 1 - 0.7 * glide(range(p, leaveFrom, leaveTo));
+      } else {
+        pos = mix(REST, exit, glide(range(p, leaveFrom, leaveTo)));
+      }
     } else {
       pos = REST;
     }
@@ -488,6 +533,7 @@ export function initTeam(section, modal) {
     el.style.setProperty('--x', `${pos.x.toFixed(2)}px`);
     el.style.setProperty('--y', `${pos.y.toFixed(2)}px`);
     el.style.setProperty('--rot', `${pos.rot.toFixed(2)}deg`);
+    el.style.setProperty('--fo', fo.toFixed(3));
 
     // Навести и открыть папку можно на всём её пути, а не только в
     // финальной точке: ховер и клик живут, пока папку видно на экране.
@@ -516,7 +562,10 @@ export function initTeam(section, modal) {
   const placeOthers = (p) => {
     // Без сглаживания на конце: иначе параллакс замирал прямо перед тем,
     // как сцена отпускает экран, и фото зависали поверх заголовка
-    const out = range(p, OTHERS_OUT, 1);
+    const compact = COMPACT.matches;
+    const out = range(p, compact ? OTHERS_OUT - 0.04 : OTHERS_OUT, compact ? 0.96 : 1);
+    // Надзаголовок уходит целиком в блюр и прозрачность вместе с фото
+    scene?.style.setProperty('--swapout', compact ? ease(range(p, OTHERS_OUT - 0.04, OTHERS_OUT + 0.04)).toFixed(4) : 0);
 
     photos.forEach(({ node, y, frame }, k) => {
       const from = PHOTO_START + k * PHOTO_GAP;
