@@ -208,6 +208,54 @@ h1 {
   outline-offset: 4px;
 }
 
+/* Ховер ссылок шапки и футера: на фоне «заштриховывают» розовым — три
+   неровных мазка маркера ложатся друг за другом под текстом. Маска пункта
+   режет только по высоте строки (clip-path), по бокам мазки выступают. */
+.nav__item,
+.footer__link {
+  position: relative;
+  overflow: visible;
+  clip-path: inset(0 -10px);
+}
+
+.nav__label,
+.footer__link-label {
+  position: relative;
+  z-index: 1;
+}
+
+.nav__item::before,
+.footer__link::before {
+  content: '';
+  position: absolute;
+  inset: 1px -6px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpolygon points='3,6 97,0 100,12 0,19' fill='%23e92153'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpolygon points='0,2 98,7 100,20 2,15' fill='%23e92153'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpolygon points='4,3 99,0 96,17 0,20' fill='%23e92153'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0 0, 100% 50%, 4% 100%;
+  background-size: 94% 58%, 100% 58%, 90% 58%;
+  transition: opacity 0.25s ease-out;
+}
+
+@keyframes scribble {
+  0% { background-size: 0 58%, 0 58%, 0 58%; }
+  38% { background-size: 94% 58%, 0 58%, 0 58%; }
+  70% { background-size: 94% 58%, 100% 58%, 0 58%; }
+  100% { background-size: 94% 58%, 100% 58%, 90% 58%; }
+}
+
+@media (hover: hover) {
+  .nav__item:hover::before,
+  .nav__item:focus-visible::before,
+  .footer__link:hover::before,
+  .footer__link:focus-visible::before {
+    opacity: 1;
+    animation: scribble 0.42s cubic-bezier(0.33, 1, 0.68, 1) both;
+  }
+}
+
 .nav__logo {
   flex: 0 0 auto;
   display: block;

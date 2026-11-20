@@ -205,7 +205,7 @@
   line-height: var(--p3-line);
   text-align: right;
   text-decoration: none;
-  overflow: hidden;
+  overflow: visible;
   cursor: var(--cursor-hand);
   pointer-events: auto;
 }
