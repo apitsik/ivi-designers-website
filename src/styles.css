@@ -223,23 +223,31 @@ h1 {
 }
 
 .scribble--2 {
-  transform: scaleY(0.9) rotate(-1deg);
+  transform: rotate(-1deg);
+  top: 5%;
+  height: 90%;
 }
 
 .scribble--3 {
-  transform: scaleY(1.2) rotate(2deg);
+  transform: rotate(2deg);
+  top: -10%;
+  height: 120%;
   left: -4px;
   width: calc(100% + 13px);
 }
 
 .scribble--4 {
-  transform: scaleY(0.75) rotate(-2.5deg) translateY(1px);
+  transform: rotate(-2.5deg);
+  top: 12%;
+  height: 76%;
   left: -1px;
   width: calc(100% + 6px);
 }
 
 .scribble--5 {
-  transform: scaleY(1.05) rotate(1deg) skewX(-6deg);
+  transform: rotate(1deg);
+  top: -3%;
+  height: 106%;
   left: -3px;
   width: calc(100% + 11px);
 }
