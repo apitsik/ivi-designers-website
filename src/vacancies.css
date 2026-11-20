@@ -290,7 +290,7 @@
 
   .vacancies {
     min-height: 0;
-    padding-block: 120px;
+    padding-block: 120px 220px;
   }
 
   .vacancies__content {
@@ -338,7 +338,7 @@
 
 @media (max-width: 720px) {
   .vacancies {
-    padding-block: 96px;
+    padding-block: 96px 180px;
   }
 
   .vacancies__content {
