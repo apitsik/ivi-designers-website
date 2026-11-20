@@ -208,20 +208,18 @@ h1 {
   outline-offset: 4px;
 }
 
-/* Ховер ссылок шапки и футера: на фоне «заштриховывают» розовым — три
-   наклонных мазка маркера: слева направо, каждый сверху вниз. Мазки целиком
-   внутри маски пункта, наружу не выходят; рисуются слева направо. */
+/* Ховер ссылок шапки и футера: под текстом рисуется малиновый мазок-«зигзаг»
+   (Figma 418:3892, вектор hover). Три варианта формы, чтобы соседние ссылки
+   не повторяли друг друга. Мазок — inline-SVG из src/link-scribble.js;
+   толщина линии не зависит от растяжения (non-scaling-stroke), а проявляется
+   он слева направо. */
 .nav__item,
 .footer__link {
-  --bar: calc(var(--row) + 8px);
   position: relative;
   overflow: visible;
-  /* Поля внутри пункта: мазки закрывают слово целиком */
-  padding-inline: 10px;
-  margin-inline: -10px;
+  /* Второй копии текста (была для «выезда» снизу) больше нет */
 }
 
-/* Второй копии текста (была для «выезда» снизу) больше нет */
 .nav__label::after,
 .footer__link-label::after {
   content: none;
@@ -233,45 +231,51 @@ h1 {
   z-index: 1;
 }
 
-/* Четыре наклонных мазка встык, чуть разной высоты: сверху и снизу
-   торчат их кончики, как у маркера на референсе */
-.nav__item::before,
-.footer__link::before {
-  content: '';
+.scribble {
   position: absolute;
-  inset: -6px 0 -2px;
   z-index: 0;
+  top: 0;
+  left: -2px;
+  width: calc(100% + 9px);
+  height: 100%;
+  overflow: visible;
   pointer-events: none;
-  opacity: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 100' preserveAspectRatio='none'%3E%3Cpolygon points='9,0 19,4 11,100 1,96' fill='%23e92153'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 100' preserveAspectRatio='none'%3E%3Cpolygon points='11,2 20,0 9,97 0,100' fill='%23e92153'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 100' preserveAspectRatio='none'%3E%3Cpolygon points='8,0 20,3 12,100 0,97' fill='%23e92153'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 100' preserveAspectRatio='none'%3E%3Cpolygon points='10,3 19,0 10,98 1,100' fill='%23e92153'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: 0 0, 33.3% 3px, 66.6% 0, 100% 1px;
-  background-size:
-    21% var(--bar), 21% calc(var(--bar) - 4px), 21% var(--bar), 21% calc(var(--bar) - 2px);
-  transition: opacity 0.25s ease-out;
+  fill: none;
+  stroke: #ca0131;
+  stroke-width: 10px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  clip-path: inset(-20px 100% -20px -20px);
+  transition: clip-path 0.22s ease-in;
 }
 
-@keyframes scribble {
-  0% { background-size: 21% 0, 21% 0, 21% 0, 21% 0; }
-  25% { background-size: 21% var(--bar), 21% 0, 21% 0, 21% 0; }
-  50% { background-size: 21% var(--bar), 21% calc(var(--bar) - 4px), 21% 0, 21% 0; }
-  75% { background-size: 21% var(--bar), 21% calc(var(--bar) - 4px), 21% var(--bar), 21% 0; }
-  100% { background-size: 21% var(--bar), 21% calc(var(--bar) - 4px), 21% var(--bar), 21% calc(var(--bar) - 2px); }
+.scribble path {
+  vector-effect: non-scaling-stroke;
 }
 
-/* В футере строка стоит чуть ниже — мазки опускаем вместе с ней */
-.footer__link::before {
-  inset: -3px 0 -5px;
+/* Три формы: как нарисовано; перевёрнутая по вертикали; приплюснутая */
+.scribble--2 {
+  transform: scaleY(-1);
+}
+
+.scribble--3 {
+  transform: scaleY(0.72) translateY(1px);
 }
 
 @media (hover: hover) {
-  .nav__item:hover::before,
-  .nav__item:focus-visible::before,
-  .footer__link:hover::before,
-  .footer__link:focus-visible::before {
-    opacity: 1;
-    animation: scribble 0.6s cubic-bezier(0.33, 1, 0.68, 1) both;
+  .nav__item:hover .scribble,
+  .nav__item:focus-visible .scribble,
+  .footer__link:hover .scribble,
+  .footer__link:focus-visible .scribble {
+    clip-path: inset(-20px -20px -20px -20px);
+    transition: clip-path 0.38s cubic-bezier(0.33, 1, 0.68, 1);
   }
+}
+
+/* Текст на мазке белый — и в шапке, и в светлом футере */
+.footer__link:hover .footer__link-label,
+.footer__link:focus-visible .footer__link-label {
+  color: var(--color-white);
 }
 
 .nav__logo {
