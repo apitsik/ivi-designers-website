@@ -279,6 +279,7 @@ export function initTeam(section, modal) {
           park: { ...base.park, y: base.park.y + outset },
           rest: REST,
           exit: { x: REST.x, y: EXIT_Y - outset, rot: 0 },
+          compact: false,
         };
         item.stickers.forEach((s) => {
           s.x = s.x0;
@@ -337,6 +338,7 @@ export function initTeam(section, modal) {
         park: fold(park.cx, park.cy, m.park ? m.park[2] : 0),
         rest: fold(rest.cx, rest.cy, 0),
         exit: fold(rest.cx, -folderPx * 0.75, 0),
+        compact: true,
       };
       const restTop = rest.cy - folderPx / 2;
       const folderDist = restTop + folderPx + 30; // путь папки до выхода за верх
@@ -511,10 +513,16 @@ export function initTeam(section, modal) {
       pos = stack;
     } else if (p < arriveFrom) {
       // своей очереди ещё нет: опускаемся из стопки вниз и ждём
-      pos = mix(stack, park, glide(range(p, PREVIEW_END, PREVIEW_END + ARRIVE * SPAN)));
+      const t = glide(range(p, PREVIEW_END, PREVIEW_END + ARRIVE * SPAN));
+      pos = mix(stack, park, t);
+      // телефон и планшет: ждущая папка притушена, чтобы надпись на ней
+      // не уводила взгляд от активной
+      if (cfg.compact) fo = 1 - 0.7 * t;
     } else if (p < arriveTo) {
       // едем на своё место: первая — прямо из стопки, остальные — снизу
-      pos = mix(i === 0 ? stack : park, REST, glide(range(p, arriveFrom, arriveTo)));
+      const t = glide(range(p, arriveFrom, arriveTo));
+      pos = mix(i === 0 ? stack : park, REST, t);
+      if (cfg.compact && i > 0) fo = 0.3 + 0.7 * t;
     } else if (p > leaveFrom) {
       // уходим вверх — третья папка тоже, за ней начинается четвёртый экран.
       // На телефоне и планшете первая и вторая папки сперва остаются сверху
@@ -534,6 +542,10 @@ export function initTeam(section, modal) {
     el.style.setProperty('--y', `${pos.y.toFixed(2)}px`);
     el.style.setProperty('--rot', `${pos.rot.toFixed(2)}deg`);
     el.style.setProperty('--fo', fo.toFixed(3));
+    // телефон и планшет: пока папка стоит на месте и её обклеивают
+    // стикерами, она «раскрыта» — как на десктопе при наведении
+    const arriveEnd = start + ARRIVE * SPAN;
+    el.classList.toggle('is-focus', cfg.compact && p > arriveEnd - 0.1 * ARRIVE * SPAN && p < leaveFrom + 0.1 * LEAVE * SPAN);
 
     // Навести и открыть папку можно на всём её пути, а не только в
     // финальной точке: ховер и клик живут, пока папку видно на экране.

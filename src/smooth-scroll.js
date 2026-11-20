@@ -16,6 +16,10 @@ export function initSmoothScroll() {
   lenis = new Lenis({
     duration: 1.2,
     smoothWheel: true,
+    // на сенсорных экранах тоже сглаживаем: без этого блоки вроде наград
+    // проскакивают рывками
+    syncTouch: true,
+    syncTouchLerp: 0.085,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
   });
 
