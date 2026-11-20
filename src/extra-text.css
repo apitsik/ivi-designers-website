@@ -159,18 +159,34 @@
   }
 }
 
-@media (max-width: 720px) {
+/* Планшет (Figma 394:929): плашка 800 × 1021 с полями 16, радиус 200,
+   внутри 16 до текста, икона 138 × 79, заголовок → подзаголовок 32 */
+@media (max-width: 1024px) {
   .extra-text {
     padding: 0 16px 16px;
   }
 
   .extra-text__card {
-    aspect-ratio: auto;
-    min-height: 70vh;
-    gap: 24px;
-    padding: 64px 24px;
-    border-radius: 48px;
+    aspect-ratio: 800 / 1021;
+    gap: 32px;
+    padding: 16px;
+    border-radius: clamp(120px, 24vw, 200px);
     transform: none;
+  }
+}
+
+/* Телефон (Figma 392:878): плашка 376 × 586 с полями 8, радиус 120,
+   внутри 16 до текста, заголовок → подзаголовок 24 */
+@media (max-width: 720px) {
+  .extra-text {
+    padding: 0 8px 8px;
+  }
+
+  .extra-text__card {
+    aspect-ratio: 376 / 586;
+    gap: 24px;
+    padding: 16px;
+    border-radius: 120px;
   }
 
   .extra-text__card::after {
@@ -178,7 +194,7 @@
   }
 
   .extra-text__icon {
-    width: 104px;
-    height: 60px;
+    width: 100px;
+    height: 57px;
   }
 }

@@ -63,19 +63,65 @@ const EXIT_Y = -520;
 // Откуда стикер выезжает: ниже своего места на столько пикселей макета
 const STICKER_RISE = 620;
 
-// Телефон: кадр шире экрана (см. team.css), стикеры подтягиваются к
-// центру, а фото и стикеры четвёртого экрана крупнее и раскладываются
-// по всей высоте экрана (доли ширины и высоты экрана, левый верхний угол)
-const MOBILE = window.matchMedia('(max-width: 720px)');
-const MOBILE_STICKER_PULL = 0.7;
-const MOBILE_OTHERS_BOOST = 1.5;
+// Телефон и планшет (вертикальный): кадр шире экрана, а папки, стикеры и
+// заголовок ставятся не по кадру 1440 × 832, а по отдельным макетам
+// («Resizes» в Figma: team-mobile-step1…9 и Team (step 1…3)). Координаты
+// ниже — пиксели макета (ширина 392 у телефона и 832 у планшета), считаются
+// от центра экрана по высоте, поэтому композиция подстраивается под
+// высоту окна браузера.
+const COMPACT = window.matchMedia('(max-width: 720px), (max-width: 1024px) and (orientation: portrait)');
+const FOLDER_W = 660;
+const SCALE_PHONE = 0.446; // масштаб папки в макете телефона (294 / 660)
+const SCALE_TABLET = 0.918; // и планшета (606 / 660)
+
+// bbox — габарит повёрнутой папки из Figma: [x, y, поворот°]; у папки без
+// поворота это просто левый верхний угол
+const PHONE = {
+  width: 392,
+  height: 662,
+  scale: SCALE_PHONE,
+  title: 128, // верх заголовка
+  folders: [
+    { stack: [37, 210, 8.1], park: null, rest: [49, 159] },
+    { stack: [17, 348, -8.9], park: [40, 445, -5.7], rest: [49, 227] },
+    { stack: [41, 530, 14.8], park: [58, 567, 2.4], rest: [49, 229] },
+  ],
+  // стикеры: центр в макете [x, y] и масштаб (boost) относительно папки
+  stickers: [
+    [[48, 247], [319, 360.5], [135.5, 403]],
+    [[33, 272.5], [363.5, 426.5], [133.5, 474.5], null],
+    [[362.5, 369, 0.77], [81, 433.5, 0.77]],
+  ],
+};
+
+const TABLET = {
+  width: 832,
+  height: 1440,
+  scale: SCALE_TABLET,
+  title: 236,
+  folders: [
+    { stack: [106, 476, 3.7], park: null, rest: [113, 488] },
+    { stack: [8, 687, -6], park: [94, 1131, -5.7], rest: [113, 488] },
+    { stack: [82, 992, 4.8], park: [131, 1250, 2.4], rest: [113, 488] },
+  ],
+  stickers: [
+    // шаг 3 макета: центры bbox
+    [[111.5, 670], [668, 902], [291.5, 990]],
+    null, // стикеры 2-й и 3-й папок: как на телефоне, увеличенные (см. layoutCompact)
+    null,
+  ],
+};
+
+// Фото и стикеры четвёртого экрана: доли ширины и высоты экрана
+// (левый верхний угол) и крупность относительно кадра
+const COMPACT_OTHERS_BOOST = { phone: 1.5, tablet: 1.2 };
 const MOBILE_PHOTOS = [
-  [0.05, 0.27],
+  [0.05, 0.3],
   [0.45, 0.4],
   [0.12, 0.62],
 ];
 const MOBILE_NOTES = [
-  [0.58, 0.255],
+  [0.58, 0.29],
   [0.04, 0.52],
   [0.62, 0.7],
   [0.3, 0.84],
@@ -154,12 +200,18 @@ export function initTeam(section, modal) {
       })
       .sort((a, b) => a.order - b.order);
 
-    return {
-      el,
-      stickers,
+    const base = {
       enter: { x: num(d.stackX), y: num(d.enterY), rot: num(d.enterRot) },
       stack: { x: num(d.stackX), y: num(d.stackY), rot: num(d.stackRot) },
       park: { x: num(d.parkX), y: num(d.parkY), rot: 0 },
+    };
+    return {
+      el,
+      stickers,
+      base,
+      // текущая раскладка (считает resize: на десктопе — из base с полями,
+      // на телефоне и планшете — из макетов выше)
+      cfg: null,
       start: PREVIEW_END + i * SPAN,
     };
   });
@@ -199,42 +251,137 @@ export function initTeam(section, modal) {
     scene.style.setProperty('--u', u);
     const band = stage ? (stage.clientHeight - scene.clientHeight) / 2 : 0;
     outset = MARGIN + (u > 0 ? Math.max(0, band / u) : 0);
-    layoutMobile(u);
+    layoutCompact(u);
   };
 
-  // Телефон: свои позиции стикеров и фото. Считаем от текущего масштаба,
-  // поэтому вызывается из resize. На десктопе возвращаем исходные.
-  const layoutMobile = (u) => {
-    const mobile = MOBILE.matches;
-    const sceneW = scene.clientWidth;
-    const sceneLeft = (window.innerWidth - sceneW) / 2;
+  // Раскладка по макетам телефона и планшета; на десктопе — исходная.
+  // Всё считаем от центра сцены на экране: сцена стоит по центру и ширины,
+  // и высоты, поэтому макетные координаты переводятся так:
+  //   px = центр экрана + (координата макета − центр макета) × масштаб
+  // а из пикселей — в единицы кадра делением на --u.
+  const layoutCompact = (u) => {
+    const compact = COMPACT.matches;
+    const stageW = stage ? stage.clientWidth : window.innerWidth;
+    const stageH = stage ? stage.clientHeight : window.innerHeight;
+    const sceneLeft = (stageW - scene.clientWidth) / 2;
+    const sceneTop = (stageH - scene.clientHeight) / 2;
+    const mock = stageW <= 720 ? PHONE : TABLET;
+    const phone = mock === PHONE;
+    scene.classList.toggle('is-compact', compact);
 
-    // Стикеры папок: тянем к центру кадра и не даём уйти за край экрана
-    items.forEach(({ stickers }) => {
-      stickers.forEach((s) => {
-        let x = s.x0;
-        if (mobile && u > 0) {
-          const cx = DESIGN_W / 2 + (s.x0 + s.w / 2 - DESIGN_W / 2) * MOBILE_STICKER_PULL;
-          x = cx - s.w / 2;
-          const min = (6 - sceneLeft) / u;
-          const max = (window.innerWidth - 6 - sceneLeft) / u - s.w;
-          x = Math.min(Math.max(x, min), Math.max(min, max));
+    if (!compact || u <= 0) {
+      items.forEach((item) => {
+        const { base } = item;
+        item.cfg = {
+          enter: { ...base.enter, y: base.enter.y + outset },
+          stack: base.stack,
+          park: { ...base.park, y: base.park.y + outset },
+          rest: REST,
+          exit: { x: REST.x, y: EXIT_Y - outset, rot: 0 },
+        };
+        item.stickers.forEach((s) => {
+          s.x = s.x0;
+          s.rise = STICKER_RISE + outset;
+          s.y = s.y0;
+          s.shift = (REST.y - EXIT_Y + outset) * PARALLAX;
+          s.node.style.setProperty('--x', `${s.x.toFixed(2)}px`);
+          s.node.style.removeProperty('--boost');
+          s.node.hidden = false;
+        });
+      });
+      layoutOthers(u, false, sceneLeft, sceneTop, stageH);
+      scene.style.removeProperty('--title-top');
+      return;
+    }
+
+    // сжатие по вертикали, если окно ниже макета (и растяжение, если выше)
+    const sx = stageW / mock.width;
+    const k = clamp(stageH / (sx * mock.height), 0.72, 1.2);
+    const mockU = mock.scale; // размер папки в макете
+    const fw = FOLDER_W * mockU;
+    const fh = FOLDER_H * mockU;
+    const toPxX = (mx) => stageW / 2 + (mx - mock.width / 2) * sx;
+    const toPxY = (my) => stageH / 2 + (my - mock.height / 2) * sx * k;
+    // центр папки в кадре (единицы кадра) по пикселям экрана
+    const fold = (cx, cy, rot) => ({
+      x: (cx - sceneLeft) / u - FOLDER_W / 2,
+      y: (cy - sceneTop) / u - FOLDER_H / 2,
+      rot,
+    });
+    // габарит повёрнутой папки в макете → её центр в пикселях
+    const centerOf = ([bx, by, rot]) => {
+      const r = (rot * Math.PI) / 180;
+      const bw = fw * Math.abs(Math.cos(r)) + fh * Math.abs(Math.sin(r));
+      const bh = fw * Math.abs(Math.sin(r)) + fh * Math.abs(Math.cos(r));
+      return { cx: toPxX(bx + bw / 2), cy: toPxY(by + bh / 2) };
+    };
+
+    scene.style.setProperty('--title-top', `${(toPxY(mock.title) - sceneTop).toFixed(1)}px`);
+
+    const folderPx = fh * sx; // высота папки на экране (= FOLDER_H·u)
+    items.forEach((item, i) => {
+      const m = mock.folders[i];
+      const st = centerOf(m.stack);
+      const rest = centerOf([m.rest[0], m.rest[1], 0]);
+      const park = m.park ? centerOf(m.park) : st;
+      const x = (cx) => cx;
+      // выезд снизу: полностью за нижним краем экрана
+      const belowY = stageH + folderPx * 0.75;
+      item.cfg = {
+        enter: fold(x(st.cx), belowY + 40 * i, m.stack[2] * 1.5),
+        stack: fold(st.cx, st.cy, m.stack[2]),
+        park: fold(park.cx, park.cy, m.park ? m.park[2] : 0),
+        rest: fold(rest.cx, rest.cy, 0),
+        exit: fold(rest.cx, -folderPx * 0.75, 0),
+      };
+      const restTop = rest.cy - folderPx / 2;
+      const folderDist = restTop + folderPx + 30; // путь папки до выхода за верх
+
+      // Стикеры: центр из макета; у планшетных второй и третьей папок
+      // берём телефонные, смещённые от центра папки и увеличенные
+      const list = item.stickers;
+      list.forEach((s, j) => {
+        let spec = mock.stickers[i]?.[j];
+        let boost = 1;
+        if (!mock.stickers[i] && PHONE.stickers[i]) {
+          const ps = PHONE.stickers[i][j];
+          const pr = PHONE.folders[i].rest;
+          const pc = [pr[0] + (FOLDER_W * SCALE_PHONE) / 2, pr[1] + (FOLDER_H * SCALE_PHONE) / 2];
+          const f = SCALE_TABLET / SCALE_PHONE;
+          const rc = [m.rest[0] + fw / 2, m.rest[1] + fh / 2];
+          spec = ps ? [rc[0] + (ps[0] - pc[0]) * f, rc[1] + (ps[1] - pc[1]) * f, 1] : null;
+        } else if (spec && spec[2]) {
+          boost = spec[2];
         }
-        s.x = x;
-        s.node.style.setProperty('--x', `${x.toFixed(2)}px`);
+        s.node.hidden = !spec;
+        if (!spec) return;
+        const su = u * boost;
+        const cx = toPxX(spec[0]);
+        const cy = toPxY(spec[1]);
+        s.x = (cx - sceneLeft) / su - s.w / 2;
+        s.y = (cy - sceneTop) / su - parseFloat(s.node.dataset.h) / 2;
+        const h = parseFloat(s.node.dataset.h);
+        // выезжает снизу из-под экрана
+        s.rise = (stageH + 30 - sceneTop) / su - s.y;
+        // уходит вверх чуть быстрее папки и целиком за верх экрана
+        s.shift = Math.max(s.y + h + (sceneTop + 30) / su, (folderDist * PARALLAX) / su);
+        s.node.style.setProperty('--x', `${s.x.toFixed(2)}px`);
+        s.node.style.setProperty('--boost', boost);
       });
     });
+    layoutOthers(u, true, sceneLeft, sceneTop, stageH, phone ? 'phone' : 'tablet');
+  };
 
-    // Фото и стикеры четвёртого экрана
+  // Фото и стикеры четвёртого экрана
+  const layoutOthers = (u, compact, sceneLeft, sceneTop, stageH, kind = 'phone') => {
     const place = (list, table) => {
       list.forEach((o, k) => {
-        if (mobile && u > 0 && table[k]) {
-          const s = u * MOBILE_OTHERS_BOOST;
-          const stageH = stage ? stage.clientHeight : window.innerHeight;
-          const top = (stageH - scene.clientHeight) / 2;
-          o.x = (table[k][0] * window.innerWidth - sceneLeft) / s;
-          o.y = (table[k][1] * stageH - top) / s;
-          o.node.style.setProperty('--boost', MOBILE_OTHERS_BOOST);
+        if (compact && u > 0 && table[k]) {
+          const boost = COMPACT_OTHERS_BOOST[kind];
+          const s = u * boost;
+          o.x = (table[k][0] * stage.clientWidth - sceneLeft) / s;
+          o.y = (table[k][1] * stageH - sceneTop) / s;
+          o.node.style.setProperty('--boost', boost);
         } else {
           o.x = o.x0;
           o.y = o.y0;
@@ -303,21 +450,14 @@ export function initTeam(section, modal) {
     scene?.style.setProperty('--swap', swap.toFixed(4));
     titleOthers?.setAttribute('aria-hidden', swap > 0.5 ? 'false' : 'true');
 
-    // Телефон: полупрозрачные соседние папки сверху и снизу («дальше
-    // есть ещё»). Появляются вместе с первой папкой, уходят к четвёртому экрану.
-    const ghost = ease(range(p, PREVIEW_END, PREVIEW_END + ARRIVE * SPAN)) * (1 - ease(range(p, OTHERS_START - 0.05, OTHERS_START + 0.01)));
-    scene?.style.setProperty('--ghost', ghost.toFixed(4));
-
     items.forEach((item, i) => placeFolder(item, i, p));
     placeOthers(p);
   };
 
   const placeFolder = (item, i, p) => {
-    const { el, stack, start, stickers } = item;
-    // Всё, что за кадром, отодвигаем на величину полей (см. resize)
-    const enter = { ...item.enter, y: item.enter.y + outset };
-    const park = { ...item.park, y: item.park.y + outset };
-    const exit = { x: REST.x, y: EXIT_Y - outset, rot: 0 };
+    const { el, start, stickers, cfg } = item;
+    // Позиции (с учётом полей или макета телефона) считает resize
+    const { enter, stack, park, rest: REST, exit } = cfg;
     // Первая папка выходит прямо из стопки, остальные стартуют с нахлёстом
     const arriveFrom = i === 0 ? start : start - OVERLAP * SPAN;
     const arriveTo = start + ARRIVE * SPAN;
@@ -353,18 +493,20 @@ export function initTeam(section, modal) {
     // финальной точке: ховер и клик живут, пока папку видно на экране.
     // Поля над кадром и под ним тоже видимая часть экрана — поэтому
     // считаем с их учётом (band), иначе папка «оживала» бы с опозданием.
-    const band = outset - MARGIN;
-    const onScreen = pos.y + FOLDER_H > -band && pos.y < DESIGN_H + band;
+    const stageH = stage ? stage.clientHeight : window.innerHeight;
+    const u = scene.clientWidth / DESIGN_W;
+    const topPx = (stageH - scene.clientHeight) / 2 + pos.y * u;
+    const onScreen = topPx + FOLDER_H * u > 0 && topPx < stageH;
     el.classList.toggle('is-live', onScreen);
     el.tabIndex = onScreen ? 0 : -1;
 
     // Стикеры: подъезжают по одному после того, как папка встала на место
     const out = glide(range(p, leaveFrom, leaveTo));
-    stickers.forEach(({ node, y }, k) => {
+    stickers.forEach(({ node, y, rise, shift: dist }, k) => {
       const from = start + (STICKER_START + k * STICKER_GAP) * SPAN;
       const t = ease(range(p, from, from + STICKER_LEN * SPAN));
-      const shift = out * (exit.y - REST.y) * PARALLAX;
-      node.style.setProperty('--y', `${(y + (1 - t) * (STICKER_RISE + outset) + shift).toFixed(2)}px`);
+      const shift = -out * dist;
+      node.style.setProperty('--y', `${(y + (1 - t) * rise + shift).toFixed(2)}px`);
       node.style.setProperty('--o', Math.min(clamp(t * 3, 0, 1), 1 - clamp((out - 0.55) / 0.45, 0, 1)).toFixed(3));
     });
   };

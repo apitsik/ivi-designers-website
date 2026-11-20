@@ -138,11 +138,6 @@
    на котором лежат номер, название, описание и полоски. На ховере
    передний сгиб отклоняется в 3D, поэтому текст на нём наклоняется
    и слегка искажается вместе с ним — как у настоящей папки. */
-/* Соседние папки-призраки: только на телефоне, см. блок «телефон» */
-.team__ghost {
-  display: none;
-}
-
 .team-folder {
   /* --folder — цвет папки, стоит в index.html; задняя часть на тон темнее */
   --folder-back: color-mix(in srgb, var(--folder) 86%, #000000);
@@ -867,19 +862,37 @@
   }
 }
 
-/* ----- телефон ----- */
+/* ----- телефон и планшет (вертикальный) ----- */
 
-@media (max-width: 720px) {
-  /* Кадр шире экрана, чтобы папка не стала крошечной: центр сцены
-     остаётся в центре, края кадра уходят за экран. flex: none нужен,
-     иначе сцена в flex-контейнере сжимается до ширины экрана. */
+/* Кадр шире экрана: масштаб папки как в макетах «Resizes» (телефон 0,446
+   при ширине 392, планшет 0,918 при 832). Сцену ставим по центру
+   абсолютно, а не flex-ом, и обрезаем всё, что вылезает по бокам, — иначе
+   на реальном телефоне браузер растягивает страницу вправо. Раскладку папок,
+   стикеров и заголовка по высоте окна считает team.js. */
+@media (max-width: 720px), (max-width: 1024px) and (orientation: portrait) {
+  .team,
+  .team__stage {
+    overflow-x: clip;
+  }
+
+  .team__stage {
+    contain: paint;
+  }
+
   .team__scene {
+    position: absolute;
+    left: 50%;
+    top: 50%;
     flex: none;
-    width: 172vw;
     max-width: none;
+    width: 158.9vw;
+    transform: translate(-50%, -50%);
   }
 
   .team__title {
+    top: var(--title-top, 20%);
+    width: 100vw;
+    max-width: none;
     padding: 0 16px;
   }
 
@@ -888,46 +901,24 @@
   .team__title--others {
     top: calc((100svh - 100%) / -2 + 112px);
   }
+}
 
-  /* Соседние папки: те же пропорции, цвет папки, ~28 % прозрачности.
-     Лежат под настоящими (раньше них в разметке), поэтому, когда папка
-     едет, она просто проезжает поверх. */
-  .team__ghost {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 600px;
-    height: 390px;
-    border-radius: 56px;
-    background: #a69898;
-    transform-origin: 0 0;
-    transform: scale(var(--u, 1)) translate(var(--x, 0px), var(--y, 0px));
-    opacity: calc(var(--ghost, 0) * 0.28);
-    pointer-events: none;
+@media (max-width: 720px) {
+  .team__scene {
+    width: 163.8vw;
   }
+}
 
-  .team__ghost::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: -28px;
-    width: 180px;
-    height: 56px;
-    border-radius: 28px 28px 0 0;
-    background: inherit;
-  }
+.team__sticker[hidden] {
+  display: none;
+}
 
-  .team__ghost--prev {
-    --x: 420px;
-    --y: -60px;
-  }
+/* ----- телефон ----- */
 
-  .team__ghost--next {
-    --x: 420px;
-    --y: 590px;
-  }
-
+@media (max-width: 720px) {
+  /* Кадр шире экрана, чтобы папка не стала крошечной: центр сцены
+     остаётся в центре, края кадра уходят за экран. flex: none нужен,
+     иначе сцена в flex-контейнере сжимается до ширины экрана. */
   .team-modal {
     --pad: 88px;
     --side: 16px;

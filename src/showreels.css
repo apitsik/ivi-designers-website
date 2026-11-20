@@ -37,7 +37,8 @@
   /* Скругление 280 px держится, пока плашка проходит первые 70 % экрана,
      и распрямляется до 0 на отрезке 70 → 100 % (--enter из showreels.js) */
   --straighten: clamp(0, calc((var(--enter) - 0.7) / 0.3), 1);
-  --panel-radius: calc(280px * (1 - var(--straighten)));
+  --panel-start-radius: 280px;
+  --panel-radius: calc(var(--panel-start-radius) * (1 - var(--straighten)));
   border-radius: var(--panel-radius) var(--panel-radius) 0 0;
   /* Снизу 200 — отступ от последней карточки до плашки extra-text
      (padding, а не margin у сетки: margin схлопывался наружу и в зазоре
@@ -419,5 +420,23 @@ body.video-modal-open {
   .video-modal__close {
     top: 16px;
     right: 16px;
+  }
+}
+
+/* Планшет и телефон: плашка начинает с меньшего радиуса, чтобы не быть
+   «таблеткой» (макет «Resizes»: телефон 80) */
+@media (max-width: 1024px) {
+  .showreels__panel {
+    --panel-start-radius: 140px;
+  }
+
+  .showreels__head {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 720px) {
+  .showreels__panel {
+    --panel-start-radius: 80px;
   }
 }

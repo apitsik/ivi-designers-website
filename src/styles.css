@@ -39,11 +39,30 @@
   --h1-tracking: -0.04em;
 }
 
-/* Телефон: все заголовки H2 блоков — 36 / 0.92 (макет 382:3988).
+/* Планшет: H2 — 64 при ширине макета 832 (Figma «Resizes», 394:929) */
+@media (min-width: 721px) and (max-width: 1024px) {
+  :root {
+    --h1-size: clamp(48px, 7.7vw, 64px);
+  }
+}
+
+/* Телефон: все заголовки H2 блоков — 36 (макет 382:3988), P2 и P1 — 16.
    Заголовок хиро задан отдельно (48). */
 @media (max-width: 720px) {
   :root {
     --h1-size: clamp(30px, 9.16vw, 36px);
+    --p2-size: 16px;
+    --p1-size: 16px;
+  }
+}
+
+/* Заголовки вне плашек: отступ 16 px от краёв экрана (планшет и телефон) */
+@media (max-width: 1024px) {
+  .showreels__head,
+  .grid__title,
+  .articles__title,
+  .vacancies__title {
+    padding-inline: 16px;
   }
 }
 
