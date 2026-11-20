@@ -1,0 +1,121 @@
+/* ---------- Страница 404 ----------
+   Чёрный экран, сплошь заклеенный голографическими стикерами: они лежат
+   внахлёст, под разными углами. Размер ~240 при ширине 1440 (Figma 416:3824).
+   Наклеиваются по одному (src/404.js). */
+
+.page-404 {
+  min-height: 100svh;
+  overflow: hidden;
+  background: #000;
+  color: var(--color-white);
+}
+
+.nf {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.nf__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.nf__stickers {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  perspective: 900px;
+  pointer-events: none;
+}
+
+.nf__sticker {
+  --rot: 0deg;
+  position: absolute;
+  display: block;
+  transform: translate(-50%, -50%) rotate(var(--rot));
+  transform-origin: center;
+  transform-style: preserve-3d;
+  opacity: 0;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.45));
+  will-change: transform, filter, opacity;
+}
+
+.nf__sticker img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Блик при наклеивании — как у стикеров в хиро */
+.nf__sticker-gloss {
+  position: absolute;
+  inset: 0;
+  filter: brightness(2.4) saturate(0.2) contrast(0.8);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(100deg, transparent 35%, #fff 48%, #fff 52%, transparent 65%);
+  mask-image: linear-gradient(100deg, transparent 35%, #fff 48%, #fff 52%, transparent 65%);
+  -webkit-mask-size: 300% 100%;
+  mask-size: 300% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 120% 0;
+  mask-position: 120% 0;
+}
+
+/* Дорога домой: появляется, когда все стикеры наклеены */
+.nf__home {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(24px, 5vh, 48px);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 28px;
+  border-radius: 20px;
+  background: #e92153;
+  color: var(--color-white);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  pointer-events: none;
+  transition: opacity 0.5s ease-out, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.25s ease-out;
+}
+
+.nf.is-done .nf__home {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+.nf__home:hover,
+.nf__home:focus-visible {
+  background: #ff3d6e;
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf__sticker {
+    opacity: 1;
+  }
+
+  .nf__home {
+    transition: none;
+  }
+}

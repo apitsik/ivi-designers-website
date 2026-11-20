@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Страница не найдена — команда дизайна иви</title>
+    <!-- Страница открывается по любому несуществующему адресу (в том числе
+         глубокому), поэтому относительные пути считаем от корня сайта:
+         на github.io это папка проекта, на своём домене — корень. -->
+    <script>
+      (function () {
+        var seg = location.pathname.split('/')[1];
+        var base = /github\.io$/.test(location.hostname) && seg ? '/' + seg + '/' : '/';
+        document.write('<base href="' + base + '">');
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
+    <style>
+      html, body { background: #000; }
+    </style>
+    <script type="module" crossorigin src="./assets/notFound-x3ksxQAE.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/styles-BGvKl5uQ.js">
+    <link rel="stylesheet" crossorigin href="./assets/styles-DZNf5BKY.css">
+    <link rel="stylesheet" crossorigin href="./assets/notFound-CjhUIGFn.css">
+  </head>
+  <body class="page-404">
+    <main class="nf" aria-labelledby="nf-title">
+      <h1 id="nf-title" class="nf__sr">404. Страница не найдена</h1>
+      <div class="nf__stickers" aria-hidden="true"></div>
+      <a class="nf__home" href="/">На главную</a>
+    </main>
+  </body>
+</html>
