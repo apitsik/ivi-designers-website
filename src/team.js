@@ -575,9 +575,9 @@ export function initTeam(section, modal) {
     // Без сглаживания на конце: иначе параллакс замирал прямо перед тем,
     // как сцена отпускает экран, и фото зависали поверх заголовка
     const compact = COMPACT.matches;
-    const out = range(p, compact ? OTHERS_OUT - 0.04 : OTHERS_OUT, compact ? 0.96 : 1);
+    const out = range(p, compact ? OTHERS_OUT - 0.06 : OTHERS_OUT, compact ? 0.92 : 1);
     // Надзаголовок уходит целиком в блюр и прозрачность вместе с фото
-    scene?.style.setProperty('--swapout', compact ? ease(range(p, OTHERS_OUT - 0.04, OTHERS_OUT + 0.04)).toFixed(4) : 0);
+    scene?.style.setProperty('--swapout', compact ? ease(range(p, OTHERS_OUT - 0.06, OTHERS_OUT + 0.02)).toFixed(4) : 0);
 
     photos.forEach(({ node, y, frame }, k) => {
       const from = PHOTO_START + k * PHOTO_GAP;

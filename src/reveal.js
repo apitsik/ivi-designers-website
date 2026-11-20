@@ -41,7 +41,7 @@ export function splitWords(el, startIndex = 0) {
 // видимости, и снимает, когда уходит — так анимация запускается заново
 // и при скролле сверху, и снизу. rootMargin снизу −35 %: старт, когда
 // элемент вошёл в верхние две трети экрана, а не у самого нижнего края.
-export function observeReveal(trigger, target = trigger) {
+export function observeReveal(trigger, target = trigger, rootMargin = '0px 0px -35% 0px') {
   const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -49,7 +49,7 @@ export function observeReveal(trigger, target = trigger) {
         else target.classList.remove('is-visible');
       });
     },
-    { rootMargin: '0px 0px -35% 0px', threshold: 0 },
+    { rootMargin, threshold: 0 },
   );
   io.observe(trigger);
   return io;

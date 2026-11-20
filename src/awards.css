@@ -284,12 +284,12 @@
 @media (max-width: 720px), (max-width: 1024px) and (orientation: portrait) {
   .awards {
     /* пустой низ экрана команд: награды начинаются раньше */
-    margin-top: -32svh;
-    padding: 96px 10px 96px;
+    margin-top: -85svh;
+    padding: 40px 10px 96px;
     --award-name: 32px;
     --award-status: 12px;
     --award-gap: 16px;
-    --award-pic-w: 137px;
+    --award-pic-h: 64px;
     --award-icon-w: 93px;
     --award-icon-h: 44px;
   }
@@ -372,8 +372,9 @@
     left: 50%;
     top: 50%;
     z-index: 0;
-    width: var(--award-pic-w);
-    transform: translate(-50%, -50%);
+    /* высота общая, ширина по пропорциям картинки: ничего не растягиваем */
+    transform: translate(-50%, calc(-50% + var(--pic-shift, 0px)));
+    transition: transform 0.3s ease-out;
     pointer-events: none;
   }
 
@@ -383,9 +384,9 @@
 
   .award__pic img {
     display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 952 / 552;
+    width: auto;
+    height: var(--award-pic-h);
+    max-width: none;
     border-radius: 6px;
     opacity: 0;
     transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1);
@@ -426,7 +427,7 @@
     --award-name: 56px;
     --award-status: 14px;
     --award-gap: 24px;
-    --award-pic-w: 210px;
+    --award-pic-h: 100px;
     --award-icon-w: 118px;
     --award-icon-h: 56px;
   }

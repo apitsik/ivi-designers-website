@@ -130,7 +130,9 @@ export function initAwards(section) {
   );
   warm.observe(section);
 
-  observeReveal(section);
+  // на телефоне и планшете блок проявляется сразу, как показался снизу
+  const early = window.matchMedia('(max-width: 720px), (max-width: 1024px) and (orientation: portrait)').matches;
+  observeReveal(section, section, early ? '0px 0px -8% 0px' : undefined);
 
   // ----- планшет и телефон: подсвечиваем награды по очереди -----
   // Список в колонку, «горит» награда, ближайшая к середине экрана; под ней
@@ -145,6 +147,12 @@ export function initAwards(section) {
     items.forEach((item, i) => item.classList.toggle('is-focus', i === k));
   };
   const updateFocus = () => {
+    // картинка за текстом чуть плывёт с прокруткой (лёгкий параллакс)
+    if (focused >= 0 && items[focused]) {
+      const r = items[focused].getBoundingClientRect();
+      const d = (r.top + r.height / 2 - window.innerHeight / 2) / window.innerHeight;
+      items[focused].style.setProperty('--pic-shift', `${(-d * 36).toFixed(1)}px`);
+    }
     if (!compact.matches) {
       setFocus(-1);
       return;
