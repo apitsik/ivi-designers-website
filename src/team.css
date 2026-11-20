@@ -122,7 +122,7 @@
   top: 0;
   display: block;
   transform-origin: 0 0;
-  transform: scale(var(--u, 1)) translate(var(--x, 0px), var(--y, 0px));
+  transform: scale(calc(var(--u, 1) * var(--boost, 1))) translate(var(--x, 0px), var(--y, 0px));
   opacity: var(--o, 0);
   pointer-events: none;
   will-change: transform, opacity;

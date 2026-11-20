@@ -565,7 +565,8 @@ export function initArticles(section, modal) {
       track.classList.remove('is-still');
       if (captured) viewport.releasePointerCapture?.(e.pointerId);
       captured = false;
-      const step = slides[0] ? slides[0].offsetWidth + 24 : 1;
+      const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+      const step = slides[0] ? slides[0].offsetWidth + gap : 1;
       // Сколько карточек прошли пальцем, плюс довесок за скорость броска
       const flick = Math.abs(vel) > 4 ? Math.sign(vel) : 0;
       const dragged = moved / step;
