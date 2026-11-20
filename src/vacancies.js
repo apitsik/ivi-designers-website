@@ -57,7 +57,7 @@ export function initVacancies(section) {
   initScrollPic(section);
 }
 
-// ----- планшет и телефон: картинка над заголовком меняется по скроллу -----
+// ----- планшет и телефон: картинка над заголовком меняется по таймеру -----
 
 const PIC_COUNT = 6;
 
@@ -75,28 +75,30 @@ function initScrollPic(section) {
     return img;
   });
   const compact = window.matchMedia('(max-width: 1024px)');
+  const STEP_MS = 2200; // сколько держится одна картинка
   let current = -1;
-  let ticking = false;
-  const update = () => {
-    ticking = false;
-    if (!compact.matches) return;
-    const r = section.getBoundingClientRect();
-    const vh = window.innerHeight;
-    // 0 — секция только показалась снизу, 1 — верх секции у верха экрана
-    const p = Math.min(0.999, Math.max(0, (vh - r.top) / (vh + r.height * 0.4)));
-    const idx = Math.floor(p * imgs.length);
-    if (idx === current) return;
+  let timer = 0;
+  let visible = false;
+  const show = (idx) => {
     imgs.forEach((im, i) => im.classList.toggle('is-on', i === idx));
     current = idx;
   };
-  const onScroll = () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(update);
+  const tick = () => {
+    show((current + 1) % imgs.length);
   };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll);
-  update();
+  const sync = () => {
+    clearInterval(timer);
+    timer = 0;
+    if (!compact.matches) return;
+    if (current < 0) show(0);
+    // При «меньше анимации» картинку не меняем
+    if (visible && !REDUCED.matches) timer = setInterval(tick, STEP_MS);
+  };
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    sync();
+  }).observe(section);
+  compact.addEventListener('change', sync);
 }
 
 // ----- проявление: слова H2, затем подзаголовок и кнопка -----
