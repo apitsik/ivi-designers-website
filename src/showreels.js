@@ -4,6 +4,7 @@ const MOBILE = window.matchMedia('(max-width: 720px)');
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 const SMOOTHING = 0.3;
+const CAN_HOVER = window.matchMedia('(hover: hover) and (pointer: fine)');
 
 export function initShowreels(section) {
   if (!section) return;
@@ -15,6 +16,10 @@ export function initShowreels(section) {
     current: 0,
     target: 0,
   }));
+
+  if (CAN_HOVER.matches && !REDUCED.matches) {
+    section.querySelectorAll('.showreel[data-preview]').forEach(initPreview);
+  }
 
   const head = section.querySelector('.showreels__head');
   const title = section.querySelector('[data-words]');
@@ -84,6 +89,56 @@ export function initShowreels(section) {
   window.addEventListener('resize', onScroll);
   MOBILE.addEventListener('change', onScroll);
   onScroll();
+}
+
+function initPreview(card) {
+  const video = document.createElement('video');
+  video.className = 'showreel__preview';
+  video.muted = true;
+  video.loop = true;
+  video.playsInline = true;
+  video.preload = 'none';
+  video.setAttribute('aria-hidden', 'true');
+  video.tabIndex = -1;
+  video.addEventListener('error', () => video.remove());
+  card.append(video);
+
+  let loaded = false;
+  const load = () => {
+    if (loaded) return;
+    loaded = true;
+    video.preload = 'auto';
+    video.src = card.dataset.preview;
+    video.load();
+  };
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        load();
+        io.disconnect();
+      }
+    },
+    { rootMargin: '600px 0px' }
+  );
+  io.observe(card);
+
+  const start = () => {
+    load();
+    video.currentTime = 0;
+    const p = video.play();
+    if (p) p.then(() => video.classList.add('is-playing')).catch(() => {});
+  };
+
+  const stop = () => {
+    video.classList.remove('is-playing');
+    setTimeout(() => {
+      if (!video.classList.contains('is-playing')) video.pause();
+    }, 360);
+  };
+
+  card.addEventListener('pointerenter', start);
+  card.addEventListener('pointerleave', stop);
 }
 
 function clamp(v, min, max) {

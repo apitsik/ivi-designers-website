@@ -116,6 +116,21 @@
   transform: scale(1.1);
 }
 
+.showreel__preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.showreel__preview.is-playing {
+  opacity: 1;
+}
+
 .showreel--1 { left: 17.64%; top: 0;      width: 64.72%; aspect-ratio: 932 / 540; }
 .showreel--2 { left: 1.67%;  top: 17.63%; width: 62.92%; aspect-ratio: 906 / 510; }
 .showreel--3 { left: 55.14%; top: 29.16%; width: 35.28%; aspect-ratio: 508 / 398; }
