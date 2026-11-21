@@ -108,7 +108,7 @@ function initPreview(card) {
     if (loaded) return;
     loaded = true;
     video.preload = 'auto';
-    video.src = card.dataset.preview;
+    video.src = new URL(card.dataset.preview, document.baseURI).href;
     video.load();
   };
 
