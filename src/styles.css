@@ -204,8 +204,8 @@ h1 {
   position: absolute;
   z-index: 0;
   top: 0;
-  left: -2px;
-  width: calc(100% + 9px);
+  left: 4px;
+  width: calc(100% - 6px);
   height: 100%;
   overflow: visible;
   pointer-events: none;
@@ -214,7 +214,7 @@ h1 {
   stroke-width: 10px;
   stroke-linecap: round;
   stroke-linejoin: round;
-  clip-path: inset(-20px 100% -20px 0);
+  clip-path: inset(-20px calc(100% + 20px) -20px -20px);
   transition: clip-path 0.45s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
@@ -232,24 +232,24 @@ h1 {
   transform: rotate(2deg);
   top: -10%;
   height: 120%;
-  left: -4px;
-  width: calc(100% + 13px);
+  left: 3px;
+  width: calc(100% - 3px);
 }
 
 .scribble--4 {
   transform: rotate(-2.5deg);
   top: 12%;
   height: 76%;
-  left: -1px;
-  width: calc(100% + 6px);
+  left: 5px;
+  width: calc(100% - 9px);
 }
 
 .scribble--5 {
   transform: rotate(1deg);
   top: -3%;
   height: 106%;
-  left: -3px;
-  width: calc(100% + 11px);
+  left: 3px;
+  width: calc(100% - 4px);
 }
 
 @media (hover: hover) {
