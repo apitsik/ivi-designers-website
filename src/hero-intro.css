@@ -1,0 +1,28 @@
+.hero .mask {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.12em;
+  margin-block: -0.12em;
+}
+
+.hero__title .mask {
+  display: inline-block;
+}
+
+.hero .mask__in {
+  display: block;
+  transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero .mask__in--pending {
+  transform: translateY(115%);
+}
+
+.hero__hint-roll {
+  translate: 0 0;
+  transition: transform 0.45s cubic-bezier(0.19, 1, 0.22, 1), translate 1.2s cubic-bezier(0.22, 1, 0.36, 1) var(--intro-delay, 0ms);
+}
+
+.hero__hint--pending .hero__hint-roll {
+  translate: 0 115%;
+}
