@@ -311,6 +311,51 @@
   transform: rotate(90deg);
 }
 
+.video-modal__mute {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--color-white);
+  cursor: var(--cursor-hand);
+  opacity: 0;
+  transition: opacity 0.25s ease, background 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.video-modal__stage:hover .video-modal__mute,
+.video-modal__mute:focus-visible {
+  opacity: 1;
+}
+
+.video-modal__mute:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.video-modal__mute-off,
+.video-modal__mute.is-muted .video-modal__mute-on {
+  display: none;
+}
+
+.video-modal__mute.is-muted .video-modal__mute-off {
+  display: block;
+}
+
+@media (hover: none) {
+  .video-modal__mute {
+    opacity: 1;
+  }
+}
+
 body.video-modal-open {
   overflow: hidden;
 }

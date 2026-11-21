@@ -10,6 +10,8 @@ export function initVideoModal(modal, cards) {
   const glow = modal.querySelector('.video-modal__glow');
   const title = modal.querySelector('.video-modal__title');
   const closeBtn = modal.querySelector('.video-modal__close');
+  const muteBtn = modal.querySelector('.video-modal__mute');
+  let muted = false;
   let opener = null;
   let hideTimer = 0;
   let openId = null;
@@ -18,6 +20,23 @@ export function initVideoModal(modal, cards) {
     if (!w || !h) return;
     dialog.style.setProperty('--video-ar', `${w} / ${h}`);
     modal.classList.toggle('video-modal--portrait', h > w);
+  };
+
+  const setMuted = (value) => {
+    muted = value;
+    muteBtn.setAttribute('aria-pressed', String(value));
+    muteBtn.setAttribute('aria-label', value ? 'Включить звук' : 'Выключить звук');
+    muteBtn.classList.toggle('is-muted', value);
+  };
+
+  const toggleMute = () => {
+    const iframe = frame.querySelector('iframe');
+    if (!iframe || !iframe.contentWindow) return;
+    setMuted(!muted);
+    iframe.contentWindow.postMessage(
+      JSON.stringify({ method: 'setMuted', value: muted }),
+      'https://player.vimeo.com',
+    );
   };
 
   const open = async (card) => {
@@ -42,6 +61,7 @@ export function initVideoModal(modal, cards) {
       setRatio(16, 9);
     }
 
+    setMuted(false);
     frame.replaceChildren(buildPlayer(id, card.dataset.title));
 
     modal.hidden = false;
@@ -76,6 +96,7 @@ export function initVideoModal(modal, cards) {
     opener = null;
   };
 
+  muteBtn.addEventListener('click', toggleMute);
   cards.forEach((card) => card.addEventListener('click', () => open(card)));
   modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
   dialog.addEventListener('click', (e) => {

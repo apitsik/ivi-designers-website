@@ -8,17 +8,17 @@
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
     <link rel="icon" type="image/png" sizes="64x64" href="./favicon-64.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
-    <link rel="preload" href="/fonts/IVI_Sans_Base_Regular.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/IVI_Sans_Base_Medium.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./fonts/IVI_Sans_Base_Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./fonts/IVI_Sans_Base_Medium.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="./images/hero-background.jpg" as="image" media="(min-width: 721px)" />
     <link rel="preload" href="./images/hero-background-mobile.jpg" as="image" media="(max-width: 720px)" />
     <style>
       .preloader { position: fixed; inset: 0; z-index: 100; background: #000; }
       html.is-preloading { overflow: hidden; }
     </style>
-    <script type="module" crossorigin src="./assets/main-BgLpZ_aF.js"></script>
-    <link rel="modulepreload" crossorigin href="./assets/styles-BmwFlk5p.js">
-    <link rel="stylesheet" crossorigin href="./assets/styles-Cvk7VfCA.css">
+    <script type="module" crossorigin src="./assets/main-CFylVKaE.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/styles-BJEmRKF6.js">
+    <link rel="stylesheet" crossorigin href="./assets/styles-BL_tPtEI.css">
   </head>
   <body>
     <div class="preloader" aria-hidden="true">
@@ -127,10 +127,10 @@
             <button class="showreel showreel--1" type="button" data-vimeo="1095898156" data-title="Showreel IVI SANS BASE" data-ratio="16/9" data-speed="0.12" data-preview="video/showreel-1-preview.mp4">
               <img class="showreel__img" src="./images/showreels/showreel-1.jpg" alt="Шоурил 1" loading="lazy" decoding="async" />
             </button>
-            <button class="showreel showreel--2" type="button" data-vimeo="1001573388" data-title="Showreel 2024" data-ratio="16/9" data-speed="-0.06">
+            <button class="showreel showreel--2" type="button" data-preview="video/showreel-2-preview.mp4" data-vimeo="1001573388" data-title="Showreel 2024" data-ratio="16/9" data-speed="-0.06">
               <img class="showreel__img" src="./images/showreels/showreel-2.jpg" alt="Шоурил 2" loading="lazy" decoding="async" />
             </button>
-            <button class="showreel showreel--3" type="button" data-vimeo="1198451429" data-title="Product Design 2025" data-ratio="9/16" data-speed="0.18">
+            <button class="showreel showreel--3" type="button" data-preview="video/showreel-3-preview.mp4" data-vimeo="1198451429" data-title="Product Design 2025" data-ratio="9/16" data-speed="0.18">
               <img class="showreel__img" src="./images/showreels/showreel-3.jpg" alt="Шоурил 3" loading="lazy" decoding="async" />
             </button>
 
@@ -138,7 +138,7 @@
               <img class="showreel-promo__img" src="./images/showreels/showreel-promo.jpg" alt="Просто скроллишь? Лучше жмякни и посмотри шоурил" width="1028" height="1200" loading="lazy" decoding="async" />
             </div>
 
-            <button class="showreel showreel--4" type="button" data-vimeo="904434513" data-title="Showreel 2023" data-ratio="16/9" data-speed="-0.1">
+            <button class="showreel showreel--4" type="button" data-preview="video/showreel-4-preview.mp4" data-vimeo="904434513" data-title="Showreel 2023" data-ratio="16/9" data-speed="-0.1">
               <img class="showreel__img" src="./images/showreels/showreel-4.jpg" alt="Шоурил 4" loading="lazy" decoding="async" />
             </button>
             <button class="showreel showreel--5" type="button" data-vimeo="1019772937" data-title="Icons" data-ratio="16/9" data-speed="0.14">
@@ -508,6 +508,18 @@
         <div class="video-modal__stage">
           <div class="video-modal__glow" aria-hidden="true"></div>
           <div class="video-modal__frame"></div>
+          <button class="video-modal__mute" type="button" aria-label="Выключить звук" aria-pressed="false">
+            <svg class="video-modal__mute-on" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M11 5 6 9H3v6h3l5 4V5z" fill="currentColor"/>
+              <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+              <path d="M18.5 5.5a9 9 0 0 1 0 13"/>
+            </svg>
+            <svg class="video-modal__mute-off" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M11 5 6 9H3v6h3l5 4V5z" fill="currentColor"/>
+              <path d="m16 9 6 6"/>
+              <path d="m22 9-6 6"/>
+            </svg>
+          </button>
         </div>
         <p id="video-modal-title" class="video-modal__title"></p>
       </div>
