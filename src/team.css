@@ -98,10 +98,46 @@
   -webkit-user-drag: none;
 }
 
+.team__sticker--stuck {
+  transform: translate(var(--x, 0px), var(--y, 0px));
+  perspective: 900px;
+  filter: drop-shadow(1px calc(1px + var(--lift, 0) * 22px) calc(2px + var(--lift, 0) * 18px) rgba(0, 0, 0, calc(0.25 + var(--lift, 0) * 0.2)));
+}
+
+.team__sticker-paper {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+  transform: rotate(calc(var(--rot, 0deg) - var(--lift, 0) * 9deg)) scale(calc(1 + var(--lift, 0) * 0.25 - var(--squash, 0) * 0.25));
+  transform-style: preserve-3d;
+}
+
 .team__sticker--stuck img {
-  --lift: max(0, calc(1 - var(--stick, 1)));
-  transform: rotate(calc(var(--rot, 0deg) - var(--lift) * 9deg)) scale(calc(1 + var(--lift) * 0.5 - max(0, calc(var(--stick, 1) - 1)) * 0.25));
-  filter: drop-shadow(1px calc(1px + var(--lift) * 22px) calc(2px + var(--lift) * 18px) rgba(0, 0, 0, calc(0.25 + var(--lift) * 0.2)));
+  filter: none;
+  transform: none;
+}
+
+.team-folder__stickers {
+  position: absolute;
+  left: 0;
+  top: 85px;
+  width: 660px;
+  height: 360px;
+  transform-origin: 50% 100%;
+  transform: rotateX(0deg);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.team-folder.is-live:is(:hover, :focus-visible) .team-folder__stickers {
+  transform: rotateX(-9.5deg);
+}
+
+.team-folder:is(.is-open, .is-focus) .team-folder__stickers {
+  transform: rotateX(-24deg);
+  transition-duration: 0.42s;
 }
 
 .team-folder {
@@ -718,6 +754,7 @@
 
   .team-folder__tilt,
   .team-folder__front,
+  .team-folder__stickers,
   .team-folder__sheet {
     transition: none;
     transform: none;

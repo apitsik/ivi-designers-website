@@ -25,9 +25,9 @@ const REST = { x: 390, y: 248, rot: 0 };
 const EXIT_Y = -520;
 
 const STICKER_RISE = 620;
-const STICK_START = 0.34;
-const STICK_GAP = 0.09;
-const STICK_LEN = 0.09;
+const STICK_START = 0.27;
+const STICK_GAP = 0.1;
+const STICK_LEN = 0.15;
 
 const COMPACT = window.matchMedia('(max-width: 720px), (max-width: 1024px) and (orientation: portrait)');
 const FOLDER_W = 660;
@@ -268,6 +268,11 @@ export function initTeam(section, modal) {
 
       const list = item.stickers;
       list.forEach((s, j) => {
+        if (s.stuck) {
+          s.node.hidden = false;
+          s.node.style.setProperty('--x', `${s.x0}px`);
+          return;
+        }
         let spec = mock.stickers[i]?.[j];
         let boost = 1;
         if (!mock.stickers[i] && PHONE.stickers[i]) {
@@ -359,6 +364,7 @@ export function initTeam(section, modal) {
   });
 
   initNotes(notes, reduced);
+  initStuck(items, reduced);
   initPhotos(photos, stage, reduced);
 
   if (reduced) {
@@ -445,13 +451,21 @@ export function initTeam(section, modal) {
     el.tabIndex = onScreen ? 0 : -1;
 
     const out = glide(range(p, leaveFrom, leaveTo));
-    stickers.forEach(({ node, y, rise, shift: dist, stuck }, k) => {
-      if (stuck && !cfg.compact) {
+    stickers.forEach((st, k) => {
+      const { node, y, rise, shift: dist, stuck } = st;
+      if (stuck) {
         const at = start + (STICK_START + k * STICK_GAP) * SPAN;
-        const s = easeBack(range(p, at, at + STICK_LEN * SPAN));
-        node.style.setProperty('--y', `${(y + pos.y - REST.y).toFixed(2)}px`);
-        node.style.setProperty('--stick', s.toFixed(3));
-        node.style.setProperty('--o', clamp(s * 8, 0, 1).toFixed(3));
+        const raw = range(p, at, at + STICK_LEN * SPAN);
+        const s = easeBack(raw);
+        const curl = 1 - glide(raw);
+        node.style.setProperty('--y', `${y.toFixed(2)}px`);
+        node.style.setProperty('--lift', Math.max(0, 1 - s).toFixed(3));
+        node.style.setProperty('--squash', Math.max(0, s - 1).toFixed(3));
+        node.style.setProperty('--o', clamp(raw * 10, 0, 1).toFixed(3));
+        if (st.sheet && Math.abs(curl - st.curl) > 0.002) {
+          st.curl = curl;
+          bendSheet(st.sheet, curl);
+        }
         return;
       }
       const from = start + (STICKER_START + k * STICKER_GAP) * SPAN;
@@ -604,6 +618,25 @@ function bendSheet(sheet, curl) {
       r[6] * m[0] + r[7] * m[3] + r[8] * m[6], r[6] * m[1] + r[7] * m[4] + r[8] * m[7], r[6] * m[2] + r[7] * m[5] + r[8] * m[8],
     ];
   }
+}
+
+function initStuck(items, reduced) {
+  if (reduced) return;
+  items.forEach(({ stickers }) => {
+    stickers.forEach((st) => {
+      if (!st.stuck) return;
+      st.curl = 1;
+      const paper = st.node.firstElementChild;
+      const img = paper?.querySelector('img');
+      if (!img) return;
+      const ready = () => {
+        st.sheet = buildStrips(st.node, paper);
+        if (st.sheet) bendSheet(st.sheet, st.curl);
+      };
+      if (img.complete && img.naturalWidth) ready();
+      else img.addEventListener('load', ready, { once: true });
+    });
+  });
 }
 
 function initNotes(notes, reduced) {
