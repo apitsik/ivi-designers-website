@@ -366,6 +366,16 @@
   display: block;
 }
 
+.video-modal__frame:fullscreen {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.video-modal__frame:-webkit-full-screen {
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .video-modal__fs-exit,
 .video-modal__fullscreen.is-fullscreen .video-modal__fs-enter {
   display: none;

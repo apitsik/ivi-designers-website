@@ -1,6 +1,7 @@
 import { lenis } from './smooth-scroll.js';
 
 const ratioCache = new Map();
+const VIMEO_ORIGIN = 'https://player.vimeo.com';
 
 export function initVideoModal(modal, cards) {
   if (!modal) return;
@@ -16,6 +17,9 @@ export function initVideoModal(modal, cards) {
   let opener = null;
   let hideTimer = 0;
   let openId = null;
+  let openTitle = '';
+  let openCrop = '1';
+  const pending = new Map();
 
   const setRatio = (w, h) => {
     if (!w || !h) return;
@@ -36,8 +40,48 @@ export function initVideoModal(modal, cards) {
     setMuted(!muted);
     iframe.contentWindow.postMessage(
       JSON.stringify({ method: 'setMuted', value: muted }),
-      'https://player.vimeo.com',
+      VIMEO_ORIGIN,
     );
+  };
+
+  window.addEventListener('message', (e) => {
+    if (e.origin !== VIMEO_ORIGIN) return;
+    let data = e.data;
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data);
+      } catch {
+        return;
+      }
+    }
+    const resolve = data && pending.get(data.method);
+    if (resolve) {
+      pending.delete(data.method);
+      resolve(data.value);
+    }
+  });
+
+  const askPlayer = (method) =>
+    new Promise((resolve) => {
+      const iframe = frame.querySelector('iframe');
+      if (!iframe || !iframe.contentWindow) return resolve(null);
+      const timer = setTimeout(() => {
+        pending.delete(method);
+        resolve(null);
+      }, 600);
+      pending.set(method, (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      });
+      iframe.contentWindow.postMessage(JSON.stringify({ method }), VIMEO_ORIGIN);
+    });
+
+  const reloadPlayer = async (controls) => {
+    const id = openId;
+    const start = await askPlayer('getCurrentTime');
+    if (!id || openId !== id) return;
+    frame.style.setProperty('--video-crop', controls ? '1' : openCrop);
+    frame.replaceChildren(buildPlayer(id, openTitle, { controls, start, muted }));
   };
 
   const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement || null;
@@ -56,6 +100,7 @@ export function initVideoModal(modal, cards) {
     const on = fsElement() === frame;
     fsBtn.classList.toggle('is-fullscreen', on);
     fsBtn.setAttribute('aria-label', on ? 'Выйти из полноэкранного режима' : 'Во весь экран');
+    if (openId) reloadPlayer(on);
   };
 
   const open = async (card) => {
@@ -81,8 +126,10 @@ export function initVideoModal(modal, cards) {
     }
 
     setMuted(false);
-    frame.style.setProperty('--video-crop', card.dataset.crop || '1');
-    frame.replaceChildren(buildPlayer(id, card.dataset.title));
+    openTitle = card.dataset.title || '';
+    openCrop = card.dataset.crop || '1';
+    frame.style.setProperty('--video-crop', openCrop);
+    frame.replaceChildren(buildPlayer(id, openTitle));
 
     modal.hidden = false;
     modal.setAttribute('aria-hidden', 'false');
@@ -143,20 +190,22 @@ async function fetchVimeoSize(id) {
   }
 }
 
-function buildPlayer(id, name) {
+function buildPlayer(id, name, { controls = false, start = 0, muted = false } = {}) {
   const iframe = document.createElement('iframe');
   const params = new URLSearchParams({
     autoplay: '1',
     title: '0',
     byline: '0',
     portrait: '0',
-    controls: '0',
+    controls: controls ? '1' : '0',
     badge: '0',
     pip: '0',
     playsinline: '1',
     dnt: '1',
   });
-  iframe.src = `https://player.vimeo.com/video/${id}?${params}`;
+  if (muted) params.set('muted', '1');
+  const time = Math.floor(start || 0);
+  iframe.src = `${VIMEO_ORIGIN}/video/${id}?${params}${time > 0 ? `#t=${time}s` : ''}`;
   iframe.allow = 'autoplay; fullscreen; picture-in-picture';
   iframe.allowFullscreen = true;
   iframe.title = name || 'Showreel';
