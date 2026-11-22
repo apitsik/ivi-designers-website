@@ -11,6 +11,7 @@ export function initVideoModal(modal, cards) {
   const title = modal.querySelector('.video-modal__title');
   const closeBtn = modal.querySelector('.video-modal__close');
   const muteBtn = modal.querySelector('.video-modal__mute');
+  const fsBtn = modal.querySelector('.video-modal__fullscreen');
   let muted = false;
   let opener = null;
   let hideTimer = 0;
@@ -37,6 +38,24 @@ export function initVideoModal(modal, cards) {
       JSON.stringify({ method: 'setMuted', value: muted }),
       'https://player.vimeo.com',
     );
+  };
+
+  const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+  const fsSupported = !!(frame.requestFullscreen || frame.webkitRequestFullscreen);
+  fsBtn.hidden = !fsSupported;
+
+  const toggleFullscreen = () => {
+    if (fsElement()) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else {
+      (frame.requestFullscreen || frame.webkitRequestFullscreen).call(frame);
+    }
+  };
+
+  const syncFullscreen = () => {
+    const on = fsElement() === frame;
+    fsBtn.classList.toggle('is-fullscreen', on);
+    fsBtn.setAttribute('aria-label', on ? 'Выйти из полноэкранного режима' : 'Во весь экран');
   };
 
   const open = async (card) => {
@@ -88,6 +107,7 @@ export function initVideoModal(modal, cards) {
     modal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('video-modal-open');
     lenis?.start();
+    if (fsElement()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
     frame.replaceChildren();
     hideTimer = setTimeout(() => {
       modal.hidden = true;
@@ -98,6 +118,9 @@ export function initVideoModal(modal, cards) {
   };
 
   muteBtn.addEventListener('click', toggleMute);
+  fsBtn.addEventListener('click', toggleFullscreen);
+  document.addEventListener('fullscreenchange', syncFullscreen);
+  document.addEventListener('webkitfullscreenchange', syncFullscreen);
   cards.forEach((card) => card.addEventListener('click', () => open(card)));
   modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
   dialog.addEventListener('click', (e) => {
