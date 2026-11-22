@@ -25,6 +25,9 @@ const REST = { x: 390, y: 248, rot: 0 };
 const EXIT_Y = -520;
 
 const STICKER_RISE = 620;
+const STICK_START = 0.34;
+const STICK_GAP = 0.09;
+const STICK_LEN = 0.09;
 
 const COMPACT = window.matchMedia('(max-width: 720px), (max-width: 1024px) and (orientation: portrait)');
 const FOLDER_W = 660;
@@ -134,6 +137,7 @@ export function initTeam(section, modal) {
     const stickers = [...section.querySelectorAll(`.team__sticker[data-folder="${i}"]`)]
       .map((node) => {
         const item = layout(node);
+        item.stuck = node.classList.contains('team__sticker--stuck');
         node.firstElementChild?.style.setProperty('--rot', `${node.dataset.rot || 0}deg`);
         return item;
       })
@@ -441,7 +445,15 @@ export function initTeam(section, modal) {
     el.tabIndex = onScreen ? 0 : -1;
 
     const out = glide(range(p, leaveFrom, leaveTo));
-    stickers.forEach(({ node, y, rise, shift: dist }, k) => {
+    stickers.forEach(({ node, y, rise, shift: dist, stuck }, k) => {
+      if (stuck && !cfg.compact) {
+        const at = start + (STICK_START + k * STICK_GAP) * SPAN;
+        const s = easeBack(range(p, at, at + STICK_LEN * SPAN));
+        node.style.setProperty('--y', `${(y + pos.y - REST.y).toFixed(2)}px`);
+        node.style.setProperty('--stick', s.toFixed(3));
+        node.style.setProperty('--o', clamp(s * 8, 0, 1).toFixed(3));
+        return;
+      }
       const from = start + (STICKER_START + k * STICKER_GAP) * SPAN;
       const t = ease(range(p, from, from + STICKER_LEN * SPAN));
       const shift = -out * dist;
