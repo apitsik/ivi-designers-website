@@ -62,6 +62,7 @@ export function initVideoModal(modal, cards) {
     }
 
     setMuted(false);
+    frame.style.setProperty('--video-crop', card.dataset.crop || '1');
     frame.replaceChildren(buildPlayer(id, card.dataset.title));
 
     modal.hidden = false;
