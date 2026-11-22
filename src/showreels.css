@@ -139,6 +139,15 @@
 .showreel--6 { left: 35.9%;  top: 65.12%; width: 43.61%; aspect-ratio: 628 / 490; }
 .showreel--7 { left: 15.63%; top: 81.21%; width: 69.79%; aspect-ratio: 1005 / 482; }
 
+@media (min-width: 721px) {
+  .showreel--6 {
+    left: calc(35.9% - 16px);
+    width: calc(43.61% + 32px);
+    height: 14.161%;
+    aspect-ratio: auto;
+  }
+}
+
 .showreel-promo {
   position: absolute;
   left: 26.18%;
