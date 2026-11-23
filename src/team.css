@@ -114,9 +114,29 @@
   transform-style: preserve-3d;
 }
 
+.team__sticker--stuck {
+  will-change: auto;
+}
+
+.team__sticker--stuck .team-note__strip {
+  will-change: auto;
+}
+
 .team__sticker--stuck img {
   filter: none;
   transform: none;
+}
+
+.team__sticker-flat {
+  display: none !important;
+}
+
+.team__sticker--stuck.is-flat .team__sticker-flat {
+  display: block !important;
+}
+
+.team__sticker--stuck.is-flat .team-note__sheet {
+  visibility: hidden;
 }
 
 .team-folder__stickers {

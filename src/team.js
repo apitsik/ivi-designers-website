@@ -465,6 +465,7 @@ export function initTeam(section, modal) {
         if (st.sheet && Math.abs(curl - st.curl) > 0.002) {
           st.curl = curl;
           bendSheet(st.sheet, curl);
+          node.classList.toggle('is-flat', curl < 0.003);
         }
         return;
       }
@@ -629,9 +630,15 @@ function initStuck(items, reduced) {
       const paper = st.node.firstElementChild;
       const img = paper?.querySelector('img');
       if (!img) return;
+      const flat = img.cloneNode();
+      flat.classList.add('team__sticker-flat');
       const ready = () => {
         st.sheet = buildStrips(st.node, paper);
-        if (st.sheet) bendSheet(st.sheet, st.curl);
+        if (st.sheet) {
+          paper.appendChild(flat);
+          bendSheet(st.sheet, st.curl);
+          st.node.classList.toggle('is-flat', st.curl < 0.003);
+        }
       };
       if (img.complete && img.naturalWidth) ready();
       else img.addEventListener('load', ready, { once: true });
