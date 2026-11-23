@@ -163,3 +163,8 @@
     height: 48px;
   }
 }
+
+main {
+  background-color: var(--page-bg);
+  transition: background-color 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+}
