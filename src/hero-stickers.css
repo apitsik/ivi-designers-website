@@ -56,7 +56,7 @@
 .hero__stickers {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 4;
   overflow: hidden;
   pointer-events: none;
 }
