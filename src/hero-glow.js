@@ -4,6 +4,7 @@ const EASE = 0.015;
 const GAIN = 1;
 const GAMMA = 1.3;
 const LAST_FRAME = 149;
+const BLUR = 0.5;
 const LOGO_X = 141 / 1384;
 const LOGO_W = 1060 / 1384;
 const SIGMAS = [0.5, 2, 4, 8, 16, 30, 55, 100];
@@ -90,7 +91,10 @@ void main() {
   float v = pow(clamp(c * uGain, 0.0, 1.0), uGamma);
   float noise = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
   float g = clamp(v * 201.0 + noise, 0.0, 196.0);
-  gl_FragColor = vec4(texture2D(uRamp, vec2((g + 0.5) / 197.0, 0.5)).rgb, 1.0);
+  vec3 col = texture2D(uRamp, vec2((g + 0.5) / 197.0, 0.5)).rgb;
+  float grain = fract(sin(dot(floor(gl_FragCoord.xy), vec2(39.3468, 11.1357))) * 24634.6345);
+  col *= 1.0 - 0.07 * step(0.5, grain);
+  gl_FragColor = vec4(col, 1.0);
 }
 `;
 
@@ -103,8 +107,8 @@ function paramsAt(t) {
   const A = KNOTS[i];
   const B = KNOTS[i + 1];
   return [
-    Math.exp(Math.log(A[0]) + (Math.log(B[0]) - Math.log(A[0])) * k),
-    Math.exp(Math.log(A[1]) + (Math.log(B[1]) - Math.log(A[1])) * k),
+    Math.max(0.5, BLUR * Math.exp(Math.log(A[0]) + (Math.log(B[0]) - Math.log(A[0])) * k)),
+    Math.max(0.5, BLUR * Math.exp(Math.log(A[1]) + (Math.log(B[1]) - Math.log(A[1])) * k)),
     A[2] + (B[2] - A[2]) * k,
     A[3] + (B[3] - A[3]) * k,
   ];
