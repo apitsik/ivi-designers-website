@@ -47,7 +47,12 @@
   padding: 48px;
   border-radius: clamp(80px, 13.9vw, 200px);
   overflow: hidden;
-  background: #2a0313 url('/images/extra-text/extra-text-background.jpg') center / cover no-repeat;
+  background:
+    radial-gradient(ellipse 8% 58% at 100% 0%, #e0002b 0%, rgba(224, 0, 43, 0.75) 40%, rgba(224, 0, 43, 0) 100%),
+    radial-gradient(ellipse 12% 26% at 100% 52%, rgba(236, 96, 134, 0.85) 0%, rgba(236, 96, 134, 0) 100%),
+    linear-gradient(171deg, #1a0003 0%, #1d0002 38%, #2c0007 46%, #44001b 54%, #78004c 60%, #96006c 64%, #b02a82 69%, #c4528f 74%, #cc6698 80%, #cd699b 88%, #cd699b 100%),
+    linear-gradient(90deg, rgba(70, 0, 20, 0.5) 0%, rgba(40, 0, 10, 0) 42%),
+    #2a0313;
   color: var(--color-white);
   text-align: center;
   transform: scale(calc(0.8 + 0.2 * var(--grow)));
