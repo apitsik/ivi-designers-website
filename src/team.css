@@ -219,11 +219,11 @@
 .team-folder__back::after {
   content: '';
   position: absolute;
-  left: 184px;
+  left: 182px;
   top: -24px;
-  width: 24px;
-  height: 24px;
-  background: radial-gradient(circle at 100% 0, transparent 0 24px, var(--folder-back) 24px);
+  width: 26px;
+  height: 26px;
+  background: radial-gradient(circle at 100% 0, transparent 0 23.5px, var(--folder-back) 24.5px);
 }
 
 .team-folder__tab {
