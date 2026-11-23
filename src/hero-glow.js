@@ -1,6 +1,9 @@
 import { initCursorScrub } from './cursor-scrub.js';
 
-const EASE = 0.02;
+const STIFF = 70;
+const DAMP = 11;
+const STRETCH = 0.5;
+const MAX_STRETCH = 2.4;
 const SIGMA_BLUR = 30;
 const SIGMA_SHARP = 3.2;
 const NEAR = 0.08;
@@ -36,6 +39,7 @@ uniform vec2 uLogo;
 uniform vec4 uTune;
 uniform vec3 uShape;
 uniform float uDrop;
+uniform vec3 uMove;
 
 float hash(vec2 p) {
   vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -55,7 +59,10 @@ float hat(float x, float lo, float mid, float hi) {
 void main() {
   vec2 p = vec2((vUv.x - uLogo.x) / uLogo.y, ((vUv.y * 778.0 - 85.0) / 553.0) * uShape.z);
   vec2 f = vec2(uFocus.x, uFocus.y * uShape.z);
-  float d = length(p - f);
+  vec2 dv = p - f;
+  float along = dot(dv, uMove.xy);
+  vec2 across = dv - along * uMove.xy;
+  float d = length(vec2(along / (1.0 + uMove.z), length(across)));
   float w = smoothstep(uShape.x, uShape.y, d);
   float s = mix(log(uTune.x), log(uTune.y), w);
 
@@ -153,9 +160,13 @@ export function initHeroGlow(video) {
   gl.uniform3f(gl.getUniformLocation(program, 'uShape'), NEAR, FAR, LOGO_RATIO);
   gl.uniform2f(gl.getUniformLocation(program, 'uLogo'), LOGO_X, LOGO_W);
   gl.uniform1f(gl.getUniformLocation(program, 'uDrop'), DROP);
+  const uMove = gl.getUniformLocation(program, 'uMove');
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   let target = [...START];
   let current = [...START];
+  let vel = [0, 0];
+  let dir = [1, 0];
   let drawn = '';
   let prev = 0;
   let ready = false;
@@ -174,7 +185,10 @@ export function initHeroGlow(video) {
   };
 
   const draw = () => {
+    const sp = Math.hypot(vel[0], vel[1]);
+    if (sp > 0.05) dir = [vel[0] / sp, vel[1] / sp];
     gl.uniform2f(uFocus, current[0], current[1]);
+    gl.uniform3f(uMove, dir[0], dir[1], calm.matches ? 0 : Math.min(sp * STRETCH, MAX_STRETCH));
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   };
 
@@ -212,14 +226,24 @@ export function initHeroGlow(video) {
   window.addEventListener('pointerdown', (e) => setTarget(e.clientX, e.clientY), { passive: true });
 
   const tick = (timestamp) => {
-    const dt = prev ? Math.min(timestamp - prev, 100) : 16.67;
+    const dt = prev ? Math.min((timestamp - prev) / 1000, 0.05) : 0.0167;
     prev = timestamp;
-    const alpha = 1 - Math.pow(1 - EASE, dt / 16.67);
-    for (let i = 0; i < 2; i++) {
-      const delta = target[i] - current[i];
-      current[i] = Math.abs(delta) < 0.0005 ? target[i] : current[i] + delta * alpha;
+    if (calm.matches) {
+      current = [...target];
+      vel = [0, 0];
+    } else {
+      for (let i = 0; i < 2; i++) {
+        const acc = STIFF * (target[i] - current[i]) - DAMP * vel[i];
+        vel[i] += acc * dt;
+        current[i] += vel[i] * dt;
+      }
+      const rest = Math.hypot(vel[0], vel[1]) < 0.01 && Math.hypot(target[0] - current[0], target[1] - current[1]) < 0.0005;
+      if (rest) {
+        current = [...target];
+        vel = [0, 0];
+      }
     }
-    const key = `${current[0].toFixed(4)},${current[1].toFixed(4)}`;
+    const key = `${current[0].toFixed(4)},${current[1].toFixed(4)},${vel[0].toFixed(3)},${vel[1].toFixed(3)}`;
     if (ready && key !== drawn) {
       draw();
       drawn = key;
