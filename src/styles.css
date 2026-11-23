@@ -266,11 +266,6 @@ h1 {
   }
 }
 
-.footer__link:hover .footer__link-label,
-.footer__link:focus-visible .footer__link-label {
-  color: var(--color-white);
-}
-
 .nav__logo {
   flex: 0 0 auto;
   display: block;

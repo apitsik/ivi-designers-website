@@ -130,7 +130,7 @@
   line-height: var(--p3-line);
 }
 
-.footer__made {
+.footer__line2 .footer__made {
   flex: 0 1 auto;
   min-width: 0;
   margin: 0 auto 0 0;
@@ -238,7 +238,7 @@
     flex-wrap: wrap;
   }
 
-  .footer__made {
+  .footer__line2 .footer__made {
     margin-right: 100%;
   }
 
