@@ -94,10 +94,6 @@
   will-change: transform;
 }
 
-.hero__strip.is-back {
-  opacity: 0.45;
-}
-
 .hero__sticker img {
   display: block;
   width: 100%;

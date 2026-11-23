@@ -332,7 +332,7 @@ function buildPeel(el, cx, cy, i) {
   for (let k = 0; k < STRIPS; k++) {
     const st = document.createElement('div');
     st.className = 'hero__strip';
-    st.style.width = `${sw + 0.6}px`;
+    st.style.width = `${sw + 1.2}px`;
     st.style.height = `${h}px`;
     st.style.backgroundImage = `url("${src}")`;
     st.style.backgroundSize = `${w}px ${h}px`;
@@ -393,8 +393,6 @@ function updatePeel(p, t) {
     const rad = (acc * Math.PI) / 180;
     const st = p.strips[k];
     st.style.transform = `translate3d(${px.toFixed(2)}px, 0, ${pz.toFixed(2)}px) rotateY(${acc.toFixed(2)}deg)`;
-    const facing = Math.cos(rad + (p.flipY * fly * Math.PI) / 180) * Math.cos((p.flipX * fly * Math.PI) / 180);
-    st.classList.toggle('is-back', facing < 0);
     acc += a;
     px += p.sw * Math.cos(rad);
     pz -= p.sw * Math.sin(rad);
