@@ -861,3 +861,7 @@
     gap: 8px;
   }
 }
+
+.nowrap {
+  white-space: nowrap;
+}
