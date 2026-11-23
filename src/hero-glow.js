@@ -37,6 +37,12 @@ uniform vec4 uTune;
 uniform vec3 uShape;
 uniform float uDrop;
 
+float hash(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
+
 float hat(float x, float lo, float mid, float hi) {
   if (x <= mid) {
     if (lo >= mid) return 1.0;
@@ -75,11 +81,11 @@ void main() {
   c += hat(s, l6, l7, l7) * texture2D(uC, tuv).r;
 
   float v = pow(clamp(c * uTune.z, 0.0, 1.0), uTune.w);
-  float noise = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
+  float noise = hash(gl_FragCoord.xy + 17.0) - 0.5;
   float g = clamp(v * 201.0 + noise, 0.0, 196.0);
   vec3 base = texture2D(uRamp, vec2(0.5 / 197.0, 0.5)).rgb;
   vec3 col = max(texture2D(uRamp, vec2((g + 0.5) / 197.0, 0.5)).rgb - base, 0.0);
-  float grain = fract(sin(dot(floor(gl_FragCoord.xy), vec2(39.3468, 11.1357))) * 24634.6345);
+  float grain = hash(floor(gl_FragCoord.xy));
   float amp = ${GRAIN.toFixed(3)} * (1.0 - smoothstep(0.72, 0.98, v));
   col *= 1.0 - amp * step(0.5, grain);
   float alpha = clamp(max(col.r, max(col.g, col.b)), 0.0, 1.0);
