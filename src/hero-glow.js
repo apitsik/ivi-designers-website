@@ -1,10 +1,10 @@
 import { initCursorScrub } from './cursor-scrub.js';
 
 const EASE = 0.02;
-const SIGMA_BLUR = 48;
-const SIGMA_SHARP = 4.5;
-const NEAR = 0.1;
-const FAR = 0.52;
+const SIGMA_BLUR = 24;
+const SIGMA_SHARP = 6;
+const NEAR = 0.08;
+const FAR = 0.5;
 const GAIN = 1;
 const GAMMA = 1.3;
 const GRAIN = 0.13;
