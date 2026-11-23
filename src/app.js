@@ -1,6 +1,6 @@
 import { initPreloader } from './preloader.js';
 import { initSmoothScroll } from './smooth-scroll.js';
-import { initCursorScrub } from './cursor-scrub.js';
+import { initHeroGlow } from './hero-glow.js';
 import { initNavLogo } from './nav-logo.js';
 import { initNavMenu } from './nav-menu.js';
 import { initLinkScribble } from './link-scribble.js';
@@ -33,7 +33,7 @@ import './nav-menu.css';
 
 if (window.PRELOADER !== 'stroke') document.documentElement.classList.add('is-preloading');
 initSmoothScroll();
-initCursorScrub(document.querySelector('.hero__video'));
+initHeroGlow(document.querySelector('.hero__video'));
 initNavLogo(document.querySelector('.nav__logo'));
 initNavMenu(document.querySelector('.nav__burger'), document.querySelector('.menu-modal'));
 initLinkScribble();

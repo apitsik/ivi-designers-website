@@ -35,7 +35,7 @@ export function waitForAssets(root) {
   });
 
   const hero = root.querySelector('.hero__video');
-  if (hero) {
+  if (hero && hero.getAttribute('src')) {
     tasks.push(
       new Promise((resolve) => {
         if (hero.readyState >= 4) return resolve();
