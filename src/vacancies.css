@@ -304,6 +304,10 @@
     gap: 16px;
   }
 
+  .vacancies__subtitle br {
+    display: none;
+  }
+
   .vacancies__subtitle {
     max-width: 376px;
     line-height: 1.2;
