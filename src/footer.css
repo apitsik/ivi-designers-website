@@ -131,9 +131,9 @@
 }
 
 .footer__made {
-  flex: 1 0 0;
+  flex: 0 1 auto;
   min-width: 0;
-  margin: 0;
+  margin: 0 auto 0 0;
 }
 
 .footer__made .footer__link-label,
@@ -239,7 +239,7 @@
   }
 
   .footer__made {
-    flex-basis: 100%;
+    margin-right: 100%;
   }
 
   .footer__links {
