@@ -530,6 +530,11 @@
   color: rgba(0, 0, 0, 0.64);
 }
 
+.team-modal__card--text .team-modal__text {
+  width: 273px;
+  max-width: 100%;
+}
+
 .team-modal__text p {
   margin: 0 0 1.2em;
 }
