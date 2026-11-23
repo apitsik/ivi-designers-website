@@ -139,6 +139,18 @@
   visibility: hidden;
 }
 
+.team__sticker--stuck.is-flat {
+  perspective: none;
+}
+
+.team__sticker--stuck.is-flat .team__sticker-paper {
+  transform-style: flat;
+}
+
+.team__sticker--stuck.is-flat .team-note__sheet {
+  display: none;
+}
+
 .team-folder__stickers {
   position: absolute;
   left: 0;
