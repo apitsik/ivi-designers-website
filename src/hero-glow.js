@@ -2,12 +2,12 @@ import { initCursorScrub } from './cursor-scrub.js';
 
 const EASE = 0.02;
 const SIGMA_BLUR = 48;
-const SIGMA_SHARP = 0.5;
+const SIGMA_SHARP = 4.5;
 const NEAR = 0.1;
 const FAR = 0.52;
 const GAIN = 1;
 const GAMMA = 1.3;
-const GRAIN = 0.1;
+const GRAIN = 0.13;
 const LOGO_X = 141 / 1384;
 const LOGO_W = 1060 / 1384;
 const LOGO_RATIO = 553 / 1060;
@@ -151,7 +151,7 @@ export function initHeroGlow(video) {
 
   const fit = () => {
     const rect = canvas.getBoundingClientRect();
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = 2;
     const w = Math.max(2, Math.round(rect.width * dpr));
     const h = Math.max(2, Math.round(rect.height * dpr));
     if (canvas.width !== w || canvas.height !== h) {
