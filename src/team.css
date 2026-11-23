@@ -461,7 +461,8 @@
 .team-modal__card--text {
   aspect-ratio: auto;
   width: min(330px, 82vw);
-  padding: 72px 29px 36px;
+  border-radius: 16px;
+  padding: 24px;
   display: flex;
   align-items: flex-end;
 }
@@ -504,14 +505,14 @@
   flex: 1 1 auto;
   border-radius: 16px;
   background: #e0dcdc;
-  padding: 0 35px 32px;
+  padding: 24px;
   display: flex;
   align-items: flex-end;
 }
 
 .team-modal__card--stack .team-modal__dot {
-  top: 27px;
-  right: 31px;
+  top: 24px;
+  right: 24px;
 }
 
 .team-modal__card--poster video,
@@ -531,11 +532,6 @@
   color: rgba(0, 0, 0, 0.64);
 }
 
-.team-modal__card--text .team-modal__text {
-  width: 273px;
-  max-width: 100%;
-}
-
 .team-modal__text p {
   margin: 0 0 1.2em;
 }
@@ -546,8 +542,8 @@
 
 .team-modal__dot {
   position: absolute;
-  top: 32px;
-  right: 32px;
+  top: 24px;
+  right: 24px;
   width: 18px;
   height: 18px;
   border-radius: 50%;
