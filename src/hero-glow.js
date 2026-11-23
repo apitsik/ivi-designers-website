@@ -1,13 +1,13 @@
 import { initCursorScrub } from './cursor-scrub.js';
 
-const STIFF = 70;
-const DAMP = 11;
+const STIFF = 22;
+const DAMP = 9;
 const STRETCH = 0.5;
 const MAX_STRETCH = 2.4;
 const SIGMA_BLUR = 30;
-const SIGMA_SHARP = 3.2;
+const SIGMA_SHARP = 6;
 const NEAR = 0.08;
-const FAR = 0.5;
+const FAR = 1.1;
 const GAIN = 1;
 const GAMMA = 1.3;
 const GRAIN = 0.13;
@@ -63,7 +63,7 @@ void main() {
   float along = dot(dv, uMove.xy);
   vec2 across = dv - along * uMove.xy;
   float d = length(vec2(along / (1.0 + uMove.z), length(across)));
-  float w = smoothstep(uShape.x, uShape.y, d);
+  float w = smoothstep(uShape.x, uShape.y, d) * 0.85;
   float s = mix(log(uTune.x), log(uTune.y), w);
 
   float l0 = log(0.5);
