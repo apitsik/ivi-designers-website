@@ -1,8 +1,8 @@
 import { initCursorScrub } from './cursor-scrub.js';
 
 const EASE = 0.02;
-const SIGMA_BLUR = 24;
-const SIGMA_SHARP = 6;
+const SIGMA_BLUR = 30;
+const SIGMA_SHARP = 3.2;
 const NEAR = 0.08;
 const FAR = 0.5;
 const GAIN = 1;
@@ -12,6 +12,7 @@ const LOGO_X = 141 / 1384;
 const LOGO_W = 1060 / 1384;
 const LOGO_RATIO = 553 / 1060;
 const START = [0.12, 0.62];
+const DROP = 4.5 / 778;
 
 const VERT = `
 attribute vec2 aPos;
@@ -34,6 +35,7 @@ uniform vec2 uFocus;
 uniform vec2 uLogo;
 uniform vec4 uTune;
 uniform vec3 uShape;
+uniform float uDrop;
 
 float hat(float x, float lo, float mid, float hi) {
   if (x <= mid) {
@@ -60,16 +62,17 @@ void main() {
   float l6 = log(55.0);
   float l7 = log(100.0);
 
-  vec3 pa = texture2D(uA, vUv).rgb;
-  vec3 pb = texture2D(uB, vUv).rgb;
-  float c = hat(s, l0, l0, l1) * texture2D(uSharp, vUv).r;
+  vec2 tuv = vec2(vUv.x, vUv.y - uDrop);
+  vec3 pa = texture2D(uA, tuv).rgb;
+  vec3 pb = texture2D(uB, tuv).rgb;
+  float c = hat(s, l0, l0, l1) * texture2D(uSharp, tuv).r;
   c += hat(s, l0, l1, l2) * pa.r;
   c += hat(s, l1, l2, l3) * pa.g;
   c += hat(s, l2, l3, l4) * pa.b;
   c += hat(s, l3, l4, l5) * pb.r;
   c += hat(s, l4, l5, l6) * pb.g;
   c += hat(s, l5, l6, l7) * pb.b;
-  c += hat(s, l6, l7, l7) * texture2D(uC, vUv).r;
+  c += hat(s, l6, l7, l7) * texture2D(uC, tuv).r;
 
   float v = pow(clamp(c * uTune.z, 0.0, 1.0), uTune.w);
   float noise = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
@@ -80,6 +83,7 @@ void main() {
   float amp = ${GRAIN.toFixed(3)} * (1.0 - smoothstep(0.72, 0.98, v));
   col *= 1.0 - amp * step(0.5, grain);
   float alpha = clamp(max(col.r, max(col.g, col.b)), 0.0, 1.0);
+  col += base * smoothstep(0.0, 0.6, alpha);
   gl_FragColor = vec4(col, alpha);
 }
 `;
@@ -142,6 +146,7 @@ export function initHeroGlow(video) {
   gl.uniform4f(gl.getUniformLocation(program, 'uTune'), SIGMA_BLUR, SIGMA_SHARP, GAIN, GAMMA);
   gl.uniform3f(gl.getUniformLocation(program, 'uShape'), NEAR, FAR, LOGO_RATIO);
   gl.uniform2f(gl.getUniformLocation(program, 'uLogo'), LOGO_X, LOGO_W);
+  gl.uniform1f(gl.getUniformLocation(program, 'uDrop'), DROP);
 
   let target = [...START];
   let current = [...START];
