@@ -91,10 +91,12 @@ void main() {
   float v = pow(clamp(c * uGain, 0.0, 1.0), uGamma);
   float noise = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
   float g = clamp(v * 201.0 + noise, 0.0, 196.0);
-  vec3 col = texture2D(uRamp, vec2((g + 0.5) / 197.0, 0.5)).rgb;
+  vec3 base = texture2D(uRamp, vec2(0.5 / 197.0, 0.5)).rgb;
+  vec3 col = max(texture2D(uRamp, vec2((g + 0.5) / 197.0, 0.5)).rgb - base, 0.0);
   float grain = fract(sin(dot(floor(gl_FragCoord.xy), vec2(39.3468, 11.1357))) * 24634.6345);
   col *= 1.0 - 0.07 * step(0.5, grain);
-  gl_FragColor = vec4(col, 1.0);
+  float alpha = clamp(max(col.r, max(col.g, col.b)), 0.0, 1.0);
+  gl_FragColor = vec4(col, alpha);
 }
 `;
 
@@ -144,7 +146,7 @@ export function initHeroGlow(video) {
   const canvas = document.createElement('canvas');
   canvas.className = video.className;
   canvas.setAttribute('aria-hidden', 'true');
-  const gl = canvas.getContext('webgl', { antialias: false, alpha: false, premultipliedAlpha: false });
+  const gl = canvas.getContext('webgl', { antialias: false, alpha: true, premultipliedAlpha: true });
   if (!gl) return useVideo(video);
 
   let program;
