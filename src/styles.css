@@ -471,7 +471,7 @@ h1 {
 
 @media (max-width: 720px) {
   .hero__background {
-    background-image: url('/images/hero-background-mobile.jpg');
+    background-image: url('/images/hero-background-mobile-v2.jpg');
     background-position: center;
     background-size: cover;
   }
