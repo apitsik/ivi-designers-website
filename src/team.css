@@ -459,7 +459,8 @@
 }
 
 .team-modal__card--text {
-  aspect-ratio: 330 / 592;
+  aspect-ratio: auto;
+  width: min(330px, 82vw);
   padding: 72px 29px 36px;
   display: flex;
   align-items: flex-end;
