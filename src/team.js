@@ -365,7 +365,6 @@ export function initTeam(section, modal) {
 
   initNotes(notes, reduced);
   initStuck(items, reduced);
-  initPhotos(photos, stage, reduced);
 
   if (reduced) {
     items.forEach(({ el }) => {

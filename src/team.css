@@ -586,7 +586,6 @@
   pointer-events: none;
 }
 
-.team-photo.is-live,
 .team-note.is-live {
   pointer-events: auto;
 }
