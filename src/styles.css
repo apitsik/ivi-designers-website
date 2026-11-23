@@ -222,6 +222,10 @@ h1 {
   vector-effect: non-scaling-stroke;
 }
 
+.footer__link .scribble {
+  stroke: #ff82a0;
+}
+
 .scribble--2 {
   transform: rotate(-1deg);
   top: 5%;
