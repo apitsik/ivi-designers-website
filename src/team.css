@@ -584,7 +584,6 @@
   transform: scale(calc(var(--u, 1) * var(--boost, 1))) translate(var(--x, 0px), var(--y, 0px));
   opacity: var(--o, 0);
   pointer-events: none;
-  will-change: transform, opacity;
 }
 
 .team-photo.is-live,
@@ -658,7 +657,6 @@
   background-repeat: no-repeat;
   transform-origin: 0 0;
   backface-visibility: visible;
-  will-change: transform;
 }
 
 .team-note img {
