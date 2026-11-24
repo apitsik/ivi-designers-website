@@ -132,7 +132,8 @@
 }
 
 .hero-note:not(.is-top):not(.is-second) {
-  background-color: #111013;
+  background-color: #1a0d16;
+  background-image: linear-gradient(160deg, #211019 0%, #170a13 60%, #1f0b18 100%);
 }
 
 .hero-note.is-dragging {
