@@ -537,8 +537,8 @@ export function initTeam(section, modal) {
 
   const placeOthers = (p) => {
     const compact = COMPACT.matches;
-    const out = range(p, compact ? OTHERS_OUT - 0.06 : OTHERS_OUT, compact ? 0.92 : 1);
-    scene?.style.setProperty('--swapout', compact ? ease(range(p, OTHERS_OUT - 0.06, OTHERS_OUT + 0.02)).toFixed(4) : 0);
+    const out = range(p, compact ? OTHERS_OUT - 0.06 : OTHERS_OUT, compact ? 0.92 : 1) * (compact ? 0.12 : 1);
+    scene?.style.setProperty('--swapout', 0);
 
     photos.forEach(({ node, y, frame }, k) => {
       const from = PHOTO_START + k * PHOTO_GAP;
