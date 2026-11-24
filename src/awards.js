@@ -117,6 +117,7 @@ export function initAwards(section) {
       items[focused].style.setProperty('--pic-shift', `${(-d * 36).toFixed(1)}px`);
     }
     if (!compact.matches) {
+      items.forEach((item) => item.style.removeProperty('--f'));
       setFocus(-1);
       return;
     }
@@ -129,9 +130,15 @@ export function initAwards(section) {
     const raw = (mid - top - rowH / 2) / step;
     const sectionRect = section.getBoundingClientRect();
     if (raw < -0.6 || sectionRect.bottom < window.innerHeight * 0.35) {
+      items.forEach((item) => item.style.setProperty('--f', '0'));
       setFocus(-1);
       return;
     }
+    const pos = clamp(raw, 0, items.length - 1);
+    items.forEach((item, i) => {
+      const t = Math.max(0, 1 - Math.abs(pos - i));
+      item.style.setProperty('--f', (t * t * (3 - 2 * t)).toFixed(3));
+    });
     setFocus(clamp(Math.round(raw), 0, items.length - 1));
   };
   window.addEventListener('scroll', updateFocus, { passive: true });

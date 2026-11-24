@@ -300,17 +300,13 @@
 
   .award {
     position: relative;
-    padding-block: 0;
-    transition: padding-block 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-  }
-
-  .award.is-focus {
-    padding-block: 16px;
+    padding-block: calc(var(--f, 0) * 16px);
   }
 
   .award__row {
     position: relative;
     z-index: 1;
+    scale: calc(0.94 + var(--f, 0) * 0.06);
   }
 
   .award__pic {
@@ -338,12 +334,13 @@
     transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1);
   }
 
-  .award.is-focus .award__pic img {
-    opacity: 0.4;
+  .awards.is-focusing .award__pic img {
+    opacity: calc(var(--f, 0) * 0.4);
+    transition: none;
   }
 
-  .awards.is-visible.is-focusing .award:not(.is-focus) .award__row {
-    opacity: 0.2;
+  .awards.is-visible.is-focusing .award .award__row {
+    opacity: calc(0.2 + var(--f, 0) * 0.8);
   }
 
   .awards.is-visible .award > * {
@@ -351,7 +348,7 @@
   }
 
   .awards.is-visible .award > .award__row {
-    transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: opacity 0.15s linear;
   }
 
   .awards__icon,
