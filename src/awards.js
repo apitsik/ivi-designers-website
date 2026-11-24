@@ -114,7 +114,7 @@ export function initAwards(section) {
     items.forEach((item, i) => item.classList.toggle('is-focus', i === k));
   };
   let goal = 0;
-  let now = -1;
+  let now = null;
   let glide = 0;
   const paint = (pos) => {
     items.forEach((item, i) => {
@@ -153,11 +153,17 @@ export function initAwards(section) {
     const vh = inner.clientHeight || window.innerHeight;
     section.style.setProperty('--extra', `${Math.round((items.length - 1) * PER_ITEM * vh)}px`);
   };
-  const placeShift = (pos) => {
+  const stepOf = () => {
     const rowH = items[0].querySelector('.award__name').offsetHeight;
     const gap = parseFloat(getComputedStyle(list).rowGap) || 0;
+    return { rowH, step: rowH + gap };
+  };
+  const placeShift = (pos) => {
+    const { rowH, step } = stepOf();
     const vh = inner.clientHeight;
-    const shift = vh / 2 - 63 - (list.offsetTop + pos * (rowH + gap) + rowH / 2);
+    const centered = vh / 2 - 63 - (list.offsetTop + pos * step + rowH / 2);
+    const atTop = 96 - (title ? title.offsetTop : 0);
+    const shift = Math.min(centered, atTop);
     inner.style.setProperty('--shift', `${shift.toFixed(1)}px`);
   };
   const pinScroll = () => {
@@ -175,12 +181,13 @@ export function initAwards(section) {
     }
     const progress = travel > 0 ? clamp(-rect.top / travel, 0, 1) : 0;
     goal = progress * (items.length - 1);
-    if (now < 0) {
+    if (now === null) {
       now = goal;
       paint(now);
       placeShift(now);
     }
     setFocus(clamp(Math.round(goal), 0, items.length - 1));
+    if (!glide) placeShift(now);
     if (!glide) glide = requestAnimationFrame(follow);
   };
 
@@ -211,13 +218,13 @@ export function initAwards(section) {
     if (raw < -0.6 || sectionRect.bottom < window.innerHeight * 0.35) {
       cancelAnimationFrame(glide);
       glide = 0;
-      now = -1;
+      now = null;
       items.forEach((item) => item.style.setProperty('--f', '0'));
       setFocus(-1);
       return;
     }
     goal = clamp(raw, 0, items.length - 1);
-    if (now < 0) now = goal;
+    if (now === null) now = goal;
     if (!glide) glide = requestAnimationFrame(follow);
     setFocus(clamp(Math.round(raw), 0, items.length - 1));
   };
