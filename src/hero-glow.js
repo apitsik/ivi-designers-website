@@ -217,7 +217,18 @@ export function initHeroGlow(video) {
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   };
 
+  const touch = window.matchMedia('(hover: none) and (pointer: coarse)');
+  const AUTO_MS = 16000;
+
   const tick = (timestamp) => {
+    if (touch.matches) {
+      const ph = (timestamp / AUTO_MS) * Math.PI * 2;
+      const t = 0.5 - 0.5 * Math.cos(ph);
+      target = 0.08 + 0.84 * t;
+      targetC = -0.1 + 1.2 * t;
+      targetY = 0.35 * Math.sin(ph * 0.63);
+      targetA = 1;
+    }
     const dt = prev ? Math.min(timestamp - prev, 100) : 16.67;
     prev = timestamp;
     if (calm.matches) {
@@ -279,6 +290,10 @@ export function initHeroGlow(video) {
       targetA = 0.8 + 0.45 * Math.min(gap / (lw * 0.5), 1);
     }
   };
-  window.addEventListener('pointermove', (e) => setTarget(e.clientX, e.clientY), { passive: true });
-  window.addEventListener('pointerdown', (e) => setTarget(e.clientX, e.clientY), { passive: true });
+  const onPointer = (e) => {
+    if (touch.matches || e.pointerType === 'touch') return;
+    setTarget(e.clientX, e.clientY);
+  };
+  window.addEventListener('pointermove', onPointer, { passive: true });
+  window.addEventListener('pointerdown', onPointer, { passive: true });
 }

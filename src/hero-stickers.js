@@ -114,16 +114,18 @@ export function initHeroStickers(hero) {
     const tiltX = (uy * 34).toFixed(1);
     const tiltY = (-ux * 34).toFixed(1);
 
+    const k = window.matchMedia('(max-width: 720px)').matches ? 0.4 : 1;
+    const D = (y, b, o) => `drop-shadow(0 ${(y * k).toFixed(1)}px ${(b * k).toFixed(1)}px rgba(0,0,0,${o}))`;
     const T = (tx, ty, r, sc, rx, ry) =>
       `translate(-50%, -50%) translate(${tx}px, ${ty}px) rotate(${r}deg) scale(${sc}) rotateX(${rx}deg) rotateY(${ry}deg)`;
 
     el.animate(
       [
-        { transform: T(ox - ux * 24, oy - uy * 24, rot - SWING, 1.12, tiltX, tiltY), filter: 'drop-shadow(0 32px 28px rgba(0,0,0,0.5))', opacity: 0, offset: 0 },
-        { transform: T(ox * 0.55 - ux * 12, oy * 0.55 - uy * 12, rot - SWING * 0.55, 1.08, tiltX * 0.65, tiltY * 0.65), filter: 'drop-shadow(0 22px 22px rgba(0,0,0,0.45))', opacity: 1, offset: 0.25 },
-        { transform: T(0, 0, rot, 0.97, 0, 0), filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.35))', opacity: 1, offset: 0.62 },
-        { transform: T(0, 0, rot, 1.015, -tiltX * 0.08, -tiltY * 0.08), filter: 'drop-shadow(0 8px 14px rgba(0,0,0,0.35))', opacity: 1, offset: 0.82 },
-        { transform: T(0, 0, rot, 1, 0, 0), filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.35))', opacity: 1, offset: 1 },
+        { transform: T(ox - ux * 24, oy - uy * 24, rot - SWING, 1.12, tiltX, tiltY), filter: D(32, 28, 0.5), opacity: 0, offset: 0 },
+        { transform: T(ox * 0.55 - ux * 12, oy * 0.55 - uy * 12, rot - SWING * 0.55, 1.08, tiltX * 0.65, tiltY * 0.65), filter: D(22, 22, 0.45), opacity: 1, offset: 0.25 },
+        { transform: T(0, 0, rot, 0.97, 0, 0), filter: D(4, 6, 0.35), opacity: 1, offset: 0.62 },
+        { transform: T(0, 0, rot, 1.015, -tiltX * 0.08, -tiltY * 0.08), filter: D(8, 14, 0.35), opacity: 1, offset: 0.82 },
+        { transform: T(0, 0, rot, 1, 0, 0), filter: D(10, 18, 0.35), opacity: 1, offset: 1 },
       ],
       { duration: 640, easing: EASE_OUT, fill: 'both' },
     );

@@ -190,6 +190,12 @@
   scale: 0.82;
 }
 
+@media (max-width: 720px) {
+  .hero__sticker {
+    filter: drop-shadow(0 4px 7px rgba(0, 0, 0, 0.35));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero__hint-roll,
   .hero__sticker,
