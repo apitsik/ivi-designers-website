@@ -519,6 +519,10 @@ h1 {
 }
 
 @media (min-width: 721px) and (max-width: 1024px) {
+  .hero__content {
+    top: -72px;
+  }
+
   .hero__text {
     gap: 236px;
   }
