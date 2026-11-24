@@ -776,7 +776,6 @@ function initDetail(modal) {
   const closeBtn = modal.querySelector('.video-modal__close');
   const arrows = [...modal.querySelectorAll('.team-modal__arrow')];
 
-  const GAP = 24;
   const FRICTION = 0.93;
   const CATCH = 0.12;
 
@@ -886,8 +885,9 @@ function initDetail(modal) {
   const measure = () => {
     const cards = [...track.children];
     const n = Math.round(cards.length / 3);
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
     let w = 0;
-    for (let k = 0; k < n; k += 1) w += cards[k].offsetWidth + GAP;
+    for (let k = 0; k < n; k += 1) w += cards[k].offsetWidth + gap;
     loop = w;
     wrap();
     draw();

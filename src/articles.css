@@ -215,7 +215,7 @@
 .article-modal__track {
   display: flex;
   align-items: stretch;
-  gap: 24px;
+  gap: 8px;
   user-select: none;
   -webkit-user-select: none;
   transform: translateX(var(--shift, 0px));
@@ -407,7 +407,7 @@
   }
 
   .article-modal__track {
-    gap: 16px;
+    gap: 8px;
   }
 
   .articles {

@@ -438,7 +438,7 @@
 .team-modal__track {
   display: flex;
   padding-left: var(--side);
-  gap: 24px;
+  gap: 8px;
   align-items: stretch;
   height: 100%;
   transform: translateX(var(--shift, 0px));
@@ -476,7 +476,7 @@
 .team-modal__card--stack {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 4px;
   border-radius: 0;
   background: none;
   overflow: visible;
@@ -494,7 +494,7 @@
 
 .team-modal__card--stack .team-modal__poster {
   position: relative;
-  flex: 0 0 calc(var(--h, 288) / 592 * 100%);
+  flex: 1 1 calc(var(--h, 288) / 592 * 100%);
   border-radius: 64px;
   overflow: hidden;
   background: #26262b;
@@ -855,11 +855,11 @@
   }
 
   .team-modal__track {
-    gap: 12px;
+    gap: 8px;
   }
 
   .team-modal__card--stack {
-    gap: 8px;
+    gap: 4px;
   }
 }
 
