@@ -33,7 +33,7 @@
   --h1-tracking: -0.04em;
 }
 
-@media (min-width: 721px) and (max-width: 1024px), (min-width: 721px) and (max-width: 1366px) and (orientation: portrait) {
+@media (min-width: 721px) and (max-width: 1024px), (min-width: 721px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
   :root {
     --h1-size: clamp(48px, 7.7vw, 64px);
   }
@@ -47,7 +47,7 @@
   }
 }
 
-@media (max-width: 1024px), (max-width: 1366px) and (orientation: portrait) {
+@media (max-width: 1024px), (max-width: 1400px) and (hover: none) and (pointer: coarse) {
   .showreels__head,
   .grid__title,
   .articles__title,
@@ -286,7 +286,7 @@ h1 {
   }
 }
 
-@media (max-width: 900px), (max-width: 1366px) and (orientation: portrait) {
+@media (max-width: 900px), (max-width: 1400px) and (hover: none) and (pointer: coarse) {
   .nav {
     height: 80px;
     padding: 16px 24px;
@@ -518,7 +518,7 @@ h1 {
   }
 }
 
-@media (min-width: 721px) and (max-width: 1024px), (min-width: 721px) and (max-width: 1366px) and (orientation: portrait) {
+@media (min-width: 721px) and (max-width: 1024px), (min-width: 721px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
   .hero__content {
     top: -72px;
   }

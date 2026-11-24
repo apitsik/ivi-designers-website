@@ -61,7 +61,7 @@ function initScrollPic(section) {
     pic.appendChild(img);
     return img;
   });
-  const compact = window.matchMedia('(max-width: 1024px), (max-width: 1366px) and (orientation: portrait)');
+  const compact = window.matchMedia('(max-width: 1024px), (max-width: 1400px) and (hover: none) and (pointer: coarse)');
   const STEP_MS = 2200;
   let current = -1;
   let timer = 0;

@@ -134,7 +134,7 @@
   }
 }
 
-@media (max-width: 1024px), (max-width: 1366px) and (orientation: portrait) {
+@media (max-width: 1024px), (max-width: 1400px) and (hover: none) and (pointer: coarse) {
   .extra-text {
     padding: 0 16px 16px;
   }
@@ -148,7 +148,7 @@
   }
 }
 
-@media (min-width: 1025px) and (hover: none) and (orientation: landscape) {
+@media (min-width: 1401px) and (hover: none) and (orientation: landscape) {
   .extra-text__card {
     aspect-ratio: auto;
     min-height: min(86svh, 70vw);

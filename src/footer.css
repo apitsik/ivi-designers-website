@@ -218,7 +218,7 @@
   }
 }
 
-@media (max-width: 1024px), (max-width: 1366px) and (orientation: portrait) {
+@media (max-width: 1024px), (max-width: 1400px) and (hover: none) and (pointer: coarse) {
   .footer__links {
     align-items: flex-start;
     text-align: left;

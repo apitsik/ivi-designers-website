@@ -467,7 +467,7 @@ body.video-modal-open {
   }
 }
 
-@media (max-width: 1024px), (max-width: 1366px) and (orientation: portrait) {
+@media (max-width: 1024px), (max-width: 1400px) and (hover: none) and (pointer: coarse) {
   .showreels__panel {
     --panel-start-radius: 140px;
   }
