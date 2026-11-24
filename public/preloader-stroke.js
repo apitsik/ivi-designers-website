@@ -94,6 +94,28 @@
     return d;
   })();
 
+  const rowsPath = (H) => {
+    const n = Math.max(4, Math.ceil(H / 300));
+    const h = H / n;
+    const L = -90;
+    const R = 1090;
+    const f = (x, y) => `${x.toFixed(1)} ${y.toFixed(1)}`;
+    let d = `M${f(L, h * 0.5)}`;
+    for (let i = 0; i < n; i += 1) {
+      const y = h * (i + 0.5);
+      const dir = i % 2 === 0 ? 1 : -1;
+      const a = dir > 0 ? L : R;
+      const b = dir > 0 ? R : L;
+      const bend = h * (i % 3 === 0 ? 0.18 : -0.14);
+      d += ` C${f(a + dir * 380, y - bend)}, ${f(b - dir * 380, y + bend)}, ${f(b, y + h * 0.08)}`;
+      if (i < n - 1) {
+        const y2 = h * (i + 1.5);
+        d += ` C${f(b + dir * 70, y + h * 0.3)}, ${f(b + dir * 70, y2 - h * 0.3)}, ${f(b, y2)}`;
+      }
+    }
+    return { d, h };
+  };
+
   const ease = (t) => 0.5 - 0.5 * Math.cos(Math.PI * t);
   const clamp01 = (t) => Math.max(0, Math.min(1, t));
 
@@ -201,14 +223,27 @@
     document.documentElement.classList.add('is-preloading');
 
     const path = root.querySelector('.preloader-stroke__path');
+    const narrow = window.innerWidth <= 720 || window.innerWidth < window.innerHeight;
+    let unit = '%';
+    let thin = WIDTH_THIN;
+    let fat = WIDTH_FAT;
+    if (narrow) {
+      const H = (1000 * window.innerHeight) / Math.max(window.innerWidth, 1);
+      const rows = rowsPath(H);
+      root.querySelector('svg').setAttribute('viewBox', `0 0 1000 ${H.toFixed(1)}`);
+      path.setAttribute('d', rows.d);
+      unit = '';
+      thin = rows.h * 0.18;
+      fat = rows.h * 1.35;
+    }
     const len = path.getTotalLength();
 
     const paint = (from, to, width) => {
       path.style.strokeDasharray = `${to - from}px, 999999px`;
       path.style.strokeDashoffset = `${-from}px`;
-      path.style.strokeWidth = `${width}%`;
+      path.style.strokeWidth = `${width}${unit}`;
     };
-    paint(0, 0, WIDTH_THIN);
+    paint(0, 0, thin);
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       return Promise.race([whenSiteReady(), wait(HOLD_MAX_MS)]).then(() => {
@@ -217,16 +252,15 @@
       });
     }
 
-    const FAT = WIDTH_FAT - WIDTH_THIN;
-    const narrow = window.innerWidth <= 720 || window.innerWidth < window.innerHeight;
-    const from0 = narrow ? 0.4 : WIDTH_FROM;
+    const FAT = fat - thin;
+    const from0 = narrow ? 0.05 : WIDTH_FROM;
     return play(
       (ms) => {
         const head = clamp01(ms / HEAD_MS);
         const tail = clamp01((ms - TAIL_AT_MS) / TAIL_MS);
         const g = ease(clamp01((head - from0) / (1 - from0)));
-        const grow = narrow ? g * g : g;
-        const width = WIDTH_THIN + FAT * grow * (1 - ease(tail));
+        const grow = g;
+        const width = thin + FAT * grow * (1 - ease(tail));
         paint(len * ease(tail), len * ease(head), width);
       },
       whenSiteReady,

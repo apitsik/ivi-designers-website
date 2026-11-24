@@ -239,7 +239,9 @@
   }
 
   .footer__line2 .footer__made {
+    flex: 0 0 auto;
     margin-right: 100%;
+    white-space: nowrap;
   }
 
   .footer__links {

@@ -477,3 +477,8 @@ body.video-modal-open {
     --panel-start-radius: 80px;
   }
 }
+
+.video-modal__tool svg {
+  width: 22px;
+  height: 22px;
+}

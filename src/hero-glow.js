@@ -180,6 +180,7 @@ export function initHeroGlow(video) {
   const uTilt = gl.getUniformLocation(program, 'uTilt');
   let drawn = -1;
   let prev = 0;
+  let visible = true;
 
   const fit = () => {
     const rect = canvas.getBoundingClientRect();
@@ -237,7 +238,7 @@ export function initHeroGlow(video) {
       if (Math.abs(targetY - currentY) < 0.001) currentY = targetY;
     }
     const key = current + currentY * 10 + currentA * 100 + currentC * 1000;
-    if (key !== drawn) {
+    if (visible && key !== drawn) {
       draw(current);
       drawn = key;
     }
@@ -258,6 +259,9 @@ export function initHeroGlow(video) {
       requestAnimationFrame(() => requestAnimationFrame(heroReady));
       fit();
       new ResizeObserver(fit).observe(canvas);
+      new IntersectionObserver(([e]) => {
+        visible = e.isIntersecting;
+      }).observe(canvas);
       requestAnimationFrame(tick);
     })
     .catch(() => useFallback(video));
