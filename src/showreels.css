@@ -423,8 +423,7 @@ body.video-modal-open {
   }
 
   .showreels__head {
-    position: relative;
-    top: auto;
+    top: 96px;
     padding: 0 16px;
   }
 

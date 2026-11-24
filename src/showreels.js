@@ -46,7 +46,7 @@ export function initShowreels(section) {
     document.documentElement.style.setProperty('--hero-fade', enter.toFixed(4));
 
     if (head) {
-      const stuck = MOBILE.matches || REDUCED.matches ? 0 : clamp(-section.querySelector('.showreels__panel').getBoundingClientRect().top / (window.innerHeight * 0.8), 0, 1);
+      const stuck = REDUCED.matches ? 0 : clamp(-section.querySelector('.showreels__panel').getBoundingClientRect().top / (window.innerHeight * 0.8), 0, 1);
       head.style.setProperty('--title-fade', (stuck * stuck * (3 - 2 * stuck)).toFixed(4));
     }
 
