@@ -163,14 +163,8 @@
         }),
       );
     }
-    const video = document.querySelector('.hero__video');
-    if (video && video.readyState < 2) {
-      tasks.push(
-        new Promise((r) => {
-          video.addEventListener('loadeddata', r, { once: true });
-          video.addEventListener('error', r, { once: true });
-        }),
-      );
+    if (!window.__heroReady) {
+      tasks.push(new Promise((r) => window.addEventListener('hero-ready', r, { once: true })));
     }
     if (document.fonts?.ready) tasks.push(document.fonts.ready.catch(() => {}));
     return Promise.all(tasks);

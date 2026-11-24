@@ -104,11 +104,17 @@ function compile(gl, type, src) {
   return sh;
 }
 
+function heroReady() {
+  window.__heroReady = true;
+  window.dispatchEvent(new Event('hero-ready'));
+}
+
 function useFallback(video) {
-  if (!video) return;
+  if (!video) return heroReady();
   const img = document.createElement('img');
   img.className = video.className;
   img.setAttribute('aria-hidden', 'true');
+  img.onload = img.onerror = heroReady;
   img.src = 'hero-glow/fallback.png';
   video.replaceWith(img);
 }
@@ -124,7 +130,7 @@ function setupTexture(gl, unit) {
 }
 
 export function initHeroGlow(video) {
-  if (!video) return;
+  if (!video) return heroReady();
   const canvas = document.createElement('canvas');
   canvas.className = video.className;
   canvas.setAttribute('aria-hidden', 'true');
@@ -239,6 +245,7 @@ export function initHeroGlow(video) {
       setupTexture(gl, 5);
       gl.uniform1i(gl.getUniformLocation(program, 'uGrid'), 5);
       video.replaceWith(canvas);
+      requestAnimationFrame(() => requestAnimationFrame(heroReady));
       fit();
       new ResizeObserver(fit).observe(canvas);
       requestAnimationFrame(tick);
