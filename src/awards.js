@@ -113,6 +113,22 @@ export function initAwards(section) {
     section.classList.toggle('is-focusing', k >= 0);
     items.forEach((item, i) => item.classList.toggle('is-focus', i === k));
   };
+  let goal = 0;
+  let now = -1;
+  let glide = 0;
+  const paint = (pos) => {
+    items.forEach((item, i) => {
+      const t = Math.max(0, 1 - Math.abs(pos - i));
+      item.style.setProperty('--f', (t * t * (3 - 2 * t)).toFixed(3));
+    });
+  };
+  const follow = () => {
+    now += (goal - now) * 0.12;
+    if (Math.abs(goal - now) < 0.002) now = goal;
+    paint(now);
+    glide = now === goal ? 0 : requestAnimationFrame(follow);
+  };
+
   const updateFocus = () => {
     if (focused >= 0 && items[focused]) {
       const r = items[focused].getBoundingClientRect();
@@ -133,15 +149,16 @@ export function initAwards(section) {
     const raw = (mid - top - rowH / 2) / step;
     const sectionRect = section.getBoundingClientRect();
     if (raw < -0.6 || sectionRect.bottom < window.innerHeight * 0.35) {
+      cancelAnimationFrame(glide);
+      glide = 0;
+      now = -1;
       items.forEach((item) => item.style.setProperty('--f', '0'));
       setFocus(-1);
       return;
     }
-    const pos = clamp(raw, 0, items.length - 1);
-    items.forEach((item, i) => {
-      const t = Math.max(0, 1 - Math.abs(pos - i));
-      item.style.setProperty('--f', (t * t * (3 - 2 * t)).toFixed(3));
-    });
+    goal = clamp(raw, 0, items.length - 1);
+    if (now < 0) now = goal;
+    if (!glide) glide = requestAnimationFrame(follow);
     setFocus(clamp(Math.round(raw), 0, items.length - 1));
   };
   window.addEventListener('scroll', updateFocus, { passive: true });
