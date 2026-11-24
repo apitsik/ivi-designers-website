@@ -1,5 +1,3 @@
-import { initCursorScrub } from './cursor-scrub.js';
-
 const FRAMES = 150;
 const GX = 12;
 const GY = 4;
@@ -103,11 +101,13 @@ function compile(gl, type, src) {
   return sh;
 }
 
-function useVideo(video) {
+function useFallback(video) {
   if (!video) return;
-  video.src = 'video/hero-ivi.mp4';
-  video.preload = 'auto';
-  initCursorScrub(video);
+  const img = document.createElement('img');
+  img.className = video.className;
+  img.setAttribute('aria-hidden', 'true');
+  img.src = 'hero-glow/glow-sharp.png';
+  video.replaceWith(img);
 }
 
 function setupTexture(gl, unit) {
@@ -122,13 +122,11 @@ function setupTexture(gl, unit) {
 
 export function initHeroGlow(video) {
   if (!video) return;
-  if (new URLSearchParams(location.search).has('video')) return useVideo(video);
-
   const canvas = document.createElement('canvas');
   canvas.className = video.className;
   canvas.setAttribute('aria-hidden', 'true');
   const gl = canvas.getContext('webgl', { antialias: false, alpha: true, premultipliedAlpha: true });
-  if (!gl) return useVideo(video);
+  if (!gl) return useFallback(video);
 
   let program;
   try {
@@ -138,7 +136,7 @@ export function initHeroGlow(video) {
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('link');
   } catch {
-    return useVideo(video);
+    return useFallback(video);
   }
   gl.useProgram(program);
 
@@ -235,7 +233,7 @@ export function initHeroGlow(video) {
       new ResizeObserver(fit).observe(canvas);
       requestAnimationFrame(tick);
     })
-    .catch(() => useVideo(video));
+    .catch(() => useFallback(video));
 
   const setTarget = (clientX, clientY) => {
     target = Math.max(0, Math.min(1, clientX / window.innerWidth));
