@@ -106,7 +106,7 @@ function useFallback(video) {
   const img = document.createElement('img');
   img.className = video.className;
   img.setAttribute('aria-hidden', 'true');
-  img.src = 'hero-glow/glow-sharp.png';
+  img.src = 'hero-glow/fallback.png';
   video.replaceWith(img);
 }
 
