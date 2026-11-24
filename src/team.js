@@ -29,6 +29,7 @@ const STICK_START = 0.27;
 const STICK_GAP = 0.1;
 const STICK_LEN = 0.15;
 
+const COARSE = window.matchMedia('(hover: none) and (pointer: coarse)');
 const COMPACT = window.matchMedia('(max-width: 720px), (max-width: 1366px) and (orientation: portrait)');
 const FOLDER_W = 660;
 const SCALE_PHONE = 0.446;
@@ -398,7 +399,7 @@ export function initTeam(section, modal) {
   const measure = () => {
     ticking = false;
     const rect = section.getBoundingClientRect();
-    const travel = rect.height - window.innerHeight;
+    const travel = rect.height - (stage ? stage.clientHeight : window.innerHeight);
     const p = travel > 0 ? clamp(-rect.top / travel, 0, 1) : 0;
 
     const fade = ease(range(p, PREVIEW_END, PREVIEW_END + ARRIVE * SPAN));
@@ -526,7 +527,10 @@ export function initTeam(section, modal) {
   };
 
   window.addEventListener('scroll', onScroll, { passive: true });
+  let lastW = window.innerWidth;
   window.addEventListener('resize', () => {
+    if (window.innerWidth === lastW && COARSE.matches) return;
+    lastW = window.innerWidth;
     resize();
     onScroll();
   });
