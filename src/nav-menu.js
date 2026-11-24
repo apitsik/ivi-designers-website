@@ -1,6 +1,6 @@
 import { lenis } from './smooth-scroll.js';
 
-const MOBILE = window.matchMedia('(max-width: 900px)');
+const MOBILE = window.matchMedia('(max-width: 900px), (max-width: 1366px) and (orientation: portrait)');
 
 export function initNavMenu(burger, menu) {
   if (!burger || !menu) return;

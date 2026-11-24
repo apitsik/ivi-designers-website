@@ -150,7 +150,7 @@ body.menu-open {
   overflow: hidden;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-width: 1366px) and (orientation: portrait) {
   .nav__burger {
     display: flex;
     align-items: center;

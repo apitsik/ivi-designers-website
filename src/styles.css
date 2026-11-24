@@ -286,7 +286,7 @@ h1 {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-width: 1366px) and (orientation: portrait) {
   .nav {
     height: 80px;
     padding: 16px 24px;
