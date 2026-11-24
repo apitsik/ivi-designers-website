@@ -261,8 +261,8 @@
 
   .footer__block {
     min-height: auto;
-    padding: 48px 24px 200px;
-    border-radius: 64px;
+    padding: 80px 36px 200px;
+    border-radius: 120px;
   }
 
   .footer__glow {
