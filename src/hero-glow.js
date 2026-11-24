@@ -261,7 +261,7 @@ export function initHeroGlow(video) {
       const lw = rect.width * LOGO[2];
       const l0 = rect.left + rect.width * LOGO[0];
       const gap = Math.max(l0 - clientX, clientX - (l0 + lw), 0);
-      targetA = 1.2 - 0.45 * Math.min(gap / (lw * 0.5), 1);
+      targetA = 0.8 + 0.45 * Math.min(gap / (lw * 0.5), 1);
     }
   };
   window.addEventListener('pointermove', (e) => setTarget(e.clientX, e.clientY), { passive: true });
