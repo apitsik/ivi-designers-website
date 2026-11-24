@@ -44,7 +44,6 @@
 
   const ROWS = 6;
   const STEP = 236;
-  const MID0 = -590;
   const LEAD = 290;
   const EDGE = 30;
   const BEND_START = [70, 95, 60, 100, 65, 85];
@@ -52,31 +51,43 @@
   const HANDLE = [0.34, 0.3, 0.38, 0.32, 0.36, 0.3];
   const TURN_K = 0.7;
 
-  const PATH = (() => {
+  const makePath = (W, H, edge = EDGE) => {
     const K = Math.SQRT1_2;
+    const cx = W / 2;
+    const cy = H / 2;
     const add = (a, b) => [a[0] + b[0], a[1] + b[1]];
     const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
     const mul = (a, k) => [a[0] * k, a[1] * k];
     const len = (a) => Math.hypot(a[0], a[1]);
     const unit = (a) => mul(a, 1 / len(a));
-    const fmt = ([u, v]) => `${(500 + K * (u + v)).toFixed(1)} ${(500 + K * (v - u)).toFixed(1)}`;
+    const fmt = ([u, v]) => `${(cx + K * (u + v)).toFixed(1)} ${(cy + K * (v - u)).toFixed(1)}`;
 
-    const mids = Array.from({ length: ROWS }, (_, i) => MID0 + i * STEP);
-    const reach = mids.map((m) => 707 - Math.abs(m));
-    const depth = [LEAD];
-    for (let i = 0; i < ROWS - 1; i += 1) depth.push(Math.max(reach[i], reach[i + 1]) + EDGE);
-    depth.push(LEAD);
+    const hw = W / 2 / K;
+    const hh = H / 2 / K;
+    const vmax = (hw + hh) / 2;
+    const n = Math.max(ROWS, Math.ceil((2 * vmax - 2 * (707 - 590)) / STEP - 0.01) + 1);
+    const mids = Array.from({ length: n }, (_, i) => (i - (n - 1) / 2) * STEP);
+    const span = mids.map((m) => [Math.max(-hw - m, m - hh), Math.min(hw - m, m + hh)]);
+    const extra = LEAD - (707 - 590);
+    const dir = (i) => (i % 2 === 0 ? 1 : -1);
+    const side = (i, d) => (d > 0 ? span[i][1] : span[i][0]);
+    const ends = mids.map((_, i) => {
+      const d = dir(i);
+      if (i === n - 1) return side(i, d) + d * extra;
+      return d > 0 ? Math.max(span[i][1], span[i + 1][1]) + edge : Math.min(span[i][0], span[i + 1][0]) - edge;
+    });
 
     const rows = mids.map((m, i) => {
-      const d = i % 2 === 0 ? 1 : -1;
-      const from = depth[i];
-      const to = depth[i + 1];
-      const pull = (from + to) * HANDLE[i];
+      const d = dir(i);
+      const k = i % 6;
+      const from = i === 0 ? side(0, -d) - d * extra : ends[i - 1];
+      const to = ends[i];
+      const pull = (to - from) * d * HANDLE[k];
       return {
-        start: [-d * from, m + BEND_START[i]],
-        c1: [-d * from + d * pull, m - BEND_START[i] / 3],
-        c2: [d * to - d * pull, m - BEND_END[i] / 3],
-        end: [d * to, m + BEND_END[i]],
+        start: [from, m + BEND_START[k]],
+        c1: [from + d * pull, m - BEND_START[k] / 3],
+        c2: [to - d * pull, m - BEND_END[k] / 3],
+        end: [to, m + BEND_END[k]],
       };
     });
 
@@ -92,29 +103,9 @@
       d += curve(add(row.end, mul(out, h)), sub(next.start, mul(into, h)), next.start);
     });
     return d;
-  })();
-
-  const rowsPath = (H) => {
-    const n = Math.max(4, Math.ceil(H / 300));
-    const h = H / n;
-    const L = -90;
-    const R = 1090;
-    const f = (x, y) => `${x.toFixed(1)} ${y.toFixed(1)}`;
-    let d = `M${f(L, h * 0.5)}`;
-    for (let i = 0; i < n; i += 1) {
-      const y = h * (i + 0.5);
-      const dir = i % 2 === 0 ? 1 : -1;
-      const a = dir > 0 ? L : R;
-      const b = dir > 0 ? R : L;
-      const bend = h * (i % 3 === 0 ? 0.18 : -0.14);
-      d += ` C${f(a + dir * 380, y - bend)}, ${f(b - dir * 380, y + bend)}, ${f(b, y + h * 0.08)}`;
-      if (i < n - 1) {
-        const y2 = h * (i + 1.5);
-        d += ` C${f(b + dir * 70, y + h * 0.3)}, ${f(b + dir * 70, y2 - h * 0.3)}, ${f(b, y2)}`;
-      }
-    }
-    return { d, h };
   };
+
+  const PATH = makePath(1000, 1000);
 
   const ease = (t) => 0.5 - 0.5 * Math.cos(Math.PI * t);
   const clamp01 = (t) => Math.max(0, Math.min(1, t));
@@ -229,12 +220,11 @@
     let fat = WIDTH_FAT;
     if (narrow) {
       const H = (1000 * window.innerHeight) / Math.max(window.innerWidth, 1);
-      const rows = rowsPath(H);
       root.querySelector('svg').setAttribute('viewBox', `0 0 1000 ${H.toFixed(1)}`);
-      path.setAttribute('d', rows.d);
+      path.setAttribute('d', makePath(1000, H, 200));
       unit = '';
-      thin = rows.h * 0.18;
-      fat = rows.h * 1.35;
+      thin = WIDTH_THIN * 10;
+      fat = WIDTH_FAT * 12;
     }
     const len = path.getTotalLength();
 
@@ -253,13 +243,13 @@
     }
 
     const FAT = fat - thin;
-    const from0 = narrow ? 0.05 : WIDTH_FROM;
+    const from0 = narrow ? 0.4 : WIDTH_FROM;
     return play(
       (ms) => {
         const head = clamp01(ms / HEAD_MS);
         const tail = clamp01((ms - TAIL_AT_MS) / TAIL_MS);
         const g = ease(clamp01((head - from0) / (1 - from0)));
-        const grow = g;
+        const grow = narrow ? g * g : g;
         const width = thin + FAT * grow * (1 - ease(tail));
         paint(len * ease(tail), len * ease(head), width);
       },
