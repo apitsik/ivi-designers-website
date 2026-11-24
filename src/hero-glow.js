@@ -181,8 +181,16 @@ export function initHeroGlow(video) {
     const f = t * (FRAMES - 1);
     const i = Math.min(Math.floor(f), FRAMES - 2);
     const k = f - i;
+    const m = (1 - t) * (FRAMES - 1);
+    const mi = Math.min(Math.floor(m), FRAMES - 2);
+    const mk = m - mi;
+    const u = Math.max(0, Math.min(1, 1 - t * 2));
+    const w = u * u * (3 - 2 * u);
     for (let j = 0; j < cell; j++) {
-      frame[j] = Math.round(grid[i * cell + j] * (1 - k) + grid[(i + 1) * cell + j] * k);
+      const own = grid[i * cell + j] * (1 - k) + grid[(i + 1) * cell + j] * k;
+      const r = j - (j % GX) + (GX - 1 - (j % GX));
+      const mir = grid[mi * cell + r] * (1 - mk) + grid[(mi + 1) * cell + r] * mk;
+      frame[j] = Math.round(own * (1 - w) + mir * w);
     }
     gl.activeTexture(gl.TEXTURE5);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, GX, GY, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, frame);
