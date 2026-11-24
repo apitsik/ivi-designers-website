@@ -86,8 +86,17 @@ export function initHeroIntro(hero) {
     }
 
     setTimeout(() => {
-      parts[0].lines[0].closest('.hero__title').innerHTML = parts[0].original;
-      subtitle.innerHTML = parts[1].original;
+      const restore = () => {
+        title.innerHTML = parts[0].original;
+        subtitle.innerHTML = parts[1].original;
+      };
+      const w = window.innerWidth;
+      const onResize = () => {
+        if (window.innerWidth === w) return;
+        window.removeEventListener('resize', onResize);
+        restore();
+      };
+      window.addEventListener('resize', onResize);
       if (hint) hint.style.removeProperty('--intro-delay');
       hero.style.removeProperty('--intro-notes');
       hero.style.removeProperty('--intro-award');

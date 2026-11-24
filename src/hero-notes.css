@@ -131,6 +131,10 @@
   opacity: 1;
 }
 
+.hero-note:not(.is-top):not(.is-second) {
+  background-color: #111013;
+}
+
 .hero-note.is-dragging {
   transition: none;
 }
