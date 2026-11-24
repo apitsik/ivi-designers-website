@@ -396,11 +396,33 @@ export function initTeam(section, modal) {
 
   let ticking = false;
 
+  let shown = -1;
+  let follow = 0;
+
   const measure = () => {
     ticking = false;
     const rect = section.getBoundingClientRect();
     const travel = rect.height - (stage ? stage.clientHeight : window.innerHeight);
-    const p = travel > 0 ? clamp(-rect.top / travel, 0, 1) : 0;
+    const target = travel > 0 ? clamp(-rect.top / travel, 0, 1) : 0;
+    if (!COARSE.matches || shown < 0 || Math.abs(target - shown) > 0.2) {
+      shown = target;
+      render(shown);
+      return;
+    }
+    if (!follow) {
+      const step = () => {
+        const r = section.getBoundingClientRect();
+        const t = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
+        shown += (t - shown) * 0.3;
+        if (Math.abs(t - shown) < 0.0002) shown = t;
+        render(shown);
+        follow = shown === t ? 0 : requestAnimationFrame(step);
+      };
+      follow = requestAnimationFrame(step);
+    }
+  };
+
+  const render = (p) => {
 
     const fade = ease(range(p, PREVIEW_END, PREVIEW_END + ARRIVE * SPAN));
     title?.style.setProperty('--fade', fade.toFixed(4));
