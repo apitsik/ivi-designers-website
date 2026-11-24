@@ -137,14 +137,15 @@
 .showreel--3 { left: 55.14%; top: 29.16%; width: 35.28%; aspect-ratio: 508 / 398; }
 .showreel--4 { left: 58.68%; top: 46.13%; width: 39.65%; aspect-ratio: 571 / 549; }
 .showreel--5 { left: 1.67%;  top: 54.25%; width: 41.6%;  aspect-ratio: 599 / 706; border-radius: 600px; }
-.showreel--6 { left: 35.9%;  top: 65.12%; width: 43.61%; aspect-ratio: 628 / 490; }
+.showreel--6 { left: 35.9%;  top: 65.12%; width: 43.61%; aspect-ratio: 16 / 9; }
 .showreel--7 { left: 15.63%; top: 81.21%; width: 69.79%; aspect-ratio: 1005 / 482; }
 
 @media (min-width: 721px) {
   .showreel--6 {
     left: calc(35.9% - 16px);
+    top: 66.69%;
     width: calc(43.61% + 32px);
-    height: 14.161%;
+    height: 11.03%;
     aspect-ratio: auto;
   }
 }
