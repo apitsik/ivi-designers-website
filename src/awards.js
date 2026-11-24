@@ -57,7 +57,10 @@ export function initAwards(section) {
 
     const status = document.createElement('span');
     status.className = 'award__status';
-    status.textContent = award.status;
+    const statusIn = document.createElement('span');
+    statusIn.className = 'award__status-in';
+    statusIn.textContent = award.status;
+    status.append(statusIn);
 
     const row = document.createElement('span');
     row.className = 'award__row';

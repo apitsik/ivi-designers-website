@@ -379,12 +379,18 @@
 }
 
 @media (max-width: 720px), (max-width: 1366px) and (orientation: portrait) {
+  .awards {
+    --award-pic-big: 120px;
+  }
+
   .award {
-    padding-block: calc(var(--f, 0) * 12px);
+    padding-top: calc(var(--f, 0) * 30px);
+    padding-bottom: calc(var(--f, 0) * 8px);
   }
 
   .award__row {
-    flex-direction: column-reverse;
+    position: relative;
+    flex-direction: column;
     align-items: center;
     flex-wrap: nowrap;
     gap: 0;
@@ -392,12 +398,20 @@
   }
 
   .award__status {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 6px);
     display: block;
-    height: calc(var(--f, 0) * 24px);
     overflow: hidden;
-    opacity: var(--f, 0);
-    transform: translateY(calc((1 - var(--f, 0)) * 8px));
+    padding-block: 0.15em;
+    transform: translateX(-50%);
     text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .award__status-in {
+    display: block;
+    transform: translateY(calc((1 - var(--f, 0)) * 115%));
   }
 
   .award__pic {
@@ -406,7 +420,7 @@
     top: auto;
     display: block;
     height: calc(var(--f, 0) * (var(--award-pic-big) + 16px));
-    overflow: hidden;
+    overflow: visible;
     transform: none;
     transition: none;
   }
@@ -414,19 +428,16 @@
   .award__pic-in {
     display: flex;
     justify-content: center;
-    padding-top: 16px;
+    padding-top: calc(var(--f, 0) * 16px);
   }
 
   .awards.is-focusing .award__pic img,
   .award__pic img {
     height: var(--award-pic-big);
     border-radius: calc(var(--award-pic-big) * 0.18);
-    opacity: var(--f, 0);
-    transform: translateY(calc((1 - var(--f, 0)) * -12px)) scale(calc(0.9 + var(--f, 0) * 0.1));
+    opacity: calc(var(--f, 0) * var(--f, 0));
+    transform: scale(calc(0.05 + var(--f, 0) * 0.95));
+    transform-origin: 50% 0;
     transition: none;
-  }
-
-  .awards {
-    --award-pic-big: 120px;
   }
 }
