@@ -29,6 +29,7 @@ uniform sampler2D uRamp;
 uniform sampler2D uGrid;
 uniform vec4 uLogo;
 uniform float uTilt;
+uniform float uAmp;
 
 float hash(vec2 p) {
   vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -49,6 +50,8 @@ void main() {
   vec2 p = clamp((vUv - uLogo.xy) / uLogo.zw, 0.0, 1.0);
   vec2 g = vec2((p.x * ${GX - 1}.0 + 0.5) / ${GX}.0, (p.y * ${GY - 1}.0 + 0.5) / ${GY}.0);
   float s = texture2D(uGrid, g).r * 5.0 + uTilt * (0.5 - p.y) * ${TILT.toFixed(2)};
+  float fl = log(2.6);
+  s = fl + max(s - fl, 0.0) * uAmp;
   s = min(s, log(45.0));
 
   float l0 = log(0.5);
@@ -159,6 +162,9 @@ export function initHeroGlow(video) {
   let current = 0;
   let targetY = 0;
   let currentY = 0;
+  let targetA = 1;
+  let currentA = 1;
+  const uAmp = gl.getUniformLocation(program, 'uAmp');
   const uTilt = gl.getUniformLocation(program, 'uTilt');
   let drawn = -1;
   let prev = 0;
@@ -177,6 +183,7 @@ export function initHeroGlow(video) {
 
   const draw = (t) => {
     gl.uniform1f(uTilt, currentY);
+    gl.uniform1f(uAmp, currentA);
     const f = t * (FRAMES - 1);
     const i = Math.min(Math.floor(f), FRAMES - 2);
     const k = f - i;
@@ -202,15 +209,18 @@ export function initHeroGlow(video) {
     if (calm.matches) {
       current = target;
       currentY = targetY;
+      currentA = targetA;
     }
     else {
       const a = 1 - Math.pow(1 - EASE, dt / 16.67);
       current += (target - current) * a;
       currentY += (targetY - currentY) * a;
+      currentA += (targetA - currentA) * a;
+      if (Math.abs(targetA - currentA) < 0.001) currentA = targetA;
       if (Math.abs(target - current) < 0.0005) current = target;
       if (Math.abs(targetY - currentY) < 0.001) currentY = targetY;
     }
-    const key = current + currentY * 10;
+    const key = current + currentY * 10 + currentA * 100;
     if (key !== drawn) {
       draw(current);
       drawn = key;
@@ -241,6 +251,10 @@ export function initHeroGlow(video) {
     if (rect.height) {
       const fy = (clientY - rect.top) / rect.height;
       targetY = Math.max(-1, Math.min(1, (0.46 - fy) / 0.35));
+      const lw = rect.width * LOGO[2];
+      const l0 = rect.left + rect.width * LOGO[0];
+      const gap = Math.max(l0 - clientX, clientX - (l0 + lw), 0);
+      targetA = 1.2 - 0.45 * Math.min(gap / (lw * 0.5), 1);
     }
   };
   window.addEventListener('pointermove', (e) => setTarget(e.clientX, e.clientY), { passive: true });
