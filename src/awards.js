@@ -126,10 +126,69 @@ export function initAwards(section) {
     now += (goal - now) * 0.12;
     if (Math.abs(goal - now) < 0.002) now = goal;
     paint(now);
+    if (section.classList.contains('is-pinned')) placeShift(now);
     glide = now === goal ? 0 : requestAnimationFrame(follow);
   };
 
+  const PIN = window.matchMedia('(hover: none) and (pointer: coarse)');
+  const PER_ITEM = 0.32;
+  const inner = section.querySelector('.awards__inner');
+  let pinNudge = 0;
+  let pinSettle = 0;
+  const pinEase = () => {
+    pinNudge *= 0.78;
+    if (Math.abs(pinNudge) < 0.3) pinNudge = 0;
+    inner.style.translate = pinNudge ? `0 ${pinNudge.toFixed(1)}px` : '';
+    pinSettle = pinNudge ? requestAnimationFrame(pinEase) : 0;
+  };
+  const pinned = () => PIN.matches && compact.matches && inner;
+  const layoutPin = () => {
+    if (!pinned()) {
+      section.classList.remove('is-pinned');
+      section.style.removeProperty('--extra');
+      delete section.dataset.pin;
+      return;
+    }
+    section.classList.add('is-pinned');
+    const vh = inner.clientHeight || window.innerHeight;
+    section.style.setProperty('--extra', `${Math.round((items.length - 1) * PER_ITEM * vh)}px`);
+  };
+  const placeShift = (pos) => {
+    const rowH = items[0].querySelector('.award__name').offsetHeight;
+    const gap = parseFloat(getComputedStyle(list).rowGap) || 0;
+    const vh = inner.clientHeight;
+    const shift = vh / 2 - 63 - (list.offsetTop + pos * (rowH + gap) + rowH / 2);
+    inner.style.setProperty('--shift', `${shift.toFixed(1)}px`);
+  };
+  const pinScroll = () => {
+    const rect = section.getBoundingClientRect();
+    const vh = inner.clientHeight;
+    const travel = rect.height - vh;
+    const state = rect.top > 0 ? 'top' : rect.bottom < vh ? 'end' : 'fixed';
+    const prev = section.dataset.pin;
+    if (state !== prev) {
+      const at = (k) => (k === 'top' ? rect.top : k === 'end' ? rect.bottom - vh : 0);
+      pinNudge += prev ? at(prev) - at(state) : 0;
+      section.dataset.pin = state;
+      inner.style.translate = pinNudge ? `0 ${pinNudge.toFixed(1)}px` : '';
+      if (!pinSettle && pinNudge) pinSettle = requestAnimationFrame(pinEase);
+    }
+    const progress = travel > 0 ? clamp(-rect.top / travel, 0, 1) : 0;
+    goal = progress * (items.length - 1);
+    if (now < 0) {
+      now = goal;
+      paint(now);
+      placeShift(now);
+    }
+    setFocus(clamp(Math.round(goal), 0, items.length - 1));
+    if (!glide) glide = requestAnimationFrame(follow);
+  };
+
   const updateFocus = () => {
+    if (pinned()) {
+      pinScroll();
+      return;
+    }
     if (focused >= 0 && items[focused]) {
       const r = items[focused].getBoundingClientRect();
       const d = (r.top + r.height / 2 - window.innerHeight / 2) / window.innerHeight;
@@ -163,7 +222,14 @@ export function initAwards(section) {
     setFocus(clamp(Math.round(raw), 0, items.length - 1));
   };
   window.addEventListener('scroll', updateFocus, { passive: true });
-  window.addEventListener('resize', updateFocus);
+  let lastW = window.innerWidth;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === lastW && PIN.matches) return;
+    lastW = window.innerWidth;
+    layoutPin();
+    updateFocus();
+  });
+  layoutPin();
   updateFocus();
 
   if (!preview || layers.length < 2) return;
