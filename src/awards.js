@@ -145,7 +145,8 @@ export function initAwards(section) {
     const gap = parseFloat(getComputedStyle(list).rowGap) || 0;
     const step = rowH + gap;
     const top = list.getBoundingClientRect().top;
-    const mid = window.innerHeight / 2;
+    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    const mid = vh / 2 - 63;
     const raw = (mid - top - rowH / 2) / step;
     const sectionRect = section.getBoundingClientRect();
     if (raw < -0.6 || sectionRect.bottom < window.innerHeight * 0.35) {

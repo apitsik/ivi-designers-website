@@ -238,7 +238,7 @@
     padding: 40px 10px 96px;
     --award-name: 32px;
     --award-status: 12px;
-    --award-gap: 4px;
+    --award-gap: 16px;
     --award-pic-h: 64px;
     --award-icon-w: 93px;
     --award-icon-h: 44px;
@@ -379,13 +379,8 @@
 }
 
 @media (max-width: 720px), (max-width: 1366px) and (orientation: portrait) {
-  .awards {
-    --award-pic-big: 120px;
-  }
-
   .award {
-    padding-top: calc(var(--f, 0) * 30px);
-    padding-bottom: calc(var(--f, 0) * 8px);
+    padding-block: calc(var(--f, 0) * 12px);
   }
 
   .award__row {
@@ -398,20 +393,20 @@
   }
 
   .award__status {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 6px);
+    order: -1;
     display: block;
+    height: calc(var(--f, 0) * 14.4px);
+    margin-bottom: calc(var(--f, 0) * 8px);
     overflow: hidden;
-    padding-block: 0.15em;
-    transform: translateX(-50%);
+    font-size: 12px;
+    line-height: 1.2;
     text-transform: uppercase;
     white-space: nowrap;
   }
 
   .award__status-in {
     display: block;
-    transform: translateY(calc((1 - var(--f, 0)) * 115%));
+    transform: translateY(calc((1 - var(--f, 0)) * 100%));
   }
 
   .award__pic {
@@ -419,7 +414,7 @@
     left: auto;
     top: auto;
     display: block;
-    height: calc(var(--f, 0) * (var(--award-pic-big) + 16px));
+    height: calc(var(--f, 0) * 80px);
     overflow: visible;
     transform: none;
     transition: none;
@@ -433,9 +428,9 @@
 
   .awards.is-focusing .award__pic img,
   .award__pic img {
-    height: var(--award-pic-big);
-    border-radius: calc(var(--award-pic-big) * 0.18);
-    opacity: calc(var(--f, 0) * var(--f, 0));
+    height: 64px;
+    border-radius: 12px;
+    opacity: var(--f, 0);
     transform: scale(calc(0.05 + var(--f, 0) * 0.95));
     transform-origin: 50% 0;
     transition: none;
