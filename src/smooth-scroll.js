@@ -7,6 +7,7 @@ export let lenis = null;
 
 export function initSmoothScroll() {
   if (REDUCED.matches) return null;
+  if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return null;
 
   lenis = new Lenis({
     duration: 1.2,
