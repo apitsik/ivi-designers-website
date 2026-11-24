@@ -532,3 +532,8 @@ h1 {
     transform: translate(-48.5%, -50%);
   }
 }
+
+.word {
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
