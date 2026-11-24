@@ -122,7 +122,7 @@ export function initAwards(section) {
       return;
     }
     const first = items[0];
-    const rowH = first.querySelector('.award__row').offsetHeight;
+    const rowH = first.querySelector('.award__name').offsetHeight;
     const gap = parseFloat(getComputedStyle(list).rowGap) || 0;
     const step = rowH + gap;
     const top = list.getBoundingClientRect().top;
