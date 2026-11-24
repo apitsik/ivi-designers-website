@@ -738,9 +738,6 @@
     overflow-x: clip;
   }
 
-  .team__stage {
-    contain: paint;
-  }
 
   .team__scene {
     position: absolute;
@@ -800,4 +797,11 @@
 
 .nowrap {
   white-space: nowrap;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .team__stage {
+    height: 100lvh;
+    transform: translateZ(0);
+  }
 }
