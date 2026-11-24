@@ -392,20 +392,6 @@ export function initTeam(section, modal) {
   initNotes(notes, reduced);
   initStuck(items, reduced);
 
-  if (reduced) {
-    items.forEach(({ el }) => {
-      el.classList.add('is-live');
-      el.style.setProperty('--rot', '0deg');
-    });
-    [...photos, ...notes].forEach(({ node, y }) => {
-      node.classList.add('is-live');
-      node.style.setProperty('--y', `${y}px`);
-      node.style.setProperty('--o', 1);
-    });
-    resize();
-    window.addEventListener('resize', resize);
-    return;
-  }
 
   let ticking = false;
 
