@@ -230,7 +230,11 @@
         paint(len * ease(tail), len * ease(head), width);
       },
       whenSiteReady,
-      () => root.classList.add('is-open'),
+      () => {
+        root.classList.add('is-open');
+        window.__preloaderState = 'open';
+        window.dispatchEvent(new Event('preloader-open'));
+      },
     ).then(() => {
       root.remove();
       done();

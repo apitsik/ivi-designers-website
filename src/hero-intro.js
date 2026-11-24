@@ -61,6 +61,7 @@ export function initHeroIntro(hero) {
   const parts = [maskTitle(title), maskLines(subtitle)];
   parts.forEach(({ lines }) => lines.forEach((l) => l.classList.add('mask__in--pending')));
   hint?.classList.add('hero__hint--pending');
+  hero.classList.add('hero--intro-pending');
 
   let started = false;
   const start = () => {
@@ -76,6 +77,9 @@ export function initHeroIntro(hero) {
       });
       delay += 120;
     });
+    hero.style.setProperty('--intro-notes', '250ms');
+    hero.style.setProperty('--intro-award', '400ms');
+    requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.remove('hero--intro-pending')));
     if (hint) {
       hint.style.setProperty('--intro-delay', `${delay}ms`);
       requestAnimationFrame(() => requestAnimationFrame(() => hint.classList.remove('hero__hint--pending')));
@@ -85,11 +89,16 @@ export function initHeroIntro(hero) {
       parts[0].lines[0].closest('.hero__title').innerHTML = parts[0].original;
       subtitle.innerHTML = parts[1].original;
       if (hint) hint.style.removeProperty('--intro-delay');
+      hero.style.removeProperty('--intro-notes');
+      hero.style.removeProperty('--intro-award');
     }, delay + DURATION + 200);
   };
 
+  const early = () => setTimeout(start, 350);
   if (window.__preloaderState === 'done' || window.PRELOADER !== 'stroke') start();
+  else if (window.__preloaderState === 'open') early();
   else {
+    window.addEventListener('preloader-open', early, { once: true });
     window.addEventListener('preloader-done', start, { once: true });
     setTimeout(start, 9000);
   }
