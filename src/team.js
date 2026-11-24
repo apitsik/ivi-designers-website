@@ -29,7 +29,7 @@ const STICK_START = 0.27;
 const STICK_GAP = 0.1;
 const STICK_LEN = 0.15;
 
-const COMPACT = window.matchMedia('(max-width: 720px), (max-width: 1024px) and (orientation: portrait)');
+const COMPACT = window.matchMedia('(max-width: 720px), (max-width: 1366px) and (orientation: portrait)');
 const FOLDER_W = 660;
 const SCALE_PHONE = 0.446;
 const SCALE_TABLET = 0.918;

@@ -797,7 +797,7 @@
   }
 }
 
-@media (max-width: 720px), (max-width: 1024px) and (orientation: portrait) {
+@media (max-width: 720px), (max-width: 1366px) and (orientation: portrait) {
   .team,
   .team__stage {
     overflow-x: clip;
