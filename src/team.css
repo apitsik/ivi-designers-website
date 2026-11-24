@@ -801,7 +801,19 @@
 
 @media (hover: none) and (pointer: coarse) {
   .team__stage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 100lvh;
-    transform: translateZ(0);
+  }
+
+  .team[data-pin='fixed'] .team__stage {
+    position: fixed;
+  }
+
+  .team[data-pin='end'] .team__stage {
+    top: auto;
+    bottom: 0;
   }
 }

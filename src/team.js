@@ -404,6 +404,10 @@ export function initTeam(section, modal) {
     const rect = section.getBoundingClientRect();
     const travel = rect.height - (stage ? stage.clientHeight : window.innerHeight);
     const target = travel > 0 ? clamp(-rect.top / travel, 0, 1) : 0;
+    if (COARSE.matches && stage) {
+      const pin = rect.top > 0 ? 'top' : rect.bottom < stage.clientHeight ? 'end' : 'fixed';
+      if (pin !== section.dataset.pin) section.dataset.pin = pin;
+    }
     if (!COARSE.matches || shown < 0 || Math.abs(target - shown) > 0.2) {
       shown = target;
       render(shown);
