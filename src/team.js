@@ -396,7 +396,30 @@ export function initTeam(section, modal) {
 
   let ticking = false;
 
+  const pinStage = (rect) => {
+    if (COARSE.matches && stage) {
+      const sh = stage.clientHeight;
+      const pin = rect.top > 0 ? 'top' : rect.bottom < sh ? 'end' : 'fixed';
+      const prev = section.dataset.pin;
+      if (pin !== prev) {
+        const at = (k) => (k === 'top' ? rect.top : k === 'end' ? rect.bottom - sh : 0);
+        nudge += prev ? at(prev) - at(pin) : 0;
+        section.dataset.pin = pin;
+        if (!settle && nudge) settle = requestAnimationFrame(ease0);
+        stage.style.translate = `0 ${nudge.toFixed(1)}px`;
+      }
+    }
+  };
+
   let shown = -1;
+  let nudge = 0;
+  let settle = 0;
+  const ease0 = () => {
+    nudge *= 0.78;
+    if (Math.abs(nudge) < 0.3) nudge = 0;
+    stage.style.translate = nudge ? `0 ${nudge.toFixed(1)}px` : '';
+    settle = nudge ? requestAnimationFrame(ease0) : 0;
+  };
   let follow = 0;
 
   const measure = () => {
@@ -404,10 +427,7 @@ export function initTeam(section, modal) {
     const rect = section.getBoundingClientRect();
     const travel = rect.height - (stage ? stage.clientHeight : window.innerHeight);
     const target = travel > 0 ? clamp(-rect.top / travel, 0, 1) : 0;
-    if (COARSE.matches && stage) {
-      const pin = rect.top > 0 ? 'top' : rect.bottom < stage.clientHeight ? 'end' : 'fixed';
-      if (pin !== section.dataset.pin) section.dataset.pin = pin;
-    }
+    pinStage(rect);
     if (!COARSE.matches || shown < 0 || Math.abs(target - shown) > 0.2) {
       shown = target;
       render(shown);
@@ -546,6 +566,7 @@ export function initTeam(section, modal) {
   };
 
   const onScroll = () => {
+    if (COARSE.matches) pinStage(section.getBoundingClientRect());
     if (!ticking) {
       ticking = true;
       requestAnimationFrame(measure);
