@@ -330,13 +330,39 @@ export function initTeam(section, modal) {
       if (bottom > limit) squeeze = clamp((limit - top0) / (bottom - top0), 0.6, 1);
     }
 
+    let dx = 0;
+    let groupTop = Infinity;
+    if (compact && u > 0) {
+      let minL = Infinity;
+      let maxR = -Infinity;
+      const s = u * boost * squeeze;
+      [[photos, MOBILE_PHOTOS], [notes, MOBILE_NOTES]].forEach(([list, table]) => {
+        list.forEach((o, k) => {
+          if (!table[k]) return;
+          const l = table[k][0] * stageW;
+          minL = Math.min(minL, l);
+          maxR = Math.max(maxR, l + parseFloat(o.node.dataset.w) * s);
+          const top0 = 0.25 * stageH;
+          groupTop = Math.min(groupTop, top0 + (table[k][1] * stageH - top0) * squeeze);
+        });
+      });
+      if (kind === 'tablet' && Number.isFinite(minL)) dx = (stageW - (maxR - minL)) / 2 - minL;
+    }
+    if (titleOthers) {
+      if (compact && kind === 'tablet' && Number.isFinite(groupTop)) {
+        scene.style.setProperty('--others-top', `${(groupTop - sceneTop - titleOthers.offsetHeight - 56).toFixed(1)}px`);
+      } else {
+        scene.style.removeProperty('--others-top');
+      }
+    }
+
     const place = (list, table) => {
       list.forEach((o, k) => {
         if (compact && u > 0 && table[k]) {
           const s = u * boost * squeeze;
           const top0 = 0.25 * stageH;
           const y = top0 + (table[k][1] * stageH - top0) * squeeze;
-          o.x = (table[k][0] * stageW - sceneLeft) / s;
+          o.x = (table[k][0] * stageW + dx - sceneLeft) / s;
           o.y = (y - sceneTop) / s;
           o.node.style.setProperty('--boost', boost * squeeze);
         } else {

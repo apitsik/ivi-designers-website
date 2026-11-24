@@ -825,7 +825,7 @@
   }
 
   .team__title--others {
-    top: calc((100svh - 100%) / -2 + 112px);
+    top: var(--others-top, calc((100svh - 100%) / -2 + 112px));
   }
 }
 
