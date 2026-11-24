@@ -497,6 +497,7 @@ h1 {
     top: 50%;
     width: 122vw;
     max-width: none;
+    transform: translate(-48.5%, -50%);
   }
 
   .hero__title {
@@ -514,5 +515,16 @@ h1 {
 
   .hero__award {
     display: none;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1024px) {
+  .hero__text {
+    gap: 236px;
+  }
+
+  .hero__video {
+    top: calc(50% + 40px);
+    transform: translate(-48.5%, -50%);
   }
 }
