@@ -33,7 +33,7 @@
   --h1-tracking: -0.04em;
 }
 
-@media (min-width: 721px) and (max-width: 1024px) {
+@media (min-width: 721px) and (max-width: 1024px), (min-width: 721px) and (max-width: 1366px) and (orientation: portrait) {
   :root {
     --h1-size: clamp(48px, 7.7vw, 64px);
   }
@@ -47,7 +47,7 @@
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px), (max-width: 1366px) and (orientation: portrait) {
   .showreels__head,
   .grid__title,
   .articles__title,
@@ -518,7 +518,7 @@ h1 {
   }
 }
 
-@media (min-width: 721px) and (max-width: 1024px) {
+@media (min-width: 721px) and (max-width: 1024px), (min-width: 721px) and (max-width: 1366px) and (orientation: portrait) {
   .hero__content {
     top: -72px;
   }

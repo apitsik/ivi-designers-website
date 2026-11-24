@@ -232,7 +232,7 @@
   display: none;
 }
 
-@media (max-width: 720px), (max-width: 1024px) and (orientation: portrait) {
+@media (max-width: 720px), (max-width: 1366px) and (orientation: portrait) {
   .awards {
     margin-top: calc(-95svh - 150px);
     padding: 40px 10px 96px;
@@ -365,7 +365,7 @@
   }
 }
 
-@media (min-width: 721px) and (max-width: 1024px) and (orientation: portrait) {
+@media (min-width: 721px) and (max-width: 1366px) and (orientation: portrait) {
   .awards {
     padding-inline: 16px;
     --award-name: 56px;

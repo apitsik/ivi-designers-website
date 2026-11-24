@@ -259,7 +259,7 @@
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px), (max-width: 1366px) and (orientation: portrait) {
   .grid {
     padding: 160px 16px 24px;
   }

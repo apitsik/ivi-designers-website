@@ -99,10 +99,10 @@ export function initAwards(section) {
   );
   warm.observe(section);
 
-  const early = window.matchMedia('(max-width: 720px), (max-width: 1024px) and (orientation: portrait)').matches;
+  const early = window.matchMedia('(max-width: 720px), (max-width: 1366px) and (orientation: portrait)').matches;
   observeReveal(section, section, early ? '0px 0px -8% 0px' : undefined);
 
-  const compact = window.matchMedia('(max-width: 720px), (max-width: 1024px) and (orientation: portrait)');
+  const compact = window.matchMedia('(max-width: 720px), (max-width: 1366px) and (orientation: portrait)');
   let focused = -1;
   const setFocus = (k) => {
     if (k === focused) return;
