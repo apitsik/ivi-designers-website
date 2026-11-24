@@ -190,6 +190,31 @@
   scale: 0.82;
 }
 
+.hero__touch-hint {
+  position: absolute;
+  top: 112px;
+  right: 24px;
+  z-index: 4;
+  width: 76px;
+  height: 76px;
+  background: url('/stickers/cursor-add.png') center / contain no-repeat;
+  pointer-events: none;
+  rotate: 8deg;
+  animation: touch-hint 2.6s ease-in-out infinite;
+  transition: opacity 0.3s ease, scale 0.3s ease;
+}
+
+.hero--has-stickers .hero__touch-hint {
+  opacity: 0;
+  scale: 0.6;
+  animation: none;
+}
+
+@keyframes touch-hint {
+  0%, 100% { scale: 1; }
+  50% { scale: 1.08; }
+}
+
 @media (max-width: 720px) {
   .hero__sticker {
     filter: drop-shadow(0 4px 7px rgba(0, 0, 0, 0.35));

@@ -194,7 +194,13 @@ function tiltAt(hero, x, y, jitter) {
 
 function initCursor(hero, images, rotAt) {
   const api = { setPreview() {} };
-  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return api;
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const tip = document.createElement('div');
+    tip.className = 'hero__touch-hint';
+    tip.setAttribute('aria-hidden', 'true');
+    hero.appendChild(tip);
+    return api;
+  }
 
   const cur = document.createElement('div');
   cur.className = 'hero__cursor';

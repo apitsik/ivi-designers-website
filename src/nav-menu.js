@@ -7,6 +7,13 @@ export function initNavMenu(burger, menu) {
 
   let isOpen = false;
 
+  menu.querySelectorAll('.menu-modal__link').forEach((link) => {
+    const word = document.createElement('span');
+    word.className = 'menu-modal__word';
+    word.append(...link.childNodes);
+    link.append(word);
+  });
+
   const open = () => {
     if (isOpen) return;
     isOpen = true;

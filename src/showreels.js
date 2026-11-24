@@ -7,6 +7,14 @@ const SMOOTHING = 0.3;
 const CAN_HOVER = window.matchMedia('(hover: hover) and (pointer: fine)');
 
 export function initShowreels(section) {
+  section?.querySelectorAll('.showreel__img').forEach((img) => {
+    const done = () => img.classList.add('is-loaded');
+    if (img.complete && img.naturalWidth) done();
+    else {
+      img.addEventListener('load', () => (img.decode ? img.decode().catch(() => {}) : Promise.resolve()).then(done), { once: true });
+      img.addEventListener('error', done, { once: true });
+    }
+  });
   if (!section) return;
 
   const grid = section.querySelector('.showreels__grid');

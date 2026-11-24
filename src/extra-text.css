@@ -148,6 +148,13 @@
   }
 }
 
+@media (min-width: 1025px) and (hover: none) {
+  .extra-text__card {
+    aspect-ratio: auto;
+    min-height: min(86svh, 70vw);
+  }
+}
+
 @media (max-width: 720px) {
   .extra-text {
     padding: 0 8px 8px;
