@@ -323,15 +323,31 @@ h1 {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: #050005 url('/images/hero-background.jpg') center / cover no-repeat;
+  overflow: hidden;
+  background:
+    radial-gradient(85.72% 86.84% at 0% 0%, #c327a5 0%, #870f46 30%, #5a0c38 60%, rgba(90, 12, 56, 0) 88%),
+    radial-gradient(47.38% 89.08% at 100% 100%, #c10e67 0%, #860944 30%, #450727 60%, rgba(69, 7, 39, 0) 88%),
+    #29061d;
   pointer-events: none;
+}
+
+.hero__background::before {
+  content: '';
+  position: absolute;
+  left: 6.25%;
+  right: 4.34%;
+  top: 7.12%;
+  bottom: 6.03%;
+  background: #010101;
+  border-radius: 9.95vw;
+  filter: blur(3.5vw);
 }
 
 .hero__background::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27220%27 height=%27220%27%3E%3Cfilter id=%27n%27 color-interpolation-filters=%27sRGB%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%271.1%27 numOctaves=%271%27 stitchTiles=%27stitch%27/%3E%3CfeColorMatrix type=%27matrix%27 values=%270%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20100%200%200%200%20-50%27/%3E%3CfeComponentTransfer%3E%3CfeFuncA type=%27linear%27 slope=%270.06%27/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E") 0 0 / 220px 220px;
+  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27160%27 height=%27160%27%3E%3Cfilter id=%27n%27 color-interpolation-filters=%27sRGB%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%271.8%27 numOctaves=%271%27 stitchTiles=%27stitch%27/%3E%3CfeColorMatrix type=%27matrix%27 values=%270%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20100%200%200%200%20-50%27/%3E%3CfeComponentTransfer%3E%3CfeFuncA type=%27linear%27 slope=%270.14%27/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E") 0 0 / 160px 160px;
   pointer-events: none;
 }
 
@@ -479,9 +495,19 @@ h1 {
 
 @media (max-width: 720px) {
   .hero__background {
-    background-image: url('/images/hero-background-mobile-v2.jpg');
-    background-position: center;
-    background-size: cover;
+    background:
+      radial-gradient(538.5% 21.35% at 0% 0%, #931457 0%, #740f37 30%, #720d33 60%, rgba(114, 13, 51, 0) 88%),
+      radial-gradient(133.44% 125.4% at 100% 100%, #ba3179 0%, #1d1112 30%, #371d29 60%, rgba(55, 29, 41, 0) 88%),
+      #2c0c17;
+  }
+
+  .hero__background::before {
+    left: 0.31%;
+    right: -361.8%;
+    top: 5.37%;
+    bottom: 2.91%;
+    border-radius: 29.45vw;
+    filter: blur(6vw);
   }
 
   .hero {
