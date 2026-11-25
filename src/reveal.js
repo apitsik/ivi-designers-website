@@ -4,7 +4,7 @@ export function splitWords(el, startIndex = 0) {
     if (node.nodeType === Node.TEXT_NODE) {
       node.textContent.trim().split(/[ \t\n\r]+/).filter(Boolean).forEach((w) => tokens.push(w));
     } else if (node.nodeName === 'BR') {
-      tokens.push(null);
+      tokens.push({ br: node.className });
     } else {
       node.textContent.trim().split(/[ \t\n\r]+/).filter(Boolean).forEach((w) => tokens.push(w));
     }
@@ -13,8 +13,10 @@ export function splitWords(el, startIndex = 0) {
   el.textContent = '';
   let index = startIndex;
   tokens.forEach((token, i) => {
-    if (token === null) {
-      el.append(document.createElement('br'));
+    if (typeof token === 'object') {
+      const br = document.createElement('br');
+      if (token.br) br.className = token.br;
+      el.append(br);
       return;
     }
     const span = document.createElement('span');
