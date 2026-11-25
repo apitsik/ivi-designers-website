@@ -178,6 +178,22 @@ export function initHeroStickers(hero) {
     addSticker(e.clientX - rect.left, e.clientY - rect.top);
   });
 
+  const reel = document.querySelector('#showreels .showreels__panel') || document.querySelector('#showreels');
+  if (reel) {
+    let busy = false;
+    const check = () => {
+      busy = false;
+      if (peeling || !hero.classList.contains('hero--has-stickers')) return;
+      if (reel.getBoundingClientRect().top < window.innerHeight * 0.6) peelStickers();
+    };
+    window.addEventListener('scroll', () => {
+      if (!busy) {
+        busy = true;
+        requestAnimationFrame(check);
+      }
+    }, { passive: true });
+  }
+
   hint?.addEventListener('click', (e) => {
     e.preventDefault();
     peelStickers();
