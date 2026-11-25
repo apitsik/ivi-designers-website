@@ -418,3 +418,8 @@
     width: 70px;
   }
 }
+
+.grid__button--soon {
+  cursor: default;
+  pointer-events: none;
+}
