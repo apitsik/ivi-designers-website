@@ -323,24 +323,8 @@ h1 {
   position: absolute;
   inset: 0;
   z-index: 0;
-  overflow: hidden;
-  background:
-    radial-gradient(85.72% 86.84% at 0% 0%, #c327a5 0%, #870f46 30%, #5a0c38 60%, rgba(90, 12, 56, 0) 88%),
-    radial-gradient(47.38% 89.08% at 100% 100%, #c10e67 0%, #860944 30%, #450727 60%, rgba(69, 7, 39, 0) 88%),
-    #29061d;
+  background: #050005 url('/images/hero-background.jpg') center / cover no-repeat;
   pointer-events: none;
-}
-
-.hero__background::before {
-  content: '';
-  position: absolute;
-  left: 6.25%;
-  right: 4.34%;
-  top: 7.12%;
-  bottom: 6.03%;
-  background: #010101;
-  border-radius: 9.95vw;
-  filter: blur(3.5vw);
 }
 
 .hero__background::after {
@@ -495,19 +479,9 @@ h1 {
 
 @media (max-width: 720px) {
   .hero__background {
-    background:
-      radial-gradient(538.5% 21.35% at 0% 0%, #931457 0%, #740f37 30%, #720d33 60%, rgba(114, 13, 51, 0) 88%),
-      radial-gradient(133.44% 125.4% at 100% 100%, #ba3179 0%, #1d1112 30%, #371d29 60%, rgba(55, 29, 41, 0) 88%),
-      #2c0c17;
-  }
-
-  .hero__background::before {
-    left: 0.31%;
-    right: -361.8%;
-    top: 5.37%;
-    bottom: 2.91%;
-    border-radius: 29.45vw;
-    filter: blur(6vw);
+    background-image: url('/images/hero-background-mobile-v2.jpg');
+    background-position: center;
+    background-size: cover;
   }
 
   .hero {
