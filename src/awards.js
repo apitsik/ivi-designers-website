@@ -131,7 +131,7 @@ export function initAwards(section) {
   };
 
   const PIN = window.matchMedia('(hover: none) and (pointer: coarse)');
-  const PER_ITEM = 0.32;
+  const PER_ITEM = 0.16;
   const inner = section.querySelector('.awards__inner');
   let pinNudge = 0;
   let pinSettle = 0;

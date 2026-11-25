@@ -400,7 +400,7 @@
     overflow: hidden;
     font-size: 12px;
     line-height: 1.2;
-    text-transform: uppercase;
+    text-transform: none;
     white-space: nowrap;
   }
 
@@ -440,6 +440,7 @@
 @media (hover: none) and (pointer: coarse) {
   .awards.is-pinned {
     height: calc(100lvh + var(--extra, 0px));
+    margin-top: 0;
     padding: 0;
     overflow: visible;
   }
