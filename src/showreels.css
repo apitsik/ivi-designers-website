@@ -486,3 +486,7 @@ body.video-modal-open {
   width: 24px;
   height: 24px;
 }
+
+.showreel:has(.showreel__img.is-loaded) {
+  background: transparent;
+}
