@@ -3,13 +3,13 @@ import { observeReveal } from './reveal.js';
 export const AWARDS = [
   { name: 'G8', status: 'победа', image: 'images/awards/awards-image1.png', url: 'https://confluence.ivi.ru/pages/viewpage.action?pageId=516883985&spaceKey=DES' },
   { name: 'Медиабренд', status: 'золото', image: 'images/awards/awards-image2.png', url: 'https://t.me/mediabrandmoscow/3803' },
-  { name: 'Red dot', status: 'победа', image: 'images/awards/awards-image3.png' },
+  { name: 'Red dot', status: 'победа', image: 'images/awards/awards-image3.png', url: 'https://www.red-dot.org/project/good-no-matter-how-you-look-at-it-showreel-of-the-new-font-92869' },
   { name: 'D-Profile', status: 'победа', image: 'images/awards/awards-image4.png', url: 'https://dprofile.ru/case/127742/dizain-kollekcii-merca-dlia-ivi' },
   { name: 'Workspace Digital Award', status: 'золото', image: 'images/awards/awards-image5.png', url: 'https://workspace.ru/awards/cases/ivi-sans-display-novyy-firmennyy-shrift-onlayn-kinoteatra-ivi/' },
   { name: 'Среда', status: 'золото', image: 'images/awards/awards-image6.png', url: 'https://2024.festivalsreda.ru/works/innovacionnye-dizajnerskie-reshenija-v-reklame/5746/index.html' },
   { name: 'Indigo', status: 'золото', image: 'images/awards/awards-image7.png', url: 'https://www.indigoaward.com/winners/8421' },
   { name: 'Медиабренд', status: 'золото', image: 'images/awards/awards-image8.png', url: 'https://t.me/mediabrandmoscow/3554' },
-  { name: 'Red dot', status: 'победа', image: 'images/awards/awards-image9.png' },
+  { name: 'Red dot', status: 'победа', image: 'images/awards/awards-image9.png', url: 'https://www.red-dot.org/project/ivi-sans-base-how-ivis-signature-typeface-found-its-match-92149' },
   { name: 'Muse', status: 'золото', image: 'images/awards/awards-image10.png', url: 'https://museaward.com/winner-info.php?id=229054' },
   { name: 'G8', status: 'шорт-лист', image: 'images/awards/awards-image11.png', url: 'https://g8.art/ru/works/4962' },
 ];
