@@ -550,6 +550,36 @@
   background: #121212;
 }
 
+.team-modal__source {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(18, 18, 18, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--color-white);
+  opacity: 0.8;
+  transition: opacity 0.2s ease-out, background-color 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.team-modal__source svg {
+  width: 14px;
+  height: 14px;
+}
+
+.team-modal__source:is(:hover, :focus-visible) {
+  opacity: 1;
+  background: rgba(18, 18, 18, 0.85);
+  transform: scale(1.08);
+}
+
 .team-modal__nav {
   position: absolute;
   bottom: calc(var(--pad) / 2);
