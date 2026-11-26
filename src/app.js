@@ -52,3 +52,15 @@ initFooter(document.querySelector('.footer'));
 initVideoModal(document.querySelector('.video-modal:not(.article-modal)'), document.querySelectorAll('.showreel[data-vimeo]'));
 
 if (window.PRELOADER !== 'stroke') initPreloader(document.querySelector('.preloader'));
+
+const warmLazyImages = () => {
+  document.querySelectorAll('.showreel__img, .showreel-promo__img, .extra-text__icon').forEach((img) => {
+    if (img.complete) return;
+    const pre = new Image();
+    pre.src = img.currentSrc || img.src;
+    if (pre.decode) pre.decode().catch(() => {});
+  });
+};
+
+if ('requestIdleCallback' in window) requestIdleCallback(warmLazyImages, { timeout: 2000 });
+else setTimeout(warmLazyImages, 500);

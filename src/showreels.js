@@ -103,28 +103,28 @@ function initPreview(card) {
   video.addEventListener('error', () => video.remove());
   card.append(video);
 
-  let loaded = false;
-  const load = () => {
-    if (loaded) return;
-    loaded = true;
-    video.preload = 'auto';
-    video.src = new URL(card.dataset.preview, document.baseURI).href;
+  let loaded = null;
+  const load = (full) => {
+    if (loaded === 'full' || (loaded === 'metadata' && !full)) return;
+    if (!video.src) video.src = new URL(card.dataset.preview, document.baseURI).href;
+    video.preload = full ? 'auto' : 'metadata';
+    loaded = full ? 'full' : 'metadata';
     video.load();
   };
 
   const io = new IntersectionObserver(
     (entries) => {
       if (entries.some((e) => e.isIntersecting)) {
-        load();
+        load(false);
         io.disconnect();
       }
     },
-    { rootMargin: '600px 0px' }
+    { rootMargin: '150px 0px' }
   );
   io.observe(card);
 
   const start = () => {
-    load();
+    load(true);
     video.currentTime = 0;
     const p = video.play();
     if (p) p.then(() => video.classList.add('is-playing')).catch(() => {});
